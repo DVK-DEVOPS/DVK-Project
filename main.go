@@ -1,11 +1,14 @@
 package main
 
 import (
+	"html/template"
 	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
 )
+
+var tmpl = template.Must(template.ParseGlob("templates/*.html"))
 
 func main() {
 	r := mux.NewRouter()
@@ -16,5 +19,12 @@ func main() {
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Hello from Gorilla Mux"))
+	data := map[string]string{
+		"Title": "Home Page",
+		"Body":  "Hello from Gorilla Mux with HTML templates!",
+	}
+	err := tmpl.ExecuteTemplate(w, "index.html", data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
