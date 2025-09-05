@@ -7,7 +7,7 @@ The goal is to rewrite a legacy project using traditional DevOps tools and adher
 The requirements to run this project will be reflected in the [requirements.txt](path/to/requirements.txt) which will be authored later.
 
 ## The Legacy Project
-Peruse the documentation regarding running and installing the legacy project [here.](/legacy/src/README.md)
+Peruse the documentation regarding running and installing the legacy project [here.](documentation\legacy_codebase\README.md)
 
 
 **Below is the original readme file from the WhoKnows repository.**
