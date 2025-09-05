@@ -1,10 +1,17 @@
 # DVK-Project - What is it?
-The DVK Project is a mirror repository of Whoknows Variations for use during the 4th semester DevOps elective(2025) at EK(formerly KEA). 
+The DVK Project is a mirror repository of Whoknows Variations for use during the 4th semester DevOps elective(2025) at EK(formerly KEA). This readme file is tasked with providing an easy overview of the directories and files that the team believes to be important in order to understand the motivation of the team behind the rewrite.
 
 The goal is to rewrite a legacy project using traditional DevOps tools and adhering to DevOps principles.
 
-
 The requirements to run this project will be reflected in the [requirements.txt](path/to/requirements.txt) which will be authored later.
+
+
+## Notable Content
+[Overview of the documentation for this rewrite project](/documentation/)
+
+[Our Choices - Programming Language, Repo Structure & More](/documentation/our_choices.md)
+
+[Our Conventions](/documentation/our_conventions.md)
 
 ## The Legacy Project
 Peruse the documentation regarding running and installing the legacy project [here.](documentation\legacy_codebase\README.md)
