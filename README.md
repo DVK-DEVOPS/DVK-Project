@@ -13,6 +13,8 @@ The requirements to run this project will be reflected in the [requirements.txt]
 
 [Our Conventions](/documentation/our_conventions.md)
 
+[Security Issues With Legacy Project](/documentation/legacy_codebase/Legacy_Codebase_Problems.md)
+
 ## The Legacy Project
 Peruse the documentation regarding running and installing the legacy project [here.](documentation\legacy_codebase\README.md)
 
