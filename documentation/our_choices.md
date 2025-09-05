@@ -34,3 +34,5 @@ Go is highly suited for small scale systems such as the legacy system that the t
 `Simple & Portable`
 
 As has been repeatedly stated above the scale of the legacy project inevitably plays a role in going with an SQLite database. The team wanted *simplicity*, *portability* and *low overhead* which an SQLite database provides. SQLite provides fast performance and is a lightweight solution. Perfect for our project.
+
+# How we work with environment variables
