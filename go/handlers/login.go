@@ -7,7 +7,7 @@ import (
 
 var tmpl = template.Must(template.ParseGlob("go/templates/*.html"))
 
-func LoginHandler(w http.ResponseWriter, r *http.Request) {
+func ShowLogin(w http.ResponseWriter, r *http.Request) {
 	data := map[string]string{
 		"Title": "Login",
 		"Body":  "Hello from Gorilla Mux with HTML templates!",
