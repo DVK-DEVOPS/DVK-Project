@@ -1,11 +1,12 @@
 package main
 
 import (
-	handlers2 "DVK-Project/handlers"
-	"github.com/gorilla/mux"
+	"DVK-Project/handlers"
 	"html/template"
 	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 var tmpl = template.Must(template.ParseGlob("templates/*.html"))
@@ -13,8 +14,9 @@ var tmpl = template.Must(template.ParseGlob("templates/*.html"))
 func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/", homeHandler)
-	r.HandleFunc("/register", handlers2.RegistrationController{}.ShowRegistrationPage).Methods("GET")
-	r.HandleFunc("/api/register", handlers2.RegistrationController{}.Register).Methods("POST")
+	rc := &handlers.RegistrationController{}
+	r.HandleFunc("/register", rc.ShowRegistrationPage).Methods("GET")
+	r.HandleFunc("/api/register", rc.Register).Methods("POST")
 	log.Println("Server running on :8080")
 	log.Fatal(http.ListenAndServe(":8080", r))
 }

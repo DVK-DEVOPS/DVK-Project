@@ -9,7 +9,7 @@ type RegistrationController struct {
 }
 
 func (rc *RegistrationController) ShowRegistrationPage(w http.ResponseWriter, r *http.Request) {
-	tmpl, _ := template.ParseFiles("templates/registration.html")
+	tmpl, _ := template.ParseFiles("templates/register.html")
 	err := tmpl.Execute(w, nil)
 	if err != nil {
 		http.Error(w, "Template not found", http.StatusNotFound)
