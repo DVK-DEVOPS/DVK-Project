@@ -12,7 +12,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		"Title": "Login",
 		"Body":  "Hello from Gorilla Mux with HTML templates!",
 	}
-	err := tmpl.ExecuteTemplate(w, "index.html", data)
+	err := tmpl.ExecuteTemplate(w, "login.html", data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
