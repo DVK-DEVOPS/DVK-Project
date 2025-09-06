@@ -1,19 +1,15 @@
 package handlers
 
-import (
-	"html/template"
-	"net/http"
-)
+import "net/http"
 
-var tmpl = template.Must(template.ParseGlob("go/templates/*.html"))
-
-func LoginHandler(w http.ResponseWriter, r *http.Request) {
+func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	data := map[string]string{
-		"Title": "Login",
+		"Title": "Home Page",
 		"Body":  "Hello from Gorilla Mux with HTML templates!",
 	}
 	err := tmpl.ExecuteTemplate(w, "index.html", data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+	return
 }
