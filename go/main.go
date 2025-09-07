@@ -1,6 +1,7 @@
 package main
 
 import (
+	"DVK-Project/db"
 	"DVK-Project/handlers"
 	"html/template"
 	"log"
@@ -12,9 +13,11 @@ import (
 var tmpl = template.Must(template.ParseGlob("templates/*.html"))
 
 func main() {
+	database := db.Connect()
+	defer database.Close()
 	r := mux.NewRouter()
 	r.HandleFunc("/", homeHandler)
-	rc := &handlers.RegistrationController{}
+	rc := &handlers.RegistrationController{DB: database}
 	r.HandleFunc("/register", rc.ShowRegistrationPage).Methods("GET")
 	r.HandleFunc("/api/register", rc.Register).Methods("POST")
 	log.Println("Server running on :8080")

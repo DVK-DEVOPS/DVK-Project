@@ -1,3 +1,7 @@
 package db
 
-//future db connection
+import "database/sql"
+
+func Connect() *sql.DB {
+	return nil
+}

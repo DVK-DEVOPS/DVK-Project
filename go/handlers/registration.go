@@ -1,11 +1,13 @@
 package handlers
 
 import (
+	"database/sql"
 	"html/template"
 	"net/http"
 )
 
 type RegistrationController struct {
+	DB *sql.DB
 }
 
 func (rc *RegistrationController) ShowRegistrationPage(w http.ResponseWriter, r *http.Request) {
