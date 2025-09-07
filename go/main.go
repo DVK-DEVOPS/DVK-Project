@@ -14,10 +14,10 @@ var tmpl = template.Must(template.ParseGlob("templates/*.html"))
 
 func main() {
 	database := db.Connect()
-	defer database.Close()
+	userRepository := &db.UserRepository{DB: database}
 	r := mux.NewRouter()
 	r.HandleFunc("/", homeHandler)
-	rc := &handlers.RegistrationController{DB: database}
+	rc := &handlers.RegistrationController{UserRepository: userRepository}
 	r.HandleFunc("/register", rc.ShowRegistrationPage).Methods("GET")
 	r.HandleFunc("/api/register", rc.Register).Methods("POST")
 	log.Println("Server running on :8080")

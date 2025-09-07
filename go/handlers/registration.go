@@ -1,13 +1,13 @@
 package handlers
 
 import (
-	"database/sql"
+	"DVK-Project/db"
 	"html/template"
 	"net/http"
 )
 
 type RegistrationController struct {
-	DB *sql.DB
+	UserRepository *db.UserRepository
 }
 
 func (rc *RegistrationController) ShowRegistrationPage(w http.ResponseWriter, r *http.Request) {
