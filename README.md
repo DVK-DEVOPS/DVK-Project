@@ -1,8 +1,30 @@
-# Whoknows Variations
+# DVK-Project - What is it?
+The DVK Project is a mirror repository of Whoknows Variations for use during the 4th semester DevOps elective(2025) at EK(formerly KEA). This readme file is tasked with providing an easy overview of the directories and files that the team believes to be important in order to understand the motivation of the team behind the rewrite.
+
+The goal is to rewrite a legacy project using traditional DevOps tools and adhering to DevOps principles.
+
+The requirements to run this project will be reflected in the [requirements.txt](path/to/requirements.txt) which will be authored later.
+
+
+## Notable Content
+[Overview of the documentation for this rewrite project](/documentation/)
+
+[Our Choices - Programming Language, Repo Structure & More](/documentation/our_choices.md)
+
+[Our Conventions](/documentation/our_conventions.md)
+
+[Security Issues With Legacy Project](/documentation/legacy_codebase/Legacy_Codebase_Problems.md)
+
+## The Legacy Project
+Peruse the documentation regarding running and installing the legacy project [here.](documentation\legacy_codebase\README.md)
+
+
+**Below is the original readme file from the WhoKnows repository.**
+## Whoknows Variations - Repository ReadMe
 
 This is the Whoknows variations repository. It is not meant for production as it contains several security vulnerabilities and problematic parts on purpose. 
 
-## How to get started
+### How to get started
 
 Each branch is a tutorial in a different topic based on the same Flask application as in the `main` branch. 
 
@@ -18,7 +40,7 @@ One way to follow along is by:
 
 5. You can now push changes to your own repository. 
 
-## Pull requests
+### Pull requests
 
 If you have any suggestions or improvements to the tutorials, feel free to open a pull request.
 
