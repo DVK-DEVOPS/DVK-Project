@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"DVK-Project/db"
+	"DVK-Project/models"
+	"fmt"
 	"html/template"
 	"net/http"
 )
@@ -20,5 +22,22 @@ func (rc *RegistrationController) ShowRegistrationPage(w http.ResponseWriter, r 
 }
 
 func (rc *RegistrationController) Register(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Form parse error", http.StatusBadRequest)
+		return
+	}
 
+	user := models.User{
+		Username: r.FormValue("username"),
+		Email:    r.FormValue("email"),
+		Password: r.FormValue("password"),
+	}
+
+	id, err := rc.UserRepository.AddUser(user)
+	if err != nil {
+		http.Error(w, "Error adding user", http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Fprintf(w, "User created with id: %d", id)
 }
