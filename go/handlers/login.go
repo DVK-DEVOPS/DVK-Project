@@ -13,3 +13,7 @@ func ShowLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func Login(w http.ResponseWriter, r *http.Request) {
+
+}
