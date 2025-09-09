@@ -5,15 +5,11 @@ import (
 	"net/http"
 )
 
-var tmpl = template.Must(template.ParseGlob("go/templates/*.html"))
-
 func ShowLogin(w http.ResponseWriter, r *http.Request) {
-	data := map[string]string{
-		"Title": "Login",
-		"Body":  "Hello from Gorilla Mux with HTML templates!",
-	}
-	err := tmpl.ExecuteTemplate(w, "login.html", data)
+	tmpl, _ := template.ParseFiles("templates/login.html")
+	err := tmpl.Execute(w, nil)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Template not found", http.StatusNotFound)
+		return
 	}
 }

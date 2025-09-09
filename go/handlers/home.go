@@ -1,15 +1,15 @@
 package handlers
 
-import "net/http"
+import (
+	"html/template"
+	"net/http"
+)
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
-	data := map[string]string{
-		"Title": "Home Page",
-		"Body":  "Hello from Gorilla Mux with HTML templates!",
-	}
-	err := tmpl.ExecuteTemplate(w, "index.html", data)
+	tmpl, _ := template.ParseFiles("templates/register.html")
+	err := tmpl.Execute(w, nil)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Template not found", http.StatusNotFound)
+		return
 	}
-	return
 }

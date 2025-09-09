@@ -9,7 +9,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-var tmpl = template.Must(template.ParseGlob("go/templates/*.html"))
+var tmpl = template.Must(template.ParseGlob("templates/*.html"))
 
 func main() {
 	r := mux.NewRouter()
