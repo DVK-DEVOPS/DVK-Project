@@ -14,7 +14,7 @@
         {{if .Error}}
         <div class="error">{{.Error}}</div>
         {{end}}
-        <form method="post" action="/login" class="form">
+        <form method="post" action="/api/login" class="form">
             <label class="label">Email
                 <input class="input" type="email" name="email" required value="{{.Email}}">
             </label>

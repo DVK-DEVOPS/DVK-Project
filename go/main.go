@@ -1,6 +1,7 @@
 package main
 
 import (
+	"DVK-Project/db"
 	"DVK-Project/handlers"
 	"log"
 	"net/http"
@@ -9,11 +10,14 @@ import (
 )
 
 func main() {
+	if err := db.InitDB(); err != nil {
+		log.Fatal(err)
+	}
 	r := mux.NewRouter()
 	r.HandleFunc("/", handlers.HomeHandler)
 
-	r.HandleFunc("/login", handlers.ShowLogin)
-	r.HandleFunc("/api/login", handlers.Login)
+	r.HandleFunc("/login", handlers.ShowLogin).Methods("GET")
+	r.HandleFunc("/api/login", handlers.Login).Methods("POST")
 
 	rc := &handlers.RegistrationController{}
 	r.HandleFunc("/register", rc.ShowRegistrationPage).Methods("GET")
