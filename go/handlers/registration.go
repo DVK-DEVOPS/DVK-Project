@@ -33,6 +33,15 @@ func (rc *RegistrationController) Register(w http.ResponseWriter, r *http.Reques
 		Password: r.FormValue("password"),
 	}
 
+	exists, err := rc.UserRepository.CheckIfUserExists(user.Email)
+	if err != nil {
+		http.Error(w, "Database error", http.StatusInternalServerError)
+	}
+
+	if exists {
+		http.Error(w, "User with this email is already registered", http.StatusBadRequest)
+	}
+
 	id, err := rc.UserRepository.AddUser(user)
 	if err != nil {
 		http.Error(w, "Error adding user", http.StatusInternalServerError)
