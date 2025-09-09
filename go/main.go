@@ -2,19 +2,18 @@ package main
 
 import (
 	"DVK-Project/handlers"
-	"html/template"
 	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
 )
 
-var tmpl = template.Must(template.ParseGlob("templates/*.html"))
-
 func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/", handlers.HomeHandler)
+
 	r.HandleFunc("/login", handlers.ShowLogin)
+	r.HandleFunc("/api/login", handlers.Login)
 
 	rc := &handlers.RegistrationController{}
 	r.HandleFunc("/register", rc.ShowRegistrationPage).Methods("GET")
