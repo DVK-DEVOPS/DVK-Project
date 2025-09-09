@@ -8,12 +8,12 @@ import (
 )
 
 type Credentials struct {
-	Username string `json:"username"`
+	Username string `json:"email"`
 	Password string `json:"password"`
 }
 
 func ShowLogin(w http.ResponseWriter, r *http.Request) {
-	tmpl, _ := template.ParseFiles("templates/login.html")
+	tmpl, _ := template.ParseFiles("go/templates/login.html")
 	err := tmpl.Execute(w, nil)
 	if err != nil {
 		http.Error(w, "Template not found", http.StatusNotFound)
@@ -22,21 +22,25 @@ func ShowLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
-	var creds Credentials
-	if err := json.NewDecoder(r.Body).Decode(&creds); err != nil {
-		http.Error(w, "invalid request", http.StatusBadRequest)
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "invalid form data", http.StatusBadRequest)
 		return
 	}
 
-	ok, err := db.CheckCredentials(creds.Username, creds.Password)
+	email := r.FormValue("email")
+	password := r.FormValue("password")
+
+	ok, err := db.CheckCredentials(email, password)
 	if err != nil {
 		http.Error(w, "server error", http.StatusInternalServerError)
 		return
 	}
+
 	if !ok {
-		http.Error(w, "invalid username or password", http.StatusUnauthorized)
+		http.Error(w, "invalid credentials", http.StatusUnauthorized)
 		return
 	}
 
-	w.Write([]byte("login successful"))
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(map[string]string{"message": "login successful"})
 }
