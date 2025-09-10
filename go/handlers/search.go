@@ -22,6 +22,7 @@ func (sc *SearchController) ShowSearchResults(w http.ResponseWriter, r *http.Req
 	tmpl.Execute(w, results)
 }
 
+/*
 func (sc *SearchController) ShowSearchPage(w http.ResponseWriter, r *http.Request) {
 	tmpl, _ := template.ParseFiles("templates/index.html")
 	err := tmpl.Execute(w, nil)
@@ -29,3 +30,4 @@ func (sc *SearchController) ShowSearchPage(w http.ResponseWriter, r *http.Reques
 		http.Error(w, "Template not found", http.StatusNotFound)
 	}
 }
+*/
