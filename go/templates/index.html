@@ -5,5 +5,9 @@
 </head>
 <body>
 <h1>{{.Body}}</h1>
+<form action="/api/search" method="get">
+    <input type="text" name="query" placeholder="Search...">
+    <button type="submit">Search</button>
+</form>
 </body>
 </html>
