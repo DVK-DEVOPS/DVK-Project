@@ -25,7 +25,6 @@ func InitDB() error {
 
 func CheckCredentials(username, password string) (bool, error) {
 	var storedPassword string
-	storedPassword = password
 	err := db.QueryRow("SELECT password FROM users WHERE username = ?", username).Scan(&storedPassword)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
