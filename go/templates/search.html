@@ -1,8 +1,27 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>{{.Title}}</title>
+    <meta charset="UTF-8">
+    <title>Search Results</title>
 </head>
 <body>
+    <h1>Search Results</h1>
+    <form action="/api/search" method="get">
+    <input type="text" name="query" placeholder="Search...">
+    <button type="submit">Search</button>
+    </form>
+
+    {{if .}}
+        <ul>
+        {{range .}}
+            <li>
+                <strong>{{.Name}}</strong> - 
+                <a href="{{.Link}}" target="_blank">{{.Link}}</a>
+            </li>
+        {{end}}
+        </ul>
+    {{else}}
+        <p>No results found.</p>
+    {{end}}
 </body>
 </html>
