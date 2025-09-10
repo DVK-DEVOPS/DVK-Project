@@ -3,6 +3,7 @@ package db
 import (
 	"DVK-Project/models"
 	"database/sql"
+	"errors"
 )
 
 type UserRepository struct {
@@ -13,8 +14,11 @@ func (r *UserRepository) CheckIfUserExists(email string) (bool, error) {
 	var count int
 	query := "SELECT COUNT(*) FROM users WHERE email = ?"
 	err := r.DB.QueryRow(query, email).Scan(&count)
+	if err != nil {
+		return false, err
+	}
 
-	return false, err
+	return count > 0, nil
 }
 
 func (r *UserRepository) AddUser(user models.User) (int, error) {
@@ -28,4 +32,16 @@ func (r *UserRepository) AddUser(user models.User) (int, error) {
 		return 0, err
 	}
 	return int(id), nil
+}
+
+func (r *UserRepository) CheckCredentials(username, password string) (bool, error) {
+	var storedPassword string
+	err := r.DB.QueryRow("SELECT password FROM users WHERE username = ?", username).Scan(&storedPassword)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return false, nil
+		}
+		return false, err
+	}
+	return storedPassword == password, nil
 }
