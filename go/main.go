@@ -22,6 +22,10 @@ func main() {
 	rc := &handlers.RegistrationController{}
 	r.HandleFunc("/register", rc.ShowRegistrationPage).Methods("GET")
 	r.HandleFunc("/api/register", rc.Register).Methods("POST")
+
 	log.Println("Server running on :8080")
 	log.Fatal(http.ListenAndServe(":8080", r))
+
+	sc := &handlers.SearchController{}
+	r.HandleFunc("/api/search", sc.ShowSearchResults).Methods("GET")
 }
