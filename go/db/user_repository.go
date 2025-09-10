@@ -10,7 +10,11 @@ type UserRepository struct {
 }
 
 func (r *UserRepository) CheckIfUserExists(email string) (bool, error) {
-	return false, nil
+	var count int
+	query := "SELECT COUNT(*) FROM users WHERE email = ?"
+	err := r.DB.QueryRow(query, email).Scan(&count)
+
+	return false, err
 }
 
 func (r *UserRepository) AddUser(user models.User) (int, error) {
