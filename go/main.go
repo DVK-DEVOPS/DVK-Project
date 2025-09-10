@@ -14,13 +14,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	authRepository := db.NewAuthRepository(database)
 	userRepository := db.NewUserRepository(database)
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", handlers.HomeHandler)
 
-	lh := &handlers.LoginHandler{AuthRepo: authRepository}
+	lh := &handlers.LoginHandler{UserRepository: userRepository}
 	r.HandleFunc("/login", lh.ShowLogin).Methods("GET")
 	r.HandleFunc("/api/login", lh.Login).Methods("POST")
 

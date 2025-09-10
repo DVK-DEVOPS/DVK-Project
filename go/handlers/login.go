@@ -7,7 +7,7 @@ import (
 )
 
 type LoginHandler struct {
-	AuthRepo *db.AuthRepository
+	UserRepository *db.UserRepository
 }
 
 func (lh *LoginHandler) ShowLogin(w http.ResponseWriter, r *http.Request) {
@@ -31,7 +31,7 @@ func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("email")
 	password := r.FormValue("password")
 
-	ok, err := lh.AuthRepo.CheckCredentialsByEmail(email, password)
+	ok, err := lh.UserRepository.CheckCredentialsByEmail(email, password)
 	if err != nil {
 		http.Error(w, "server error: "+err.Error(), http.StatusInternalServerError)
 		return
