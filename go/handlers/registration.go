@@ -30,7 +30,7 @@ func (rc *RegistrationController) Register(w http.ResponseWriter, r *http.Reques
 	user := models.User{
 		Username: r.FormValue("username"),
 		Email:    r.FormValue("email"),
-		Password: r.FormValue("password"),
+		Password: db.HashPassword(r.FormValue("password")),
 	}
 
 	exists, err := rc.UserRepository.CheckIfUserExists(user.Email)
