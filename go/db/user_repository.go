@@ -9,6 +9,10 @@ type UserRepository struct {
 	DB *sql.DB
 }
 
+func NewUserRepository(db *sql.DB) *UserRepository {
+	return &UserRepository{DB: db}
+}
+
 func (r *UserRepository) CheckIfUserExists(email string) (bool, error) {
 	var count int
 	query := "SELECT COUNT(*) FROM users WHERE email = ?"

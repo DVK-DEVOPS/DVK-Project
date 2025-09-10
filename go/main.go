@@ -10,16 +10,21 @@ import (
 )
 
 func main() {
-	if err := db.InitDB(); err != nil {
+	database, err := db.InitDB()
+	if err != nil {
 		log.Fatal(err)
 	}
+	authRepository := db.NewAuthRepository(database)
+	userRepository := db.NewUserRepository(database)
+
 	r := mux.NewRouter()
 	r.HandleFunc("/", handlers.HomeHandler)
 
-	r.HandleFunc("/login", handlers.ShowLogin).Methods("GET")
-	r.HandleFunc("/api/login", handlers.Login).Methods("POST")
+	lh := &handlers.LoginHandler{AuthRepo: authRepository}
+	r.HandleFunc("/login", lh.ShowLogin).Methods("GET")
+	r.HandleFunc("/api/login", lh.Login).Methods("POST")
 
-	rc := &handlers.RegistrationController{}
+	rc := &handlers.RegistrationController{UserRepository: userRepository}
 	r.HandleFunc("/register", rc.ShowRegistrationPage).Methods("GET")
 	r.HandleFunc("/api/register", rc.Register).Methods("POST")
 	log.Println("Server running on :8080")
