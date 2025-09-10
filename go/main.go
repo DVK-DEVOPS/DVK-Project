@@ -13,8 +13,6 @@ func main() {
 	if err := db.InitDB(); err != nil {
 		log.Fatal(err)
 	}
-	database := db.Connect()
-	userRepository := &db.UserRepository{DB: database}
 	r := mux.NewRouter()
 	r.HandleFunc("/", handlers.HomeHandler)
 
