@@ -8,6 +8,7 @@ venv
 DotEnv
 # C extensions
 *.so
+database.db
 
 # Distribution / packaging
 .Python
