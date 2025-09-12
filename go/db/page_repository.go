@@ -18,7 +18,6 @@ func (r *PageRepository) FindSearchResults(searchStr string) ([]Result, error) {
 		return nil, nil
 	}
 
-	// Use Query, not QueryRow
 	rows, err := r.DB.Query("SELECT Title, Url, Content, Language, CreatedAt, UpdatedAt FROM pages WHERE LOWER(Title) LIKE LOWER(?)", "%"+searchStr+"%")
 	if err != nil {
 		return nil, err
@@ -34,7 +33,6 @@ func (r *PageRepository) FindSearchResults(searchStr string) ([]Result, error) {
 		results = append(results, res)
 	}
 
-	// Check for iteration errors
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
