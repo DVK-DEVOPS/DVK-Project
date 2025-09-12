@@ -15,6 +15,7 @@ func main() {
 		log.Fatal(err)
 	}
 	userRepository := db.NewUserRepository(database)
+	pageRepository := db.NewPageRepository(database)
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", handlers.HomeHandler)
@@ -27,7 +28,7 @@ func main() {
 	r.HandleFunc("/register", rc.ShowRegistrationPage).Methods("GET")
 	r.HandleFunc("/api/register", rc.Register).Methods("POST")
 
-	sc := &handlers.SearchController{}
+	sc := &handlers.SearchController{PageRepository: pageRepository}
 	//r.HandleFunc("/search", sc.ShowSearchPage).Methods("GET")
 	r.HandleFunc("/api/search", sc.ShowSearchResults).Methods("GET")
 

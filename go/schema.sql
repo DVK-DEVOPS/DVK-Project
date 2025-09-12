@@ -15,7 +15,8 @@ INSERT INTO users (username, email, password)
 CREATE TABLE IF NOT EXISTS pages (
     title TEXT PRIMARY KEY UNIQUE,
     url TEXT NOT NULL UNIQUE,
+    content TEXT NOT NULL,
     language TEXT NOT NULL CHECK(language IN ('en', 'da')) DEFAULT 'en', -- How you define ENUM type in SQLite
-    last_updated TIMESTAMP,
-    content TEXT NOT NULL
+    createdAt DATETIME NOT NULL,
+    updatedAt DATETIME NOT NULL
 );

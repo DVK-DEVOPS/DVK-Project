@@ -13,7 +13,7 @@ func InitDB() (*sql.DB, error) {
 		return nil, err
 	}
 
-	sql, err := os.ReadFile("./go/schema.sql")
+	sql, err := os.ReadFile("C:/Users/danie/VS Code Projects/DVK-Project/go/schema.sql") //C:\Users\danie\VS Code Projects\DVK-Project\go\schema.sql
 	if err != nil {
 		return nil, err
 	}
@@ -24,32 +24,4 @@ func InitDB() (*sql.DB, error) {
 	}
 
 	return db, nil
-}
-
-func FindSearchResults(searchStr string) ([]Result, error) {
-	if searchStr == "" {
-		return nil, nil
-	}
-
-	rows, err := db.Query("SELECT id, name, link FROM results WHERE name LIKE ?", "%"+searchStr+"%")
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var results []Result
-	for rows.Next() {
-		var r Result
-		if err := rows.Scan(&r.ID, &r.Name, &r.Link); err != nil {
-			return nil, err
-		}
-		results = append(results, r)
-	}
-	return results, nil
-}
-
-type Result struct {
-	ID   int
-	Name string
-	Link string
 }

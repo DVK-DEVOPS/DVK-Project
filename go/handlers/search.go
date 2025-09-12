@@ -7,12 +7,13 @@ import (
 )
 
 type SearchController struct {
+	PageRepository *db.PageRepository
 }
 
 func (sc *SearchController) ShowSearchResults(w http.ResponseWriter, r *http.Request) {
 	searchStr := r.FormValue("query")
 
-	results, err := db.FindSearchResults(searchStr)
+	results, err := sc.PageRepository.FindSearchResults(searchStr)
 	if err != nil {
 		http.Error(w, "Database error: "+err.Error(), http.StatusInternalServerError)
 		return
