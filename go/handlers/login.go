@@ -6,21 +6,23 @@ import (
 	"net/http"
 )
 
-type Credentials struct {
-	Username string `json:"email"`
-	Password string `json:"password"`
+type LoginHandler struct {
+	UserRepository *db.UserRepository
 }
 
-func ShowLogin(w http.ResponseWriter, r *http.Request) {
-	tmpl, _ := template.ParseFiles("go/templates/login.html")
-	err := tmpl.Execute(w, nil)
+func (lh *LoginHandler) ShowLogin(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := template.ParseFiles("go/templates/login.html")
 	if err != nil {
-		http.Error(w, "Template not found", http.StatusNotFound)
+		http.Error(w, "Template error: "+err.Error(), http.StatusInternalServerError)
 		return
+	}
+	err = tmpl.Execute(w, nil)
+	if err != nil {
+		http.Error(w, "Template execution error: "+err.Error(), http.StatusInternalServerError)
 	}
 }
 
-func Login(w http.ResponseWriter, r *http.Request) {
+func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		http.Error(w, "invalid form data", http.StatusBadRequest)
 		return
@@ -29,9 +31,9 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("email")
 	password := r.FormValue("password")
 
-	ok, err := db.CheckCredentials(email, password)
+	ok, err := lh.UserRepository.CheckCredentialsByEmail(email, password)
 	if err != nil {
-		http.Error(w, "server error", http.StatusInternalServerError)
+		http.Error(w, "server error: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 

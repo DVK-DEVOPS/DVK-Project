@@ -13,7 +13,7 @@ type RegistrationController struct {
 }
 
 func (rc *RegistrationController) ShowRegistrationPage(w http.ResponseWriter, r *http.Request) {
-	tmpl, _ := template.ParseFiles("templates/register.html")
+	tmpl, _ := template.ParseFiles("go/templates/register.html")
 	err := tmpl.Execute(w, nil)
 	if err != nil {
 		http.Error(w, "Template not found", http.StatusNotFound)
@@ -27,10 +27,16 @@ func (rc *RegistrationController) Register(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	hashedPassword, err := db.HashPassword(r.FormValue("password"))
+	if err != nil {
+		http.Error(w, "Server error", http.StatusInternalServerError)
+		return
+	}
+
 	user := models.User{
 		Username: r.FormValue("username"),
 		Email:    r.FormValue("email"),
-		Password: r.FormValue("password"),
+		Password: hashedPassword,
 	}
 
 	exists, err := rc.UserRepository.CheckIfUserExists(user.Email)

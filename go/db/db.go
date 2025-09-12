@@ -2,43 +2,28 @@ package db
 
 import (
 	"database/sql"
-	"errors"
+	"os"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var db *sql.DB
-
-func InitDB() error {
-	var err error
-	db, err = sql.Open("sqlite3", "./DVK-project.db")
+func InitDB() (*sql.DB, error) {
+	db, err := sql.Open("sqlite3", "./database.db")
 	if err != nil {
-		return err
+		return nil, err
 	}
-	_, err = db.Exec(`
-	CREATE TABLE IF NOT EXISTS users (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		username TEXT UNIQUE,
-		password TEXT
-	); 
-	CREATE TABLE IF NOT EXISTS results (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		name TEXT, 
-		link TEXT)
-		`)
-	return err
-}
 
-func CheckCredentials(username, password string) (bool, error) {
-	var storedPassword string
-	err := db.QueryRow("SELECT password FROM users WHERE username = ?", username).Scan(&storedPassword)
+	sql, err := os.ReadFile("./go/schema.sql")
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return false, nil
-		}
-		return false, err
+		return nil, err
 	}
-	return storedPassword == password, nil
+
+	_, err = db.Exec(string(sql))
+	if err != nil {
+		return nil, err
+	}
+
+	return db, nil
 }
 
 func FindSearchResults(searchStr string) ([]Result, error) {
