@@ -31,7 +31,6 @@ func (r *PageRepository) FindSearchResults(searchStr string) ([]Result, error) {
 		if err := rows.Scan(&res.Title, &res.Url, &res.Content, &res.Language, &res.CreatedAt, &res.UpdatedAt); err != nil {
 			return nil, err
 		}
-		println(results)
 		results = append(results, res)
 	}
 
