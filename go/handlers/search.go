@@ -24,6 +24,17 @@ func (sc *SearchController) ShowSearchResults(w http.ResponseWriter, r *http.Req
 	tmpl.Execute(w, results)
 }
 
+// SearchAPI godoc
+// @Summary      Search pages
+// @Description  Search pages by query string
+// @Tags         search
+// @Accept       json
+// @Produce      json
+// @Param        query   query     string  true  "Search query"
+// @Success      200     {array}   Result
+// @Failure      400     {object}  map[string]string "Bad Request"
+// @Failure      500     {object}  map[string]string "Internal Server Error"
+// @Router       /search [get]
 func (sc *SearchController) SearchAPI(w http.ResponseWriter, req *http.Request) {
 	searchStr := req.URL.Query().Get("query")
 
