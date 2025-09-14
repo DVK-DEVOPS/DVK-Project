@@ -4,6 +4,7 @@ import (
 	"DVK-Project/db"
 	"DVK-Project/models"
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"net/http"
 )
@@ -13,7 +14,7 @@ type RegistrationController struct {
 }
 
 func (rc *RegistrationController) ShowRegistrationPage(w http.ResponseWriter, r *http.Request) {
-	tmpl, _ := template.ParseFiles("go/templates/register.html")
+	tmpl, _ := template.ParseFiles("templates/register.html")
 	err := tmpl.Execute(w, nil)
 	if err != nil {
 		http.Error(w, "Template not found", http.StatusNotFound)
@@ -30,7 +31,7 @@ func (rc *RegistrationController) ShowRegistrationPage(w http.ResponseWriter, r 
 // @Param email formData string true "Email"
 // @Param password formData string true "Password"
 // @Success 200 {object} models.AuthResponse "Successful registration"
-// @Failure 422 {object} models.HttpValidationError "Validation error"
+// @Failure 422 {object} models.HTTPValidationError "Validation error"
 // @Router /api/register [post]
 func (rc *RegistrationController) Register(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -38,7 +39,13 @@ func (rc *RegistrationController) Register(w http.ResponseWriter, r *http.Reques
 	if err := r.ParseForm(); err != nil {
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		json.NewEncoder(w).Encode(models.HTTPValidationError{
-			Message: "Form parse error",
+			Detail: []models.ValidationErrorDetail{
+				{
+					Loc:  []interface{}{"body", "form"},
+					Msg:  "Form parse error",
+					Type: "parse_error",
+				},
+			},
 		})
 		return
 	}
@@ -50,7 +57,13 @@ func (rc *RegistrationController) Register(w http.ResponseWriter, r *http.Reques
 	if username == "" || email == "" || password == "" {
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		json.NewEncoder(w).Encode(models.HTTPValidationError{
-			Message: "All fields are required",
+			Detail: []models.ValidationErrorDetail{
+				{
+					Loc:  []interface{}{"body", "fields"},
+					Msg:  "All fields are required",
+					Type: "validation_error",
+				},
+			},
 		})
 		return
 	}
@@ -67,14 +80,25 @@ func (rc *RegistrationController) Register(w http.ResponseWriter, r *http.Reques
 	if err != nil {
 		http.Error(w, "Database error", http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(models.HTTPValidationError{
-			Message: "Database error",
+			Detail: []models.ValidationErrorDetail{
+				{
+					Loc:  []interface{}{"db"},
+					Msg:  "Database error",
+					Type: "internal_error"},
+			},
 		})
 	}
 
 	if exists {
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		json.NewEncoder(w).Encode(models.HTTPValidationError{
-			Message: "User already exists",
+			Detail: []models.ValidationErrorDetail{
+				{
+					Loc:  []interface{}{"body", "email"},
+					Msg:  "User with this email already exists",
+					Type: "validation_error",
+				},
+			},
 		})
 	}
 
@@ -82,15 +106,20 @@ func (rc *RegistrationController) Register(w http.ResponseWriter, r *http.Reques
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(models.HTTPValidationError{
-			Message: "Error adding user",
+			Detail: []models.ValidationErrorDetail{
+				{
+					Loc:  []interface{}{"db"},
+					Msg:  "Error adding user",
+					Type: "internal_error"},
+			},
 		})
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(models.AuthResponse{
-		Message: "User created successfully",
-		ID:      id,
+		StatusCode: http.StatusOK,
+		Message:    fmt.Sprintf("User created with ID %d", id),
 	})
 
 }
