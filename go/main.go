@@ -29,8 +29,8 @@ func main() {
 	r.HandleFunc("/api/register", rc.Register).Methods("POST")
 
 	sc := &handlers.SearchController{PageRepository: pageRepository}
-	//r.HandleFunc("/search", sc.ShowSearchPage).Methods("GET")
-	r.HandleFunc("/api/search", sc.ShowSearchResults).Methods("GET")
+	r.HandleFunc("/search", sc.ShowSearchResults).Methods("GET")
+	r.HandleFunc("/api/search", sc.SearchAPI).Methods("GET") //returns json
 
 	log.Println("Server running on :8080")
 	log.Fatal(http.ListenAndServe(":8080", r))
