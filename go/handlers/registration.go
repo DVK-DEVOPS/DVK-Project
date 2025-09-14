@@ -3,7 +3,7 @@ package handlers
 import (
 	"DVK-Project/db"
 	"DVK-Project/models"
-	"fmt"
+	"encoding/json"
 	"html/template"
 	"net/http"
 )
@@ -32,19 +32,32 @@ func (rc *RegistrationController) ShowRegistrationPage(w http.ResponseWriter, r 
 // @Router /api/register [post]
 func (rc *RegistrationController) Register(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		http.Error(w, "Form parse error", http.StatusBadRequest)
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		err := json.NewEncoder(w).Encode(map[string]string{
+			"message": "Form parse error",
+		})
+		if err != nil {
+			return
+		}
 		return
 	}
 
-	hashedPassword, err := db.HashPassword(r.FormValue("password"))
-	if err != nil {
-		http.Error(w, "Server error", http.StatusInternalServerError)
+	username := r.FormValue("username")
+	email := r.FormValue("email")
+	password := r.FormValue("password")
+	if username == "" || email == "" || password == "" {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		json.NewEncoder(w).Encode(map[string]string{
+			"message": "All fields are required",
+		})
 		return
 	}
+
+	hashedPassword, err := db.HashPassword(password)
 
 	user := models.User{
-		Username: r.FormValue("username"),
-		Email:    r.FormValue("email"),
+		Username: username,
+		Email:    email,
 		Password: hashedPassword,
 	}
 
@@ -54,7 +67,7 @@ func (rc *RegistrationController) Register(w http.ResponseWriter, r *http.Reques
 	}
 
 	if exists {
-		http.Error(w, "User with this email is already registered", http.StatusBadRequest)
+		http.Error(w, "User with this email is already registered", http.StatusUnprocessableEntity)
 	}
 
 	id, err := rc.UserRepository.AddUser(user)
@@ -63,5 +76,11 @@ func (rc *RegistrationController) Register(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	fmt.Fprintf(w, "User created with id: %d", id)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"message": "User created successfully",
+		"id":      id,
+	})
+
 }
