@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search Results</title>
+</head>
+<body>
+    <h1>Search Results</h1>
+    <a href="/" style="
+    padding: 6px 12px;
+    font-size: 14px;
+    font-family: Arial, sans-serif;
+    color: #000;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+">
+    Go Home
+</a>
+    <form action="/search" method="get">
+    <input type="text" name="query" placeholder="Search...">
+    <button type="submit">Search</button>
+    </form>
+
+    {{if .}}
+        <ul>
+        {{range .}}
+            <li>
+                <strong>{{.Title}}</strong> - 
+                <a href="{{.Url}}" target="_blank">{{.Url}}</a>
+            </li>
+        {{end}}
+        </ul>
+    {{else}}
+        <p>No results found.</p>
+    {{end}}
+</body>
+</html>

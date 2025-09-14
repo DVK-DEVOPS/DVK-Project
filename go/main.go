@@ -15,6 +15,7 @@ func main() {
 		log.Fatal(err)
 	}
 	userRepository := db.NewUserRepository(database)
+	pageRepository := db.NewPageRepository(database)
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", handlers.HomeHandler)
@@ -26,6 +27,11 @@ func main() {
 	rc := &handlers.RegistrationController{UserRepository: userRepository}
 	r.HandleFunc("/register", rc.ShowRegistrationPage).Methods("GET")
 	r.HandleFunc("/api/register", rc.Register).Methods("POST")
+
+	sc := &handlers.SearchController{PageRepository: pageRepository}
+	r.HandleFunc("/search", sc.ShowSearchResults).Methods("GET")
+	r.HandleFunc("/api/search", sc.SearchAPI).Methods("GET") //returns json
+
 	log.Println("Server running on :8080")
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
