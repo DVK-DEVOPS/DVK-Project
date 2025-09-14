@@ -31,12 +31,12 @@ func (sc *SearchController) ShowSearchResults(w http.ResponseWriter, r *http.Req
 // @Accept       json
 // @Produce      json
 // @Param        query   query     string  true  "Search query"
-// @Success      200     {array}   Result
+// @Success 200 {object} map[string][]Result
 // @Failure      400     {object}  map[string]string "Bad Request"
 // @Failure      500     {object}  map[string]string "Internal Server Error"
 // @Router       /search [get]
 func (sc *SearchController) SearchAPI(w http.ResponseWriter, req *http.Request) {
-	searchStr := req.URL.Query().Get("query")
+	searchStr := req.URL.Query().Get("q")
 
 	results, err := sc.PageRepository.FindSearchResults(searchStr)
 	if err != nil {
@@ -44,8 +44,12 @@ func (sc *SearchController) SearchAPI(w http.ResponseWriter, req *http.Request) 
 		return
 	}
 
+	response := map[string]interface{}{
+		"data": results,
+	}
+
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(results); err != nil {
+	if err := json.NewEncoder(w).Encode(response); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
