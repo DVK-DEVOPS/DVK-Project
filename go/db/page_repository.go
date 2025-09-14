@@ -42,7 +42,6 @@ func (r *PageRepository) FindSearchResults(searchStr string) ([]Result, error) {
 }
 
 type Result struct {
-	ID        int
 	Title     string
 	Url       string
 	Content   string
