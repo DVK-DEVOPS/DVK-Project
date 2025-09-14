@@ -26,9 +26,9 @@ func (rc *RegistrationController) ShowRegistrationPage(w http.ResponseWriter, r 
 // @Tags users
 // @Accept json
 // @Produce json
-// @Param user body models.user try "User registration info"
+// @Param user body models.User true "User registration info"
 // @Success 200 {string} string "User created with ID"
-// @Failure 422 {object} Validation error
+// @Failure 422 {string} string "Validation error"
 // @Router /api/register [post]
 func (rc *RegistrationController) Register(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
