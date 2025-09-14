@@ -13,7 +13,7 @@ func InitDB() (*sql.DB, error) {
 		return nil, err
 	}
 
-	sql, err := os.ReadFile("C:/Users/danie/VS Code Projects/DVK-Project/go/schema.sql") //C:\Users\danie\VS Code Projects\DVK-Project\go\schema.sql
+	sql, err := os.ReadFile("./schema.sql") //C:\Users\danie\VS Code Projects\DVK-Project\go\schema.sql
 	if err != nil {
 		return nil, err
 	}
