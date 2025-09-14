@@ -25,7 +25,7 @@ func (sc *SearchController) ShowSearchResults(w http.ResponseWriter, r *http.Req
 }
 
 func (sc *SearchController) SearchAPI(w http.ResponseWriter, req *http.Request) {
-	searchStr := req.URL.Query().Get("q")
+	searchStr := req.URL.Query().Get("query")
 
 	results, err := sc.PageRepository.FindSearchResults(searchStr)
 	if err != nil {

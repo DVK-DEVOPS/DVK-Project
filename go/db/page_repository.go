@@ -13,6 +13,7 @@ func NewPageRepository(db *sql.DB) *PageRepository {
 	return &PageRepository{DB: db}
 }
 
+// For page templating
 func (r *PageRepository) FindSearchResults(searchStr string) ([]Result, error) {
 	if searchStr == "" {
 		return nil, nil
