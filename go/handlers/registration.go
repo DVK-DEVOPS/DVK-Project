@@ -21,12 +21,14 @@ func (rc *RegistrationController) ShowRegistrationPage(w http.ResponseWriter, r 
 	}
 }
 
-// @Summary Add new user
+// @Summary Register new user
 // @Description Create new user with the parameters user fills in the registration form.
 // @Tags users
-// @Accept json
-// @Produce json
-// @Param user body models.User true "User registration info"
+// @Accept application/x-www-form-urlencoded
+// @Produce application/json
+// @Param username formData string true "Username"
+// @Param email formData string true "Email"
+// @Param password formData string true "Password"
 // @Success 200 {string} string "User created with ID"
 // @Failure 422 {string} string "Validation error"
 // @Router /api/register [post]
