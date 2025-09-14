@@ -1,10 +1,16 @@
 package models
 
 type AuthResponse struct {
-	Message string `json:"message"`
-	ID      int    `json:"id"`
+	StatusCode int    `json:"statusCode"`
+	Message    string `json:"message"`
 }
 
 type HTTPValidationError struct {
-	Message string `json:"message"`
+	Detail []ValidationErrorDetail `json:"detail"`
+}
+
+type ValidationErrorDetail struct {
+	Loc  []interface{} `json:"loc"`
+	Msg  string        `json:"msg"`
+	Type string        `json:"type"`
 }
