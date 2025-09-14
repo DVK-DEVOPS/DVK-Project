@@ -33,24 +33,24 @@ func (rc *RegistrationController) ShowRegistrationPage(w http.ResponseWriter, r 
 // @Failure 422 {object} models.HttpValidationError "Validation error"
 // @Router /api/register [post]
 func (rc *RegistrationController) Register(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
 	if err := r.ParseForm(); err != nil {
 		w.WriteHeader(http.StatusUnprocessableEntity)
-		err := json.NewEncoder(w).Encode(map[string]string{
-			"message": "Form parse error",
+		json.NewEncoder(w).Encode(models.HTTPValidationError{
+			Message: "Form parse error",
 		})
-		if err != nil {
-			return
-		}
 		return
 	}
 
 	username := r.FormValue("username")
 	email := r.FormValue("email")
 	password := r.FormValue("password")
+
 	if username == "" || email == "" || password == "" {
 		w.WriteHeader(http.StatusUnprocessableEntity)
-		json.NewEncoder(w).Encode(map[string]string{
-			"message": "All fields are required",
+		json.NewEncoder(w).Encode(models.HTTPValidationError{
+			Message: "All fields are required",
 		})
 		return
 	}
@@ -66,23 +66,31 @@ func (rc *RegistrationController) Register(w http.ResponseWriter, r *http.Reques
 	exists, err := rc.UserRepository.CheckIfUserExists(user.Email)
 	if err != nil {
 		http.Error(w, "Database error", http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(models.HTTPValidationError{
+			Message: "Database error",
+		})
 	}
 
 	if exists {
-		http.Error(w, "User with this email is already registered", http.StatusUnprocessableEntity)
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		json.NewEncoder(w).Encode(models.HTTPValidationError{
+			Message: "User already exists",
+		})
 	}
 
 	id, err := rc.UserRepository.AddUser(user)
 	if err != nil {
-		http.Error(w, "Error adding user", http.StatusInternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(models.HTTPValidationError{
+			Message: "Error adding user",
+		})
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"message": "User created successfully",
-		"id":      id,
+	json.NewEncoder(w).Encode(models.AuthResponse{
+		Message: "User created successfully",
+		ID:      id,
 	})
 
 }
