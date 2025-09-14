@@ -12,9 +12,10 @@ type SearchController struct {
 }
 
 func (sc *SearchController) ShowSearchResults(w http.ResponseWriter, r *http.Request) {
-	searchStr := r.FormValue("query")
+	searchStr := r.FormValue("q")
+	language := "en" //TODO: Add dropdown menu or selection to searchform
 
-	results, err := sc.PageRepository.FindSearchResults(searchStr)
+	results, err := sc.PageRepository.FindSearchResults(searchStr, language)
 	if err != nil {
 		http.Error(w, "Database error: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -37,8 +38,23 @@ func (sc *SearchController) ShowSearchResults(w http.ResponseWriter, r *http.Req
 // @Router       /search [get]
 func (sc *SearchController) SearchAPI(w http.ResponseWriter, req *http.Request) {
 	searchStr := req.URL.Query().Get("q")
+	language := req.URL.Query().Get("language")
 
-	results, err := sc.PageRepository.FindSearchResults(searchStr)
+	if searchStr == "" {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnprocessableEntity)
+
+		msg := "query parameter is required"
+		validationErr := RequestValidationError{
+			StatusCode: http.StatusUnprocessableEntity,
+			Message:    &msg,
+			Detail:     nil,
+		}
+		_ = json.NewEncoder(w).Encode(validationErr)
+		return
+	}
+
+	results, err := sc.PageRepository.FindSearchResults(searchStr, language)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -52,4 +68,10 @@ func (sc *SearchController) SearchAPI(w http.ResponseWriter, req *http.Request) 
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+}
+
+type RequestValidationError struct {
+	StatusCode int         `json:"statusCode"`
+	Message    *string     `json:"message,omitempty"`
+	Detail     interface{} `json:"detail,omitempty"` // can be string or null
 }

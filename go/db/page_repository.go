@@ -14,12 +14,19 @@ func NewPageRepository(db *sql.DB) *PageRepository {
 }
 
 // For page templating
-func (r *PageRepository) FindSearchResults(searchStr string) ([]Result, error) {
-	if searchStr == "" {
-		return nil, nil
-	}
+func (r *PageRepository) FindSearchResults(searchStr string, language string) ([]Result, error) {
+	query := `SELECT Title, Url, Content, Language, CreatedAt, UpdatedAt 
+	FROM pages WHERE LOWER(Title) LIKE LOWER(?)`
 
-	rows, err := r.DB.Query("SELECT Title, Url, Content, Language, CreatedAt, UpdatedAt FROM pages WHERE LOWER(Title) LIKE LOWER(?)", "%"+searchStr+"%")
+	args := []interface{}{"%" + searchStr + "%"}
+
+	if language != "" {
+		query += " AND LOWER(Language) = LOWER(?)"
+		args = append(args, language)
+	}
+	rows, err := r.DB.Query(query, args...)
+
+	//rows, err := r.DB.Query("SELECT Title, Url, Content, Language, CreatedAt, UpdatedAt FROM pages WHERE LOWER(Title) LIKE LOWER(?) AND LOWER(Language) = LOWER(?)", "%"+searchStr+"%", language)
 	if err != nil {
 		return nil, err
 	}
@@ -28,8 +35,15 @@ func (r *PageRepository) FindSearchResults(searchStr string) ([]Result, error) {
 	var results []Result
 	for rows.Next() {
 		var res Result
+		var lang sql.NullString
 		if err := rows.Scan(&res.Title, &res.Url, &res.Content, &res.Language, &res.CreatedAt, &res.UpdatedAt); err != nil {
 			return nil, err
+		}
+
+		if lang.Valid {
+			res.Language = lang.String
+		} else {
+			res.Language = ""
 		}
 		results = append(results, res)
 	}
