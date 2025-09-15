@@ -32,7 +32,7 @@ func (sc *SearchController) ShowSearchResults(w http.ResponseWriter, r *http.Req
 // @Accept       json
 // @Produce      json
 // @Param        query   query     string  true  "Search query"
-// @Success 200 {object} map[string][]Result
+// @Success 200 {object} db.Result
 // @Failure      400     {object}  map[string]string "Bad Request"
 // @Failure      500     {object}  map[string]string "Internal Server Error"
 // @Router       /search [get]
