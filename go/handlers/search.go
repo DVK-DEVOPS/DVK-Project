@@ -32,18 +32,18 @@ func (sc *SearchController) ShowSearchResults(w http.ResponseWriter, r *http.Req
 	tmpl.Execute(w, results)
 }
 
-// TODO: Change the Swagger annotations to reflect the OpenAPI spec. Code has already been changed to match.
 // SearchAPI godoc
 // @Summary      Search pages
-// @Description  Search pages by query string
+// @Description  Search pages by query string (q) and optional language code
 // @Tags         search
 // @Accept       json
 // @Produce      json
-// @Param        query   query     string  true  "Search query"
-// @Success 200 {object} db.Result
-// @Failure      400     {object}  map[string]string "Bad Request"
-// @Failure      500     {object}  map[string]string "Internal Server Error"
-// @Router       /search [get]
+// @Param        q         query     string  true   "Search query"
+// @Param        language  query     string  false  "Language code (optional)"
+// @Success      200 {object} db.Result"
+// @Failure      422 {object} RequestValidationError "Validation Error - missing/invalid parameters"
+// @Failure      500 {object} map[string]string "Internal Server Error"
+// @Router       /api/search [get]
 func (sc *SearchController) SearchAPI(w http.ResponseWriter, req *http.Request) {
 	searchStr := req.URL.Query().Get("q")
 	language := req.URL.Query().Get("language")
