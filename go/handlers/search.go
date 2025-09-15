@@ -13,7 +13,8 @@ type SearchController struct {
 
 func (sc *SearchController) ShowSearchResults(w http.ResponseWriter, r *http.Request) {
 	searchStr := r.FormValue("q")
-	language := "en" //TODO: Add dropdown menu or selection to searchform
+	//language := "en" //TODO: Add dropdown menu or selection to searchform
+	language := r.FormValue("language")
 
 	results, err := sc.PageRepository.FindSearchResults(searchStr, language)
 	if err != nil {

@@ -36,7 +36,7 @@ func (r *PageRepository) FindSearchResults(searchStr string, language string) ([
 	for rows.Next() {
 		var res Result
 		var lang sql.NullString
-		if err := rows.Scan(&res.Title, &res.Url, &res.Content, &res.Language, &res.CreatedAt, &res.UpdatedAt); err != nil {
+		if err := rows.Scan(&res.Title, &res.Url, &res.Content, &lang, &res.CreatedAt, &res.UpdatedAt); err != nil {
 			return nil, err
 		}
 
