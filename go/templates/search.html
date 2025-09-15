@@ -19,7 +19,13 @@
     Go Home
 </a>
     <form action="/search" method="get">
-    <input type="text" name="query" placeholder="Search...">
+    <input type="text" name="q" placeholder="Search..."> <br>
+    <label for="language">Choose a language</label>
+    <select name="language" id="language">
+        <option value="en">English</option>
+        <option value="ro">Romanian</option>
+    </select>
+    <br>
     <button type="submit">Search</button>
     </form>
 
