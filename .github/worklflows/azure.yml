@@ -1,0 +1,38 @@
+name: Deploy to Azure VM
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.AZURE_USERNAME }}
+          key: ${{ secrets.AZURE_KEY }}
+          port: 22
+          script: |
+            # Go to app folder or clone if missing
+            cd ~/whoknows || git clone https://github.com/DVK-DEVOPS/DVK-Project.git ~/whoknows
+            cd ~/whoknows
+
+            git pull origin main
+
+            go build -o app .
+
+            # Stop any running instance
+            pkill -f './app' || true
+
+            # Start the app in background
+            nohup ./app > app.log 2>&1 &
+
+            echo "Deployment completed!"
