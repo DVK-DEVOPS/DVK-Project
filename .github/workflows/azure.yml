@@ -22,10 +22,17 @@ jobs:
           port: 22
           script: |
             # Go to app folder or clone if missing
-            cd ~/whoknows || git clone https://github.com/DVK-DEVOPS/DVK-Project.git ~/whoknows
             cd ~/whoknows
-
-            git pull origin main
+            if [ -d .git ]; then
+                  git reset --hard
+                  git pull origin main
+            else
+                  rm -rf ~/whoknows/*
+                  git init
+                  git remote add origin https://github.com/DVK-DEVOPS/DVK-Project.git
+                  git fetch origin
+                  git checkout -t origin/main
+            fi
 
             go build -o app .
 
