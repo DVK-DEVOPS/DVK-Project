@@ -25,6 +25,7 @@ func (sc *SearchController) ShowSearchResults(w http.ResponseWriter, r *http.Req
 	tmpl.Execute(w, results)
 }
 
+// TODO: Change the Swagger annotations to reflect the OpenAPI spec. Code has already been changed to match.
 // SearchAPI godoc
 // @Summary      Search pages
 // @Description  Search pages by query string
