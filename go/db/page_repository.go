@@ -26,7 +26,6 @@ func (r *PageRepository) FindSearchResults(searchStr string, language string) ([
 	}
 	rows, err := r.DB.Query(query, args...)
 
-	//rows, err := r.DB.Query("SELECT Title, Url, Content, Language, CreatedAt, UpdatedAt FROM pages WHERE LOWER(Title) LIKE LOWER(?) AND LOWER(Language) = LOWER(?)", "%"+searchStr+"%", language)
 	if err != nil {
 		return nil, err
 	}
