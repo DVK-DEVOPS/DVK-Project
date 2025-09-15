@@ -11,10 +11,16 @@ type SearchController struct {
 	PageRepository *db.PageRepository
 }
 
+// ### Page Templating ###
 func (sc *SearchController) ShowSearchResults(w http.ResponseWriter, r *http.Request) {
 	searchStr := r.FormValue("q")
-	//language := "en" //TODO: Add dropdown menu or selection to searchform
 	language := r.FormValue("language")
+
+	if searchStr == "" { //trigger 'No results' block in html.
+		tmpl := template.Must(template.ParseFiles("templates/search.html"))
+		tmpl.Execute(w, nil)
+		return
+	}
 
 	results, err := sc.PageRepository.FindSearchResults(searchStr, language)
 	if err != nil {
