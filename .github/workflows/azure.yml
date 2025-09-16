@@ -33,13 +33,14 @@ jobs:
                   git fetch origin
                   git checkout -t origin/main
             fi
-            cd go
-            go build -o ../app .
+            cd ~/whoknows/go
+            go build -o ~/whoknows/app .
 
             # Stop any running instance
-            pkill -f './app' || true
+            pkill -f '~/whoknows/app' || true
 
             # Start the app in background
-            nohup ../app > ../app.log 2>&1 &
-
+            nohup ~/whoknows/app > ~/whoknows/app.log 2>&1 &
+            disown
+            
             echo "Deployment completed!"
