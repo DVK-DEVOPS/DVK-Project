@@ -41,6 +41,6 @@ jobs:
 
             # Start the app in background
             nohup ~/whoknows/app > ~/whoknows/app.log 2>&1 &
-            disown
+            setsid ~/whoknows/app > ~/whoknows/app.log 2>&1 < /dev/null &
             
             echo "Deployment completed!"
