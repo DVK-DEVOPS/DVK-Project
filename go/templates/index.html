@@ -1,20 +1,22 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>DVK</title>
+    <link rel="stylesheet" href="../static/index.css">
 </head>
 <body>
 <h1>DVK-Project</h1>
 <p>Search for java or 'c'</p>
-<form action="/search" method="get">
-    <input type="text" name="q" placeholder="Search..."> <br>
+
+<form action="/search" method="get" class="search-form">
+    <input type="text" name="q" placeholder="Search..." class="search-input">
     <label for="language">Choose a language</label>
-    <select name="language" id="language">
+    <select name="language" id="language" class="search-select">
         <option value="en">English</option>
         <option value="ro">Romanian</option>
     </select>
-    <br>
-    <button type="submit">Search</button>
-    </form>
+    <button type="submit" class="search-btn">Search</button>
+</form>
 </body>
 </html>
