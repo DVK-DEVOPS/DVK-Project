@@ -8,7 +8,7 @@ on:
 
 jobs:
   deploy:
-    timeout-minutes: 15  # Increased again - build might be taking longer
+    timeout-minutes: 15
     runs-on: ubuntu-latest
 
     steps:
@@ -23,105 +23,45 @@ jobs:
           key: ${{ secrets.AZURE_KEY }}
           port: 22
           script: |
-            echo "=== STARTING DEPLOYMENT SCRIPT ==="
-            echo "Timestamp: $(date)"
-            echo "User: $(whoami)"
-            echo "Working directory: $(pwd)"
-            echo "Available disk space:"
-            df -h
-            echo "Memory usage:"
-            free -h
-            
-            # Check Go version (should already be installed on Ubuntu VM)
-            echo "=== CHECKING GO INSTALLATION ==="
-            go version
-            which go
-            echo "GOPATH: $GOPATH"
-            echo "GOROOT: $GOROOT"
-            
-            echo "=== REPOSITORY UPDATE ==="
             # Handle repository - simplified approach
             if [ -d ~/whoknows/.git ]; then
                 echo "Repository exists, updating..."
                 cd ~/whoknows
-                echo "Current branch: $(git branch --show-current)"
-                echo "Current commit: $(git rev-parse HEAD)"
                 git reset --hard
                 git pull origin main
-                echo "Updated to commit: $(git rev-parse HEAD)"
             else
                 echo "Cloning repository..."
                 rm -rf ~/whoknows
                 git clone https://github.com/DVK-DEVOPS/DVK-Project.git ~/whoknows
-                echo "Cloned to commit: $(cd ~/whoknows && git rev-parse HEAD)"
             fi
             
-            echo "=== BUILD PROCESS ==="
             # Build the application
             cd ~/whoknows/go
-            echo "Building application..."
-            echo "Current directory: $(pwd)"
-            echo "Files in go directory:"
-            ls -la
-            echo "Checking for go.mod:"
-            if [ -f go.mod ]; then
-                echo "go.mod contents:"
-                cat go.mod
-            else
-                echo "No go.mod found"
-            fi
-            echo "Checking for main.go:"
-            if [ -f main.go ]; then
-                echo "main.go exists"
-                echo "First 10 lines of main.go:"
-                head -10 main.go
-            else
-                echo "No main.go found, looking for other .go files:"
-                find . -name "*.go" -type f
-            fi
-            
-            echo "Starting Go build at $(date)..."
-            set -x  # Enable command tracing
-            timeout 300 go build -v -o ~/whoknows/app . 2>&1 || {
-                echo "Build failed or timed out at $(date)"
-                echo "Exit code: $?"
-                exit 1
-            }
-            set +x  # Disable command tracing
-            echo "Build completed successfully at $(date)"
-            
-            echo "=== VERIFYING BUILD OUTPUT ==="
-            if [ -f ~/whoknows/app ]; then
-                echo "Application binary created successfully"
-                ls -la ~/whoknows/app
-                file ~/whoknows/app
-            else
-                echo "ERROR: Application binary not found"
-                exit 1
-            fi
-            
-            echo "=== DEPLOYMENT ==="
-            # Stop any running instance
-            echo "Stopping any running instances..."
-            pkill -f 'whoknows/app' || true
-            sleep 2  # Give processes time to stop
-            
-            # Start the app in background
-            cd ~/whoknows
-            echo "Starting application at $(date)..."
-            nohup ./app > app.log 2>&1 &
-            APP_PID=$!
-            echo "Application started with PID: $APP_PID"
-            
-            # Verify the app is running
-            sleep 2
-            if kill -0 $APP_PID 2>/dev/null; then
-                echo "Application is running successfully"
-            else
-                echo "WARNING: Application may not be running"
-                echo "Last few lines of app.log:"
-                tail -10 app.log 2>/dev/null || echo "No log file found"
-            fi
-            
-            echo "=== DEPLOYMENT COMPLETED ==="
-            echo "Timestamp: $(date)"
+            go build -o ~/whoknows/app .
+
+            # Create systemd service for better process management
+            sudo tee /etc/systemd/system/whoknows.service > /dev/null <<EOF
+  [Unit]
+  Description=WhoKnows Application
+  After=network.target
+  
+  [Service]
+  Type=simple
+  User=$(whoami)
+  WorkingDirectory=$HOME/whoknows
+  ExecStart=$HOME/whoknows/app
+  Restart=always
+  RestartSec=5
+  StandardOutput=append:$HOME/whoknows/app.log
+  StandardError=append:$HOME/whoknows/app.log
+  
+  [Install]
+  WantedBy=multi-user.target
+  EOF
+  
+  sudo systemctl daemon-reload
+  sudo systemctl stop whoknows || true
+  sudo systemctl enable whoknows
+  sudo systemctl start whoknows
+  
+  echo "Deployment completed!"
