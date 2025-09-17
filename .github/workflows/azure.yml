@@ -8,7 +8,7 @@ on:
 
 jobs:
   deploy:
-    timeout-minutes: 1
+    timeout-minutes: 10
     runs-on: ubuntu-latest
 
     steps:
@@ -23,33 +23,39 @@ jobs:
           key: ${{ secrets.AZURE_KEY }}
           port: 22
           script: |
-           # Install Go 1.25
-            wget https://go.dev/dl/go1.25.2.linux-amd64.tar.gz
+            # Install Go 1.21.6 (valid version)
+            wget https://go.dev/dl/go1.21.6.linux-amd64.tar.gz
             sudo rm -rf /usr/local/go
-            sudo tar -C /usr/local -xzf go1.25.2.linux-amd64.tar.gz
-            echo "export PATH=\$PATH:/usr/local/go/bin" >> ~/.profile
-            source ~/.profile
+            sudo tar -C /usr/local -xzf go1.21.6.linux-amd64.tar.gz
+            
+            # Set PATH for this session
+            export PATH=$PATH:/usr/local/go/bin
             go version
             
-            # Go to app folder or clone if missing
-            cd ~/whoknows
-            if [ -d .git ]; then
-                  git reset --hard
-                  git pull origin main
+            # Handle repository - simplified approach
+            if [ -d ~/whoknows/.git ]; then
+                echo "Repository exists, updating..."
+                cd ~/whoknows
+                git reset --hard
+                git pull origin main
             else
-                  rm -rf ~/whoknows/*
-                  git init
-                  git remote add origin https://github.com/DVK-DEVOPS/DVK-Project.git
-                  git fetch origin
-                  git checkout -t origin/main
+                echo "Cloning repository..."
+                rm -rf ~/whoknows
+                git clone https://github.com/DVK-DEVOPS/DVK-Project.git ~/whoknows
             fi
+            
+            # Build the application
             cd ~/whoknows/go
+            export PATH=$PATH:/usr/local/go/bin  # Ensure Go is in PATH
             go build -o ~/whoknows/app .
 
             # Stop any running instance
-            pkill -f '~/whoknows/app' || true
+            pkill -f 'whoknows/app' || true
+            sleep 2  # Give processes time to stop
 
             # Start the app in background
-            setsid ~/whoknows/app > ~/whoknows/app.log 2>&1 < /dev/null &
+            cd ~/whoknows
+            nohup ./app > app.log 2>&1 &
             
             echo "Deployment completed!"
+            echo "App PID: $!"
