@@ -19,7 +19,7 @@ type LoginHandler struct {
 // @Failure 404 {string} string "Error"
 // @Router /login [get]
 func (lh *LoginHandler) ShowLogin(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFiles("/templates/login.html")
+	tmpl, err := template.ParseFiles("templates/login.html")
 	if err != nil {
 		http.Error(w, "Template error: "+err.Error(), http.StatusInternalServerError)
 		return
