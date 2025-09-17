@@ -80,6 +80,13 @@ func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// Logout logs the user out by clearing the session cookie.
+// @Summary Logout
+// @Description Logs the user out by deleting the session cookie and redirects to login page
+// @Tags users
+// @Produce text/html
+// @Success 200 {object} models.AuthResponse "Successful logout"
+// @Router /logout [get]
 func (lh *LoginHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "session",

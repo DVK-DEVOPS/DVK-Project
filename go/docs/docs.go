@@ -165,32 +165,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/register": {
-            "get": {
-                "description": "Show the registration page.",
-                "produces": [
-                    "text/html"
-                ],
-                "tags": [
-                    "users"
-                ],
-                "summary": "Serve register page",
-                "responses": {
-                    "200": {
-                        "description": "HTML of registration page",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "404": {
-                        "description": "Template not found",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
         "/login": {
             "get": {
                 "description": "Displays the login page",
@@ -210,6 +184,52 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/logout": {
+            "get": {
+                "description": "Logs the user out by deleting the session cookie and redirects to login page",
+                "produces": [
+                    "text/html"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Logout",
+                "responses": {
+                    "200": {
+                        "description": "Successful logout",
+                        "schema": {
+                            "$ref": "#/definitions/models.AuthResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/register": {
+            "get": {
+                "description": "Show the registration page.",
+                "produces": [
+                    "text/html"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Serve register page",
+                "responses": {
+                    "200": {
+                        "description": "HTML of registration page",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Template not found",
                         "schema": {
                             "type": "string"
                         }

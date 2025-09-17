@@ -151,23 +151,6 @@ paths:
       summary: Search pages
       tags:
       - search
-  /register:
-    get:
-      description: Show the registration page.
-      produces:
-      - text/html
-      responses:
-        "200":
-          description: HTML of registration page
-          schema:
-            type: string
-        "404":
-          description: Template not found
-          schema:
-            type: string
-      summary: Serve register page
-      tags:
-      - users
   /login:
     get:
       description: Displays the login page
@@ -183,6 +166,37 @@ paths:
           schema:
             type: string
       summary: Show login page
+      tags:
+      - users
+  /logout:
+    get:
+      description: Logs the user out by deleting the session cookie and redirects
+        to login page
+      produces:
+      - text/html
+      responses:
+        "200":
+          description: Successful logout
+          schema:
+            $ref: '#/definitions/models.AuthResponse'
+      summary: Logout
+      tags:
+      - users
+  /register:
+    get:
+      description: Show the registration page.
+      produces:
+      - text/html
+      responses:
+        "200":
+          description: HTML of registration page
+          schema:
+            type: string
+        "404":
+          description: Template not found
+          schema:
+            type: string
+      summary: Serve register page
       tags:
       - users
 swagger: "2.0"
