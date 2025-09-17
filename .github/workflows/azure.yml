@@ -23,9 +23,6 @@ jobs:
           key: ${{ secrets.AZURE_KEY }}
           port: 22
           script: |
-            go version
-            which go
-
             if [ -d ~/whoknows/.git ]; then
                 echo "Repository exists, updating..."
                 cd ~/whoknows
@@ -40,11 +37,10 @@ jobs:
             # Build app
             cd ~/whoknows/go
             echo "Building application..."
-            GOPATH=$HOME/whoknows/.gopath go build -o app .
-
-            # Run in background
+            go build -o app .
+            
+            pkill -f "./app" || true
             
             echo "Starting application in background..."
             nohup ./app > app.log 2>&1 &
             echo "Deployment completed!"
-            echo "App PID: $!"
