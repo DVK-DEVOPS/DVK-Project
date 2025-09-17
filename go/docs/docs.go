@@ -182,8 +182,8 @@ const docTemplate = `{
                             "type": "string"
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "404": {
+                        "description": "Error",
                         "schema": {
                             "type": "string"
                         }
