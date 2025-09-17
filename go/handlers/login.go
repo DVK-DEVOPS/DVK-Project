@@ -16,7 +16,7 @@ type LoginHandler struct {
 // @Tags users
 // @Produce text/html
 // @Success 200 {string} string "Successful"
-// @Failure 500 {string} string "Internal Server Error"
+// @Failure 404 {string} string "Error"
 // @Router /login [get]
 func (lh *LoginHandler) ShowLogin(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles("/templates/login.html")
