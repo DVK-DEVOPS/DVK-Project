@@ -67,7 +67,7 @@ paths:
         required: true
         type: string
       produces:
-      - text/plain
+      - application/json
       responses:
         "200":
           description: Successful registration
@@ -153,9 +153,19 @@ paths:
       - search
   /login:
     get:
-      description: showing the login page to the user
-      responses: {}
-      summary: ShowLogin
+      description: Displays the login page
+      produces:
+      - text/html
+      responses:
+        "200":
+          description: Successful
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Show login page
       tags:
       - users
 swagger: "2.0"

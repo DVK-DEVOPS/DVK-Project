@@ -22,7 +22,7 @@ const docTemplate = `{
                     "application/x-www-form-urlencoded"
                 ],
                 "produces": [
-                    "text/plain"
+                    "application/json"
                 ],
                 "tags": [
                     "users"
@@ -167,12 +167,28 @@ const docTemplate = `{
         },
         "/login": {
             "get": {
-                "description": "showing the login page to the user",
+                "description": "Displays the login page",
+                "produces": [
+                    "text/html"
+                ],
                 "tags": [
                     "users"
                 ],
-                "summary": "ShowLogin",
-                "responses": {}
+                "summary": "Show login page",
+                "responses": {
+                    "200": {
+                        "description": "Successful",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
             }
         }
     },
