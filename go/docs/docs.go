@@ -22,10 +22,10 @@ const docTemplate = `{
                     "application/x-www-form-urlencoded"
                 ],
                 "produces": [
-                    "text/plain"
+                    "application/json"
                 ],
                 "tags": [
-                    "auth"
+                    "users"
                 ],
                 "summary": "Login",
                 "parameters": [
@@ -184,6 +184,32 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Template not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/login": {
+            "get": {
+                "description": "Displays the login page",
+                "produces": [
+                    "text/html"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Show login page",
+                "responses": {
+                    "200": {
+                        "description": "Successful",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Error",
                         "schema": {
                             "type": "string"
                         }

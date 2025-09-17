@@ -67,7 +67,7 @@ paths:
         required: true
         type: string
       produces:
-      - text/plain
+      - application/json
       responses:
         "200":
           description: Successful registration
@@ -79,7 +79,7 @@ paths:
             $ref: '#/definitions/models.HTTPValidationError'
       summary: Login
       tags:
-      - auth
+      - users
   /api/register:
     post:
       consumes:
@@ -166,6 +166,23 @@ paths:
           schema:
             type: string
       summary: Serve register page
+      tags:
+      - users
+  /login:
+    get:
+      description: Displays the login page
+      produces:
+      - text/html
+      responses:
+        "200":
+          description: Successful
+          schema:
+            type: string
+        "404":
+          description: Error
+          schema:
+            type: string
+      summary: Show login page
       tags:
       - users
 swagger: "2.0"
