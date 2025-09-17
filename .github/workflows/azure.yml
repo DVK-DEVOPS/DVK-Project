@@ -8,7 +8,7 @@ on:
 
 jobs:
   deploy:
-    timeout-minutes: 15
+    timeout-minutes: 10
     runs-on: ubuntu-latest
 
     steps:
@@ -23,20 +23,9 @@ jobs:
           key: ${{ secrets.AZURE_KEY }}
           port: 22
           script: |
-            # Install Go 1.21.6 only if not already installed
-            if ! command -v go &> /dev/null || [[ $(go version 2>/dev/null | grep -o 'go1\.21\.6') != "go1.21.6" ]]; then
-                echo "Installing Go 1.21.6..."
-                wget https://go.dev/dl/go1.21.6.linux-amd64.tar.gz
-                sudo rm -rf /usr/local/go
-                sudo tar -C /usr/local -xzf go1.21.6.linux-amd64.tar.gz
-                rm go1.21.6.linux-amd64.tar.gz
-            else
-                echo "Go 1.21.6 already installed"
-            fi
-            
-            # Set PATH for this session
-            export PATH=$PATH:/usr/local/go/bin
+            # Check Go version (should already be installed on Ubuntu VM)
             go version
+            which go
             
             # Handle repository - simplified approach
             if [ -d ~/whoknows/.git ]; then
@@ -52,7 +41,7 @@ jobs:
             
             # Build the application
             cd ~/whoknows/go
-            export PATH=$PATH:/usr/local/go/bin  # Ensure Go is in PATH
+            echo "Building application..."
             go build -o ~/whoknows/app .
 
             # Stop any running instance
