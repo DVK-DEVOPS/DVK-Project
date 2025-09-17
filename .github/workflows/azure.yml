@@ -39,7 +39,8 @@ jobs:
             echo "Building application..."
             go build -o app .
             
-            
+            sudo systemctl restart whoknows.service
             echo "Starting application in background..."
             nohup ./app > app.log 2>&1 &
+            
             echo "Deployment completed!"
