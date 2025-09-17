@@ -13,6 +13,13 @@ type RegistrationController struct {
 	UserRepository *db.UserRepository
 }
 
+// @Summary Serve register page
+// @Description Show the registration page.
+// @Tags users
+// @Produce text/html
+// @Success 200 {string} string "HTML of registration page"
+// @Failure 404 {string} string "Template not found"
+// @Router /register [get]
 func (rc *RegistrationController) ShowRegistrationPage(w http.ResponseWriter, r *http.Request) {
 	tmpl, _ := template.ParseFiles("templates/register.html")
 	err := tmpl.Execute(w, nil)
