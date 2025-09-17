@@ -39,12 +39,11 @@ jobs:
             
             cd ~/whoknows/go
             echo "Building application..."
-            go build -o ~/whoknows/app .
-
+            go build -o ~/whoknows/go/app .
 
             cd ~/whoknows
             go run .
-            nohup ./app > app.log 2>&1 &
+            nohup ./whoknows/go/app > app.log 2>&1 &
             
             echo "Deployment completed!"
             echo "App PID: $!"
