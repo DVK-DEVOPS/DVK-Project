@@ -18,6 +18,8 @@ func main() {
 	pageRepository := db.NewPageRepository(database)
 
 	r := mux.NewRouter()
+	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
+
 	r.HandleFunc("/", handlers.HomeHandler)
 
 	lh := &handlers.LoginHandler{UserRepository: userRepository}
