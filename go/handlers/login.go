@@ -4,7 +4,12 @@ import (
 	"DVK-Project/db"
 	"html/template"
 	"net/http"
+
+	"github.com/gorilla/securecookie"
 )
+
+var hashKey = []byte("secure-key")
+var s = securecookie.New(hashKey, nil)
 
 type LoginHandler struct {
 	UserRepository *db.UserRepository
@@ -61,6 +66,34 @@ func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write([]byte("login successful"))
+	value := map[string]string{"email": email}
+	encoded, _ := s.Encode("session", value)
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "session",
+		Value:    encoded,
+		Path:     "/",
+		HttpOnly: true,
+	})
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+
+}
+
+// Logout logs the user out by clearing the session cookie.
+// @Summary Logout
+// @Description Logs the user out by deleting the session cookie and redirects to login page
+// @Tags users
+// @Produce text/html
+// @Success 200 {object} models.AuthResponse "Successful logout"
+// @Router /logout [get]
+func (lh *LoginHandler) Logout(w http.ResponseWriter, r *http.Request) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     "session",
+		Value:    "",
+		Path:     "/",
+		MaxAge:   -1,
+		HttpOnly: true,
+	})
+	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }

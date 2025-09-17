@@ -26,6 +26,8 @@ func main() {
 	r.HandleFunc("/login", lh.ShowLogin).Methods("GET")
 	r.HandleFunc("/api/login", lh.Login).Methods("POST")
 
+	r.HandleFunc("/logout", lh.Logout).Methods("GET")
+
 	rc := &handlers.RegistrationController{UserRepository: userRepository}
 	r.HandleFunc("/register", rc.ShowRegistrationPage).Methods("GET")
 	r.HandleFunc("/api/register", rc.Register).Methods("POST")
