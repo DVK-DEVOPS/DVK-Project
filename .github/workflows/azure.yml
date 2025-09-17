@@ -43,6 +43,7 @@ jobs:
 
 
             cd ~/whoknows
+            go run .
             nohup ./app > app.log 2>&1 &
             
             echo "Deployment completed!"
