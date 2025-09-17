@@ -36,15 +36,15 @@ jobs:
                 rm -rf ~/whoknows
                 git clone https://github.com/DVK-DEVOPS/DVK-Project.git ~/whoknows
             fi
-
-            # Build app
+            
             cd ~/whoknows/go
             echo "Building application..."
-            GOPATH=$HOME/whoknows/.gopath go build -o app .
+            go build -o ~/whoknows/app .
 
-            # Run in background
-            echo "Starting application in background..."
+
+            cd ~/whoknows
+            go run .
             nohup ./app > app.log 2>&1 &
+            
             echo "Deployment completed!"
             echo "App PID: $!"
-          
