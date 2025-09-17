@@ -23,11 +23,9 @@ jobs:
           key: ${{ secrets.AZURE_KEY }}
           port: 22
           script: |
-            # Check Go version (should already be installed on Ubuntu VM)
             go version
             which go
             
-            # Handle repository - simplified approach
             if [ -d ~/whoknows/.git ]; then
                 echo "Repository exists, updating..."
                 cd ~/whoknows
@@ -39,15 +37,11 @@ jobs:
                 git clone https://github.com/DVK-DEVOPS/DVK-Project.git ~/whoknows
             fi
             
-            # Build the application
             cd ~/whoknows/go
             echo "Building application..."
             go build -o ~/whoknows/app .
 
-            # Stop any running instance
 
-
-            # Start the app in background
             cd ~/whoknows
             nohup ./app > app.log 2>&1 &
             
