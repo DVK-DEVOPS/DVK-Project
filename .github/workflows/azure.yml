@@ -8,6 +8,7 @@ on:
 
 jobs:
   deploy:
+    timeout-minutes: 1
     runs-on: ubuntu-latest
 
     steps:
@@ -35,6 +36,7 @@ jobs:
                   git checkout -t origin/main
             fi
             cd ~/whoknows/go
+            go mod tidy
             go build -o ~/whoknows/app .
 
             # Stop any running instance
