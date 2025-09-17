@@ -8,7 +8,7 @@ on:
 
 jobs:
   deploy:
-    timeout-minutes: 15
+    timeout-minutes: 10
     runs-on: ubuntu-latest
 
     steps:
@@ -23,6 +23,10 @@ jobs:
           key: ${{ secrets.AZURE_KEY }}
           port: 22
           script: |
+            # Check Go version (should already be installed on Ubuntu VM)
+            go version
+            which go
+            
             # Handle repository - simplified approach
             if [ -d ~/whoknows/.git ]; then
                 echo "Repository exists, updating..."
@@ -37,31 +41,15 @@ jobs:
             
             # Build the application
             cd ~/whoknows/go
+            echo "Building application..."
             go build -o ~/whoknows/app .
 
-            # Create systemd service for better process management
-            sudo tee /etc/systemd/system/whoknows.service > /dev/null <<EOF
-  [Unit]
-  Description=WhoKnows Application
-  After=network.target
-  
-  [Service]
-  Type=simple
-  User=$(whoami)
-  WorkingDirectory=$HOME/whoknows
-  ExecStart=$HOME/whoknows/app
-  Restart=always
-  RestartSec=5
-  StandardOutput=append:$HOME/whoknows/app.log
-  StandardError=append:$HOME/whoknows/app.log
-  
-  [Install]
-  WantedBy=multi-user.target
-  EOF
-  
-  sudo systemctl daemon-reload
-  sudo systemctl stop whoknows || true
-  sudo systemctl enable whoknows
-  sudo systemctl start whoknows
-  
-  echo "Deployment completed!"
+            # Stop any running instance
+
+
+            # Start the app in background
+            cd ~/whoknows
+            nohup ./app > app.log 2>&1 &
+            
+            echo "Deployment completed!"
+            echo "App PID: $!"
