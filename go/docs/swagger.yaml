@@ -50,6 +50,36 @@ definitions:
 info:
   contact: {}
 paths:
+  /api/login:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Authenticates a user using email and password
+      parameters:
+      - description: User email
+        in: formData
+        name: email
+        required: true
+        type: string
+      - description: User password
+        in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: Successful registration
+          schema:
+            $ref: '#/definitions/models.AuthResponse'
+        "422":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/models.HTTPValidationError'
+      summary: Login
+      tags:
+      - auth
   /api/register:
     post:
       consumes:

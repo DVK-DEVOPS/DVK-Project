@@ -10,6 +10,12 @@ type LoginHandler struct {
 	UserRepository *db.UserRepository
 }
 
+// ShowLogin
+// @Summary Show login page to the user
+// @Description showing the login page to the user
+// @Tags users
+// @Router /login [post]
+
 func (lh *LoginHandler) ShowLogin(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles("/templates/login.html")
 	if err != nil {
@@ -22,6 +28,17 @@ func (lh *LoginHandler) ShowLogin(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Login authenticates a user with email and password.
+// @Summary Login
+// @Description Authenticates a user using email and password
+// @Tags auth
+// @Accept application/x-www-form-urlencoded
+// @Produce text/plain
+// @Param email formData string true "User email"
+// @Param password formData string true "User password"
+// @Success 200 {object} models.AuthResponse "Successful registration"
+// @Failure 422 {object} models.HTTPValidationError "Validation error"
+// @Router /api/login [post]
 func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		http.Error(w, "invalid form data", http.StatusBadRequest)
