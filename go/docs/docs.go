@@ -25,7 +25,7 @@ const docTemplate = `{
                     "text/plain"
                 ],
                 "tags": [
-                    "auth"
+                    "users"
                 ],
                 "summary": "Login",
                 "parameters": [
@@ -163,6 +163,16 @@ const docTemplate = `{
                         }
                     }
                 }
+            }
+        },
+        "/login": {
+            "get": {
+                "description": "showing the login page to the user",
+                "tags": [
+                    "users"
+                ],
+                "summary": "ShowLogin",
+                "responses": {}
             }
         }
     },

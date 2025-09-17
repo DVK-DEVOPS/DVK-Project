@@ -14,7 +14,7 @@
                     "text/plain"
                 ],
                 "tags": [
-                    "auth"
+                    "users"
                 ],
                 "summary": "Login",
                 "parameters": [
@@ -152,6 +152,16 @@
                         }
                     }
                 }
+            }
+        },
+        "/login": {
+            "get": {
+                "description": "showing the login page to the user",
+                "tags": [
+                    "users"
+                ],
+                "summary": "ShowLogin",
+                "responses": {}
             }
         }
     },

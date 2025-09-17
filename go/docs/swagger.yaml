@@ -79,7 +79,7 @@ paths:
             $ref: '#/definitions/models.HTTPValidationError'
       summary: Login
       tags:
-      - auth
+      - users
   /api/register:
     post:
       consumes:
@@ -151,4 +151,11 @@ paths:
       summary: Search pages
       tags:
       - search
+  /login:
+    get:
+      description: showing the login page to the user
+      responses: {}
+      summary: ShowLogin
+      tags:
+      - users
 swagger: "2.0"

@@ -11,11 +11,10 @@ type LoginHandler struct {
 }
 
 // ShowLogin
-// @Summary Show login page to the user
+// @Summary ShowLogin
 // @Description showing the login page to the user
 // @Tags users
-// @Router /login [post]
-
+// @Router /login [get]
 func (lh *LoginHandler) ShowLogin(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles("/templates/login.html")
 	if err != nil {
@@ -31,7 +30,7 @@ func (lh *LoginHandler) ShowLogin(w http.ResponseWriter, r *http.Request) {
 // Login authenticates a user with email and password.
 // @Summary Login
 // @Description Authenticates a user using email and password
-// @Tags auth
+// @Tags users
 // @Accept application/x-www-form-urlencoded
 // @Produce text/plain
 // @Param email formData string true "User email"
