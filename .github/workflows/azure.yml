@@ -25,7 +25,7 @@ jobs:
           script: |
             go version
             which go
-            
+
             if [ -d ~/whoknows/.git ]; then
                 echo "Repository exists, updating..."
                 cd ~/whoknows
@@ -36,15 +36,15 @@ jobs:
                 rm -rf ~/whoknows
                 git clone https://github.com/DVK-DEVOPS/DVK-Project.git ~/whoknows
             fi
-            
+
+            # Build app
             cd ~/whoknows/go
             echo "Building application..."
-            go build -o ~/whoknows/app .
+            GOPATH=$HOME/whoknows/.gopath go build -o app .
 
-
-            cd ~/whoknows
-            go run .
+            # Run in background
+            echo "Starting application in background..."
             nohup ./app > app.log 2>&1 &
-            
             echo "Deployment completed!"
             echo "App PID: $!"
+          
