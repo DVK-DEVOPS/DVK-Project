@@ -44,7 +44,6 @@ jobs:
                   git checkout -t origin/main
             fi
             cd ~/whoknows/go
-            go mod tidy
             go build -o ~/whoknows/app .
 
             # Stop any running instance
