@@ -11,7 +11,7 @@ type LoginHandler struct {
 }
 
 func (lh *LoginHandler) ShowLogin(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFiles("go/templates/login.html")
+	tmpl, err := template.ParseFiles("/templates/login.html")
 	if err != nil {
 		http.Error(w, "Template error: "+err.Error(), http.StatusInternalServerError)
 		return
