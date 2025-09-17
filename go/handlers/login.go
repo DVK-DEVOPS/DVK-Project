@@ -14,6 +14,8 @@ type LoginHandler struct {
 // @Summary Show login page to the user
 // @Description showing the login page to the user
 // @Tags users
+// @Router /login [post]
+
 func (lh *LoginHandler) ShowLogin(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles("/templates/login.html")
 	if err != nil {
@@ -36,7 +38,7 @@ func (lh *LoginHandler) ShowLogin(w http.ResponseWriter, r *http.Request) {
 // @Param password formData string true "User password"
 // @Success 200 {object} models.AuthResponse "Successful registration"
 // @Failure 422 {object} models.HTTPValidationError "Validation error"
-// @Router /login [post]
+// @Router /api/login [post]
 func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		http.Error(w, "invalid form data", http.StatusBadRequest)
