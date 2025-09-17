@@ -8,7 +8,7 @@ import (
 	"github.com/gorilla/securecookie"
 )
 
-var hashKey = []byte("secure-key")
+var hashKey = []byte("supersecure") //TODO add in dot env file
 var s = securecookie.New(hashKey, nil)
 
 type LoginHandler struct {
