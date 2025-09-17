@@ -39,7 +39,6 @@ jobs:
             echo "Building application..."
             go build -o app .
             
-            pkill -f "./app" || true
             
             echo "Starting application in background..."
             nohup ./app > app.log 2>&1 &
