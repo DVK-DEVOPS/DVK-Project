@@ -86,17 +86,28 @@ func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	if username == "" || password == "" {
 		w.WriteHeader(http.StatusUnprocessableEntity)
-		json.NewEncoder(w).Encode(models.HTTPValidationError{
-			Detail: []models.ValidationErrorDetail{
-				{Loc: []interface{}{"body", "fields"}, Msg: "Username and password required", Type: "validation_error"},
-			},
-		})
+		details := []models.ValidationErrorDetail{}
+		if username == "" {
+			details = append(details, models.ValidationErrorDetail{
+				Loc:  []interface{}{"body", "username"},
+				Msg:  "Username required",
+				Type: "validation_error",
+			})
+		}
+		if password == "" {
+			details = append(details, models.ValidationErrorDetail{
+				Loc:  []interface{}{"body", "password"},
+				Msg:  "Password required",
+				Type: "validation_error",
+			})
+		}
+		json.NewEncoder(w).Encode(models.HTTPValidationError{Detail: details})
 		return
 	}
 
 	ok, err := lh.UserRepository.CheckCredentialsByUsername(username, password)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusUnprocessableEntity)
 		json.NewEncoder(w).Encode(models.HTTPValidationError{
 			Detail: []models.ValidationErrorDetail{
 				{Loc: []interface{}{"db"}, Msg: "Database error", Type: "internal_error"},
@@ -106,10 +117,10 @@ func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !ok {
-		w.WriteHeader(http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnprocessableEntity)
 		json.NewEncoder(w).Encode(models.HTTPValidationError{
 			Detail: []models.ValidationErrorDetail{
-				{Loc: []interface{}{"body", "credentials"}, Msg: "Invalid credentials", Type: "unauthorized"},
+				{Loc: []interface{}{"body", "credentials"}, Msg: "Invalid credentials", Type: "validation_error"},
 			},
 		})
 		return
@@ -126,7 +137,7 @@ func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(models.AuthResponse{
-		StatusCode: http.StatusOK,
+		StatusCode: 3070,
 		Message:    fmt.Sprintf("User authenticated with username %s", username),
 	})
 }
