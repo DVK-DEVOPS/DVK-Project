@@ -2,8 +2,12 @@ package handlers
 
 import (
 	"DVK-Project/db"
+	"DVK-Project/models"
+	"encoding/json"
+	"fmt"
 	"html/template"
 	"net/http"
+	"strings"
 
 	"github.com/gorilla/securecookie"
 )
@@ -46,29 +50,74 @@ func (lh *LoginHandler) ShowLogin(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} models.AuthResponse "Successful registration"
 // @Failure 422 {object} models.HTTPValidationError "Validation error"
 // @Router /api/login [post]
+
 func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
-	if err := r.ParseForm(); err != nil {
-		http.Error(w, "invalid form data", http.StatusBadRequest)
+	w.Header().Set("Content-Type", "application/json")
+
+	var email, password string
+
+	if strings.Contains(r.Header.Get("Content-Type"), "application/json") {
+		var creds struct {
+			Email    string `json:"email"`
+			Password string `json:"password"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&creds); err != nil {
+			w.WriteHeader(http.StatusUnprocessableEntity)
+			json.NewEncoder(w).Encode(models.HTTPValidationError{
+				Detail: []models.ValidationErrorDetail{
+					{Loc: []interface{}{"body"}, Msg: "Invalid JSON body", Type: "parse_error"},
+				},
+			})
+			return
+		}
+		email, password = creds.Email, creds.Password
+	} else {
+		if err := r.ParseForm(); err != nil {
+			w.WriteHeader(http.StatusUnprocessableEntity)
+			json.NewEncoder(w).Encode(models.HTTPValidationError{
+				Detail: []models.ValidationErrorDetail{
+					{Loc: []interface{}{"body", "form"}, Msg: "Form parse error", Type: "parse_error"},
+				},
+			})
+			return
+		}
+		email = r.FormValue("email")
+		password = r.FormValue("password")
+	}
+
+	if email == "" || password == "" {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		json.NewEncoder(w).Encode(models.HTTPValidationError{
+			Detail: []models.ValidationErrorDetail{
+				{Loc: []interface{}{"body", "fields"}, Msg: "Email and password required", Type: "validation_error"},
+			},
+		})
 		return
 	}
 
-	email := r.FormValue("email")
-	password := r.FormValue("password")
-
 	ok, err := lh.UserRepository.CheckCredentialsByEmail(email, password)
 	if err != nil {
-		http.Error(w, "server error: "+err.Error(), http.StatusInternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(models.HTTPValidationError{
+			Detail: []models.ValidationErrorDetail{
+				{Loc: []interface{}{"db"}, Msg: "Database error", Type: "internal_error"},
+			},
+		})
 		return
 	}
 
 	if !ok {
-		http.Error(w, "invalid credentials", http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(models.HTTPValidationError{
+			Detail: []models.ValidationErrorDetail{
+				{Loc: []interface{}{"body", "credentials"}, Msg: "Invalid credentials", Type: "unauthorized"},
+			},
+		})
 		return
 	}
 
 	value := map[string]string{"email": email}
 	encoded, _ := s.Encode("session", value)
-
 	http.SetCookie(w, &http.Cookie{
 		Name:     "session",
 		Value:    encoded,
@@ -76,8 +125,11 @@ func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 	})
 
-	http.Redirect(w, r, "/", http.StatusSeeOther)
-
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(models.AuthResponse{
+		StatusCode: http.StatusOK,
+		Message:    fmt.Sprintf("User authenticated with email %s", email),
+	})
 }
 
 // Logout logs the user out by clearing the session cookie.
