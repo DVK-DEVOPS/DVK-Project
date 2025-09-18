@@ -1,5 +1,5 @@
 :root {
-    --card-w: 360px;
+    --card-w: 400px;
     --bg: #f3f6fb;
     --text: #333;
     --radius: 12px;
@@ -44,7 +44,7 @@ body {
     margin: 0 0 16px 0;
     font-size: 20px;
     font-weight: 600;
-    text-align: left;
+    text-align: center;
 }
 
 .form {
