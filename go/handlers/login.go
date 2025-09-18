@@ -50,15 +50,14 @@ func (lh *LoginHandler) ShowLogin(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} models.AuthResponse "Successful registration"
 // @Failure 422 {object} models.HTTPValidationError "Validation error"
 // @Router /api/login [post]
-
 func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	var email, password string
+	var username, password string
 
 	if strings.Contains(r.Header.Get("Content-Type"), "application/json") {
 		var creds struct {
-			Email    string `json:"email"`
+			Username string `json:"username"`
 			Password string `json:"password"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&creds); err != nil {
@@ -70,7 +69,7 @@ func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 			})
 			return
 		}
-		email, password = creds.Email, creds.Password
+		username, password = creds.Username, creds.Password
 	} else {
 		if err := r.ParseForm(); err != nil {
 			w.WriteHeader(http.StatusUnprocessableEntity)
@@ -81,21 +80,21 @@ func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 			})
 			return
 		}
-		email = r.FormValue("email")
+		username = r.FormValue("username")
 		password = r.FormValue("password")
 	}
 
-	if email == "" || password == "" {
+	if username == "" || password == "" {
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		json.NewEncoder(w).Encode(models.HTTPValidationError{
 			Detail: []models.ValidationErrorDetail{
-				{Loc: []interface{}{"body", "fields"}, Msg: "Email and password required", Type: "validation_error"},
+				{Loc: []interface{}{"body", "fields"}, Msg: "Username and password required", Type: "validation_error"},
 			},
 		})
 		return
 	}
 
-	ok, err := lh.UserRepository.CheckCredentialsByEmail(email, password)
+	ok, err := lh.UserRepository.CheckCredentialsByUsername(username, password)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(models.HTTPValidationError{
@@ -116,7 +115,7 @@ func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	value := map[string]string{"email": email}
+	value := map[string]string{"username": username}
 	encoded, _ := s.Encode("session", value)
 	http.SetCookie(w, &http.Cookie{
 		Name:     "session",
@@ -128,7 +127,7 @@ func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(models.AuthResponse{
 		StatusCode: http.StatusOK,
-		Message:    fmt.Sprintf("User authenticated with email %s", email),
+		Message:    fmt.Sprintf("User authenticated with username %s", username),
 	})
 }
 

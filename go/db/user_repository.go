@@ -39,9 +39,9 @@ func (r *UserRepository) AddUser(user models.User) (int, error) {
 }
 
 // for login
-func (r *UserRepository) CheckCredentialsByEmail(email, password string) (bool, error) {
+func (r *UserRepository) CheckCredentialsByUsername(username, password string) (bool, error) {
 	var storedPassword string
-	err := r.DB.QueryRow("SELECT password FROM users WHERE email = ?", email).Scan(&storedPassword)
+	err := r.DB.QueryRow("SELECT password FROM users WHERE username = ?", username).Scan(&storedPassword)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return false, nil
