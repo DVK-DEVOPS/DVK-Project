@@ -1,0 +1,23 @@
+name: Golangci Lint
+
+on:
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  golanci-lint: 
+    name: Run golanci-lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Gol
+        uses: actions/checkout@v4
+        with:
+          go-version: "1.25.1"
+      
+      - name: Run golanci-lint
+        uses: golangci/golanci-lint-action@v6
+        with: 
+          version: latest
