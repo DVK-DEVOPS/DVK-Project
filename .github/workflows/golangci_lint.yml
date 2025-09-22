@@ -18,6 +18,6 @@ jobs:
           go-version: "1.25.1"
       
       - name: Run golanci-lint
-        uses: golangci/golanci-lint-action@v6
+        uses: golangci/golangci-lint-action@v6
         with: 
           version: latest
