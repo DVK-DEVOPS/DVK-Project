@@ -1,0 +1,32 @@
+#configuration 
+
+run:
+  timeout: 5m
+  tests: true   # also lint test files
+
+linters:
+  enable:
+    - staticcheck     # advanced static analysis (strongly recommended)
+    - errcheck        # ensure errors are checked
+    - ineffassign     # detect unused assignments
+    - gofumpt         # stricter gofmt
+    - gosimple        # simplify overly complex code
+    - govet           # extra checks beyond go vet
+    - unused          # detect unused vars, funcs, etc.
+  disable:
+    - godot           # no need to force periods at end of comments
+    - wsl             # whitespace rules (often noisy)
+    - exhaustivestruct # requires filling every struct field (too strict for many)
+
+linters-settings:
+  gofumpt:
+    extra-rules: true
+
+issues:
+  exclude-rules:
+    - linters:
+        - errcheck
+      text: "json.Encoder.*Encode"   # allow ignoring Encode errors
+    - linters:
+        - errcheck
+      text: "tmpl.Execute"           # allow ignoring template errors in handlers
