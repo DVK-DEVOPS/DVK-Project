@@ -3,16 +3,16 @@ version: "2"
 run:
   timeout: 5m
   tests: true
-    exclude-rules:
-    - linters:
-        - errcheck
-      text: 'json\.Encoder\.Encode'
-    - linters:
-        - errcheck
-      text: 'tmpl\.Execute'
-    - linters:
-        - errcheck
-      text: 'rows\.Close'
+  exclude-rules:
+  - linters:
+      - errcheck
+    text: 'json\.Encoder\.Encode'
+  - linters:
+      - errcheck
+    text: 'tmpl\.Execute'
+  - linters:
+      - errcheck
+    text: 'rows\.Close'
 
 linters:
   enable:
