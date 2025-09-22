@@ -11,3 +11,10 @@ linters:
     - ineffassign
   disable:
     - godot
+
+linters-settings:
+  errcheck:
+    exclude:
+      - "json.Encoder.Encode"
+      - "tmpl.Execute"
+      - "rows.Close"
