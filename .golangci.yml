@@ -15,9 +15,22 @@ run:
     text: 'rows\.Close'
 
 linters:
+  default: standard
   enable:
     - staticcheck
     - errcheck
     - ineffassign
-  disable:
-    - godot
+
+  exclusions:
+    rules:
+      - linters: [errcheck]
+        # 'text' is a regex matched against issue text
+        text: 'Encode.*encoding/json.*Encode|Error return value of `\(\*encoding/json.Encoder\)\.Encode` is not checked'
+
+      # ignore errcheck messages that mention tmpl.Execute (template.Execute)
+      - linters: [errcheck]
+        text: 'Execute.*template|Error return value of `tmpl\.Execute` is not checked'
+
+      # ignore errcheck messages that mention rows.Close
+      - linters: [errcheck]
+        text: 'rows\.Close|Error return value of `rows\.Close` is not checked'
