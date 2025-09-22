@@ -13,7 +13,3 @@ linters:
     - gosimple
   disable:
     - godot
-
-linters-settings:
-  gofumpt:
-    extra-rules: true
