@@ -14,3 +14,7 @@ type ValidationErrorDetail struct {
 	Msg  string        `json:"msg"`
 	Type string        `json:"type"`
 }
+
+type StandardResponse struct {
+	Data map[string]interface{} `json:"data"`
+}
