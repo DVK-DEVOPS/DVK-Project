@@ -1,24 +1,21 @@
 name: Golangci Lint
-
 on:
   pull_request:
     branches: ["main"]
-
 jobs:
-  golanci-lint: 
+  golangci-lint:
     name: Run golangci-lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.25.1"
-      
+          go-version: "1.23"
+
       - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v7
-        with: 
-          version: v2.4.0
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: latest
           working-directory: go
