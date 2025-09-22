@@ -16,7 +16,6 @@ linters:
   disable:
     - godot           # no need to force periods at end of comments
     - wsl             # whitespace rules (often noisy)
-    - exhaustivestruct # requires filling every struct field (too strict for many)
 
 linters-settings:
   gofumpt:
