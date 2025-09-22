@@ -9,7 +9,6 @@ linters:
     - staticcheck
     - errcheck
     - ineffassign
-    - gofumpt
     - gosimple
   disable:
     - godot
