@@ -26,4 +26,4 @@ jobs:
         with:
           version: latest
           working-directory: go
-          only-new-issues: true
+          #only-new-issues: true
