@@ -9,6 +9,6 @@ linters:
     - staticcheck
     - ineffassign
     - govet
+    - errcheck
   disable:
     - godot
-    - errcheck
