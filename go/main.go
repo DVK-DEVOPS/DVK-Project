@@ -3,13 +3,21 @@ package main
 import (
 	"DVK-Project/db"
 	"DVK-Project/handlers"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	//debugging
+	godotenv.Load()
+	fmt.Println("URL:", os.Getenv("API_URL"))
+	fmt.Println("API_KEY:", os.Getenv("API_KEY"))
+
 	database, err := db.InitDB()
 	if err != nil {
 		log.Fatal(err)
@@ -35,6 +43,10 @@ func main() {
 	sc := &handlers.SearchController{PageRepository: pageRepository}
 	r.HandleFunc("/search", sc.ShowSearchResults).Methods("GET")
 	r.HandleFunc("/api/search", sc.SearchAPI).Methods("GET") //returns json
+
+	wc := &handlers.WeatherController{}
+	r.HandleFunc("/weather", wc.ShowWeatherPage).Methods("GET")
+	r.HandleFunc("/api/weather", wc.GetWeatherForecast).Methods("GET")
 
 	log.Println("Server running on :8080")
 	log.Fatal(http.ListenAndServe(":8080", r))

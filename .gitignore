@@ -10,6 +10,7 @@ DotEnv
 *.so
 database.db
 
+go/.env
 # Distribution / packaging
 .Python
 build/
