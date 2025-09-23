@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"DVK-Project/models"
+	"encoding/json"
 	"html/template"
 	"net/http"
 )
@@ -19,4 +21,9 @@ func (wc *WeatherController) ShowWeatherPage(w http.ResponseWriter, req *http.Re
 
 func (wc *WeatherController) GetWeatherForecast(w http.ResponseWriter, req *http.Request) {
 
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(models.StandardResponse{
+		Data: nil,
+	})
 }
