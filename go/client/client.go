@@ -1,4 +1,4 @@
-package models
+package client
 
 import (
 	"log"
@@ -10,9 +10,9 @@ import (
 )
 
 type APIClient struct {
-	client *http.Client
-	url    string
-	apiKey string
+	Client *http.Client
+	Url    string
+	ApiKey string
 }
 
 func NewAPIClient() *APIClient {
@@ -23,10 +23,10 @@ func NewAPIClient() *APIClient {
 		log.Fatal("API_URL or API_KEY not set")
 	}
 	return &APIClient{
-		client: &http.Client{
+		Client: &http.Client{
 			Timeout: 10 * time.Second,
 		},
-		url:    url,
-		apiKey: apiKey,
+		Url:    url,
+		ApiKey: apiKey,
 	}
 }
