@@ -27,3 +27,7 @@ func (wc *WeatherController) GetWeatherForecast(w http.ResponseWriter, req *http
 		Data: nil,
 	})
 }
+
+//func FetchForecast(url string) ([]byte, error) {
+//	client := models.NewAPIClient()
+//}

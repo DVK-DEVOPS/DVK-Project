@@ -1,6 +1,8 @@
 package client
 
 import (
+	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -29,4 +31,17 @@ func NewAPIClient() *APIClient {
 		Url:    url,
 		ApiKey: apiKey,
 	}
+}
+func (c *APIClient) FetchForecast(city string) ([]byte, error) {
+	reqURL := fmt.Sprintf("%s?q=%s&appid=%s", c.Url, city, c.ApiKey)
+	resp, err := c.Client.Get(reqURL)
+	if err != nil {
+		return nil, fmt.Errorf("Fetch error: %w", err)
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("Fetch error: %w", err)
+	}
+	return body, nil
 }
