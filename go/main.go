@@ -36,6 +36,10 @@ func main() {
 	r.HandleFunc("/search", sc.ShowSearchResults).Methods("GET")
 	r.HandleFunc("/api/search", sc.SearchAPI).Methods("GET") //returns json
 
+	wc := &handlers.WeatherController{}
+	r.HandleFunc("/weather", wc.ShowWeatherPage).Methods("GET")
+	r.HandleFunc("/api/weather", wc.GetWeatherForecast).Methods("GET")
+
 	log.Println("Server running on :8080")
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
