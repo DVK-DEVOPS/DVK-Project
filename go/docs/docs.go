@@ -165,6 +165,47 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/weather": {
+            "get": {
+                "description": "Get weather forecast (temperature, conditions) for 5 days in Copenhagen",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "weather"
+                ],
+                "summary": "Get weather forecast",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.StandardResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.Forecast"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/login": {
             "get": {
                 "description": "Displays the login page",
@@ -236,6 +277,32 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/weather": {
+            "get": {
+                "description": "Show the weather page.",
+                "produces": [
+                    "text/html"
+                ],
+                "tags": [
+                    "weather"
+                ],
+                "summary": "Serve weather page",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Template not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -287,6 +354,41 @@ const docTemplate = `{
                 }
             }
         },
+        "models.Forecast": {
+            "type": "object",
+            "properties": {
+                "list": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "dt_txt": {
+                                "type": "string"
+                            },
+                            "main": {
+                                "type": "object",
+                                "properties": {
+                                    "temp": {
+                                        "type": "number"
+                                    }
+                                }
+                            },
+                            "weather": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "description": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "models.HTTPValidationError": {
             "type": "object",
             "properties": {
@@ -296,6 +398,12 @@ const docTemplate = `{
                         "$ref": "#/definitions/models.ValidationErrorDetail"
                     }
                 }
+            }
+        },
+        "models.StandardResponse": {
+            "type": "object",
+            "properties": {
+                "data": {}
             }
         },
         "models.ValidationErrorDetail": {
