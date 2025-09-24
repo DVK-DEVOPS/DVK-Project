@@ -30,12 +30,38 @@ definitions:
       statusCode:
         type: integer
     type: object
+  models.Forecast:
+    properties:
+      list:
+        items:
+          properties:
+            dt_txt:
+              type: string
+            main:
+              properties:
+                temp:
+                  type: number
+              type: object
+            weather:
+              items:
+                properties:
+                  description:
+                    type: string
+                type: object
+              type: array
+          type: object
+        type: array
+    type: object
   models.HTTPValidationError:
     properties:
       detail:
         items:
           $ref: '#/definitions/models.ValidationErrorDetail'
         type: array
+    type: object
+  models.StandardResponse:
+    properties:
+      data: {}
     type: object
   models.ValidationErrorDetail:
     properties:
@@ -151,6 +177,30 @@ paths:
       summary: Search pages
       tags:
       - search
+  /api/weather:
+    get:
+      description: Get weather forecast (temperature, conditions) for 5 days in Copenhagen
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.StandardResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.Forecast'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get weather forecast
+      tags:
+      - weather
   /login:
     get:
       description: Displays the login page
@@ -199,4 +249,21 @@ paths:
       summary: Serve register page
       tags:
       - users
+  /weather:
+    get:
+      description: Show the weather page.
+      produces:
+      - text/html
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "404":
+          description: Template not found
+          schema:
+            type: string
+      summary: Serve weather page
+      tags:
+      - weather
 swagger: "2.0"
