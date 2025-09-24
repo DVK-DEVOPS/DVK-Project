@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check health endpoint
+        timeout-minutes: 2
         id: health-check
         run: |
           echo "Testing health check on branch: ${{ github.ref_name }}"
