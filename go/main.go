@@ -1,6 +1,7 @@
 package main
 
 import (
+	"DVK-Project/client"
 	"DVK-Project/db"
 	"DVK-Project/handlers"
 	"fmt"
@@ -44,7 +45,8 @@ func main() {
 	r.HandleFunc("/search", sc.ShowSearchResults).Methods("GET")
 	r.HandleFunc("/api/search", sc.SearchAPI).Methods("GET") //returns json
 
-	wc := &handlers.WeatherController{}
+	apiClient := client.NewAPIClient()
+	wc := handlers.NewWeatherController(apiClient)
 	r.HandleFunc("/weather", wc.ShowWeatherPage).Methods("GET")
 	r.HandleFunc("/api/weather", wc.GetWeatherForecast).Methods("GET")
 

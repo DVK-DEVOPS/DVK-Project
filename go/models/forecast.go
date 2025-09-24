@@ -1,5 +1,7 @@
 package models
 
+import "encoding/json"
+
 type Forecast struct {
 	List []struct {
 		DtText string `json:"dt_text"`
@@ -10,4 +12,13 @@ type Forecast struct {
 			Description string `json:"description"`
 		} `json:"weather"`
 	} `json:"list"`
+}
+
+func ParseApiResponse(data []byte) (*Forecast, error) {
+	var forecast Forecast
+	err := json.Unmarshal(data, &forecast)
+	if err != nil {
+		return nil, err
+	}
+	return &forecast, nil
 }
