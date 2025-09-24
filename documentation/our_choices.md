@@ -36,3 +36,21 @@ Go is highly suited for small scale systems such as the legacy system that the t
 As has been repeatedly stated above the scale of the legacy project inevitably plays a role in going with an SQLite database. The team wanted *simplicity*, *portability* and *low overhead* which an SQLite database provides. SQLite provides fast performance and is a lightweight solution. Perfect for our project.
 
 # How we work with environment variables
+
+Azure Vault + env variables in systemd config on the server.
+
+# What version control strategy we chose and how we enforced it?
+
+# Why did we choose the one we did? Why didn't we choose others?
+
+# What advantages and disadvantages did we run into during the course?
+
+After you have setup a these code quality tools and gone through the issues, your group should create a brief document that answers the following questions:
+
+# Do you agree with the findings?
+
+# Which ones did you fix?
+
+# Which ones did you ignore?
+
+# Why?
