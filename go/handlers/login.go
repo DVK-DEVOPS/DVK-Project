@@ -39,14 +39,14 @@ func (lh *LoginHandler) ShowLogin(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Login authenticates a user with email and password.
+// Login authenticates a user with username and password.
 // @Summary Login
-// @Description Authenticates a user using email and password
+// @Description Authenticates a user using username and password
 // @Tags users
 // @Accept application/x-www-form-urlencoded
 // @Produce application/json
-// @Param email formData string true "User email"
-// @Param password formData string true "User password"
+// @Param username formData string true "Username"
+// @Param password formData string true "Password"
 // @Success 200 {object} models.AuthResponse "Successful registration"
 // @Failure 422 {object} models.HTTPValidationError "Validation error"
 // @Router /api/login [post]
