@@ -12,11 +12,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check health endpoint
-        timeout-minutes: 2
+        #timeout-minutes: 2
         id: health-check
         run: |
           echo "Testing health check on branch: ${{ github.ref_name }}"
-          curl -f http://${{ secrets.VM_HOST }}/api/health || (echo "App health check failed!" && exit 1)
+          curl -f --max-time 30 http://${{ secrets.VM_HOST }}/api/health || (echo "App health check failed!" && exit 1)
 
       - name: Notify team on failure
         if: failure()
