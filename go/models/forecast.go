@@ -14,7 +14,7 @@ type Forecast struct {
 	} `json:"list"`
 }
 
-func ParseForecast(data []byte) (*Forecast, error) {
+func ParseApiResponse(data []byte) (*Forecast, error) {
 	var forecast Forecast
 	err := json.Unmarshal(data, &forecast)
 	if err != nil {
