@@ -29,7 +29,8 @@ func main() {
 	r := mux.NewRouter()
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 
-	r.HandleFunc("/", handlers.HomeHandler)
+	r.HandleFunc("/", handlers.HomeHandler).Methods("GET")
+	r.HandleFunc("/about", handlers.AboutHandler).Methods("GET")
 
 	lh := &handlers.LoginHandler{UserRepository: userRepository}
 	r.HandleFunc("/login", lh.ShowLogin).Methods("GET")
