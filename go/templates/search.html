@@ -19,21 +19,22 @@
     Go Home
 </a>
     <form action="/search" method="get">
-    <input type="text" name="q" placeholder="Search..."> <br>
+    <input type="search-input" name="q" placeholder="Search..."> <br>
     <label for="language">Choose a language</label>
     <select name="language" id="language">
         <option value="en">English</option>
         <option value="ro">Romanian</option>
     </select>
     <br>
-    <button type="submit">Search</button>
+    <button type="search-button">Search</button>
     </form>
+    <div id="results">
 
     {{if .}}
         <ul>
         {{range .}}
             <li>
-                <strong>{{.Title}}</strong> - 
+                <h2><a class="search-result-title"></a><strong>{{.Title}}</strong></h2>
                 <a href="{{.Url}}" target="_blank">{{.Url}}</a>
             </li>
         {{end}}
