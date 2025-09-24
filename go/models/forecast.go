@@ -4,7 +4,7 @@ import "encoding/json"
 
 type Forecast struct {
 	List []struct {
-		DtText string `json:"dt_text"`
+		DtText string `json:"dt_txt"`
 		Main   struct {
 			Temp float64 `json:"temp"`
 		} `json:"main"`

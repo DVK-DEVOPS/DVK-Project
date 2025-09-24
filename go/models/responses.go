@@ -16,5 +16,5 @@ type ValidationErrorDetail struct {
 }
 
 type StandardResponse struct {
-	Data map[string]interface{} `json:"data"`
+	Data interface{} `json:"data"`
 }
