@@ -31,8 +31,8 @@ func GetAPIKey() string { //returns the api key from .env in dev and from azure 
 		}
 
 		// Fetch from Key Vault
-		vaultName := os.Getenv("whoknows")
-		secretName := os.Getenv("weather-api-key")
+		vaultName := os.Getenv("KEYVAULT_NAME")
+		secretName := os.Getenv("SECRET_NAME")
 		if vaultName == "" || secretName == "" {
 			log.Fatal("KEYVAULT_NAME or SECRET_NAME environment variables not set")
 		}
