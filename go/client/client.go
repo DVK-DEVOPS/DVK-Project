@@ -37,13 +37,12 @@ func (c *APIClient) FetchForecast(city string) ([]byte, error) {
 	reqURL := fmt.Sprintf("%s?q=%s&appid=%s", c.Url, city, c.ApiKey)
 	fmt.Println(reqURL)
 	resp, err := c.Client.Get(reqURL)
-	fmt.Println(resp)
 	if err != nil {
 		return nil, fmt.Errorf("Fetch error: %w", err)
 	}
+	fmt.Println("response status:", resp.Status)
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
-	fmt.Println(body)
 	if err != nil {
 		return nil, fmt.Errorf("Fetch error: %w", err)
 	}
