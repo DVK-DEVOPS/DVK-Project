@@ -1,13 +1,20 @@
 package handlers
 
 import (
+	"DVK-Project/client"
 	"DVK-Project/models"
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"net/http"
 )
 
 type WeatherController struct {
+	Client *client.APIClient
+}
+
+func NewWeatherController(c *client.APIClient) *WeatherController {
+	return &WeatherController{Client: c}
 }
 
 func (wc *WeatherController) ShowWeatherPage(w http.ResponseWriter, req *http.Request) {
@@ -28,6 +35,18 @@ func (wc *WeatherController) GetWeatherForecast(w http.ResponseWriter, req *http
 	})
 }
 
-//func FetchForecast(url string) ([]byte, error) {
-//	client := models.NewAPIClient()
-//}
+func (wc *WeatherController) FetchAndParseWeatherResponse(city string) (*models.Forecast, error) {
+	data, err := wc.Client.FetchForecast(city)
+	fmt.Println(data) //debug
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch forecast: %w", err)
+	}
+
+	forecast, err := models.ParseApiResponse(data)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse forecast: %w", err)
+	}
+
+	fmt.Println(forecast.List[0].Main.Temp) //for debug
+	return forecast, nil
+}
