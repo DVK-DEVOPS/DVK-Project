@@ -14,17 +14,14 @@
         {{if .Error}}
         <div class="error">{{.Error}}</div>
         {{end}}
-        <form method="post" action="/api/login" class="form">
-            <label class="label">User
-                <input class="input" name="username" required value="{{.Username}}">
-            </label>
-            <label class="label">Password
-                <input class="input" type="password" name="password" required>
-            </label>
-            <div class="actions">
-                <button class="btn primary" type="submit">Sign in</button>
-                <a class="btn ghost" href="/forgot">Forgot?</a>
-            </div>
+        <form action="/api/login" method="POST">
+            <dl>
+                <dt>Username:
+                <dd><input type="text" name="username">
+                <dt>Password:
+                <dd><input type="password" name="password" size="30">
+            </dl>
+            <div class="actions"><input type="submit" value="Log In"></div>
         </form>
     </section>
 </main>
