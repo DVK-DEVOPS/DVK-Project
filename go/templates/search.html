@@ -3,43 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <title>Search Results</title>
+    <link rel="stylesheet" href="../static/search.css">
 </head>
 <body>
-    <h1>Search Results</h1>
-    <a href="/" style="
-    padding: 6px 12px;
-    font-size: 14px;
-    font-family: Arial, sans-serif;
-    color: #000;
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    cursor: pointer;
-">
-    Go Home
-</a>
-    <form action="/search" method="get">
-    <input type="text" name="q" placeholder="Search..."> <br>
+<h1>Search Results</h1>
+
+<a href="/" class="home-link">Go Home</a>
+
+<form action="/search" method="get" class="search-form">
+    <input type="text" name="q" placeholder="Search..." class="search-input">
     <label for="language">Choose a language</label>
-    <select name="language" id="language">
+    <select name="language" id="language" class="search-select">
         <option value="en">English</option>
         <option value="ro">Romanian</option>
     </select>
-    <br>
-    <button type="submit">Search</button>
-    </form>
+    <button type="submit" class="search-btn">Search</button>
+</form>
 
-    {{if .}}
-        <ul>
-        {{range .}}
-            <li>
-                <strong>{{.Title}}</strong> - 
-                <a href="{{.Url}}" target="_blank">{{.Url}}</a>
-            </li>
-        {{end}}
-        </ul>
-    {{else}}
-        <p>No results found.</p>
+{{if .}}
+<ul class="results">
+    {{range .}}
+    <li>
+        <strong>{{.Title}}</strong>
+        <a href="{{.Url}}" target="_blank">{{.Url}}</a>
+    </li>
     {{end}}
+</ul>
+{{else}}
+<p class="no-results">No results found.</p>
+{{end}}
 </body>
 </html>
