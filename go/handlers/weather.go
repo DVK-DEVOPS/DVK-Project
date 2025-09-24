@@ -33,23 +33,18 @@ func (wc *WeatherController) GetWeatherForecast(w http.ResponseWriter, req *http
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(models.StandardResponse{
-			Data: map[string]interface{}{
-				"error": "failed to fetch weather forecast",
-			},
+			Data: "failed to fetch weather forecast",
 		})
 		return
 	}
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(models.StandardResponse{
-		Data: map[string]interface{}{
-			"data": forecast,
-		},
+		Data: forecast,
 	})
 }
 
 func (wc *WeatherController) FetchAndParseWeatherResponse(city string) (*models.Forecast, error) {
 	data, err := wc.Client.FetchForecast(city)
-	fmt.Println(data) //debug
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch forecast: %w", err)
 	}
