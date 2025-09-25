@@ -80,14 +80,14 @@ paths:
     post:
       consumes:
       - application/x-www-form-urlencoded
-      description: Authenticates a user using email and password
+      description: Authenticates a user using username and password
       parameters:
-      - description: User email
+      - description: username
         in: formData
-        name: email
+        name: username
         required: true
         type: string
-      - description: User password
+      - description: password
         in: formData
         name: password
         required: true

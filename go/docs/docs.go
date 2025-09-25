@@ -17,7 +17,7 @@ const docTemplate = `{
     "paths": {
         "/api/login": {
             "post": {
-                "description": "Authenticates a user using email and password",
+                "description": "Authenticates a user using username and password",
                 "consumes": [
                     "application/x-www-form-urlencoded"
                 ],
@@ -31,14 +31,14 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "User email",
-                        "name": "email",
+                        "description": "username",
+                        "name": "username",
                         "in": "formData",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "User password",
+                        "description": "password",
                         "name": "password",
                         "in": "formData",
                         "required": true
