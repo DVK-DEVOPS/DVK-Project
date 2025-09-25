@@ -5,6 +5,11 @@ The goal is to rewrite a legacy project using traditional DevOps tools and adher
 
 The requirements to run this project will be reflected in the [requirements.txt](path/to/requirements.txt) which will be authored later.
 
+## Actions
+[![Deploy to Azure VM](https://github.com/DVK-DEVOPS/DVK-Project/actions/workflows/azure.yml/badge.svg)](https://github.com/DVK-DEVOPS/DVK-Project/actions/workflows/azure.yml)
+
+[![Golangci Lint](https://github.com/DVK-DEVOPS/DVK-Project/actions/workflows/golangci_lint.yml/badge.svg)](https://github.com/DVK-DEVOPS/DVK-Project/actions/workflows/golangci_lint.yml)
+
 
 ## Notable Content
 [Overview of the documentation for this rewrite project](/documentation/)
