@@ -17,6 +17,13 @@ func NewWeatherController(c *client.APIClient) *WeatherController {
 	return &WeatherController{Client: c}
 }
 
+// @Summary Serve weather page
+// @Description Show the weather page.
+// @Tags weather
+// @Produce text/html
+// @Success 200 {string} text/html "HTML of weather forecast page"
+// @Failure 404 {string} string "Template not found"
+// @Router /weather [get]
 func (wc *WeatherController) ShowWeatherPage(w http.ResponseWriter, req *http.Request) {
 	tmpl, _ := template.ParseFiles("templates/weather.html")
 	err := tmpl.Execute(w, nil)
@@ -26,6 +33,13 @@ func (wc *WeatherController) ShowWeatherPage(w http.ResponseWriter, req *http.Re
 	}
 }
 
+// @Summary      Get weather forecast
+// @Description  Get weather forecast (temperature, conditions) for 5 days in Copenhagen
+// @Produce      json
+// @Tags weather
+// @Success      200 {object} models.StandardResponse{data=models.Forecast}
+// @Failure      500 {object} map[string]string "Internal Server Error"
+// @Router       /api/weather [get]
 func (wc *WeatherController) GetWeatherForecast(w http.ResponseWriter, req *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")

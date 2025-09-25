@@ -2,12 +2,12 @@ package main
 
 import (
 	"DVK-Project/client"
+	"DVK-Project/config"
 	"DVK-Project/db"
 	"DVK-Project/handlers"
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
@@ -16,8 +16,8 @@ import (
 func main() {
 	//debugging
 	godotenv.Load()
-	fmt.Println("URL:", os.Getenv("API_URL"))
-	fmt.Println("API_KEY:", os.Getenv("API_KEY"))
+
+	fmt.Println("API_KEY:", config.GetAPIKey())
 
 	database, err := db.InitDB()
 	if err != nil {
@@ -36,7 +36,8 @@ func main() {
 
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 
-	r.HandleFunc("/", handlers.HomeHandler)
+	r.HandleFunc("/", handlers.HomeHandler).Methods("GET")
+	r.HandleFunc("/about", handlers.AboutHandler).Methods("GET")
 
 	lh := &handlers.LoginHandler{UserRepository: userRepository}
 	r.HandleFunc("/login", lh.ShowLogin).Methods("GET")
