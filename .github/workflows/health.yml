@@ -12,52 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check health endpoint
-        #timeout-minutes: 2
         id: health-check
         run: |
           echo "Testing health check on branch: ${{ github.ref_name }}"
           curl -f --max-time 30 http://${{ secrets.VM_HOST }}/api/health || (echo "App health check failed!" && exit 1)
-
-      - name: Notify team on failure
-        if: failure()
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp-mail.outlook.com
-          server_port: 587
-          username: ${{ secrets.DVK_EMAIL_USERNAME }}
-          password: ${{ secrets.DVK_EMAIL_PASSWORD }}
-          subject: "🧪 TEST - Health Check Failed - ${{ secrets.VM_HOST }}"
-          to: ${{ secrets.DVK_TEAM_EMAILS }}
-          from: "GitHub Actions <${{ secrets.DVK_EMAIL_USERNAME }}>"
-          body: |
-            ⚠️ TEST HEALTH CHECK FAILURE ⚠️
-            
-            This is a TEST notification from branch: ${{ github.ref_name }}
-            
-            Details:
-            - Host: ${{ secrets.VM_HOST }}
-            - Endpoint: http://${{ secrets.VM_HOST }}/api/health
-            - Time: ${{ github.run_started_at }}
-            - Branch: ${{ github.ref_name }}
-            - Run ID: ${{ github.run_id }}
-            
-            View workflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-
-      # Optional: Test success notification too
-      - name: Notify on success (TEST ONLY)
-        if: success()
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.office365.com
-          server_port: 587
-          username: ${{ secrets.EMAIL_USERNAME }}
-          password: ${{ secrets.EMAIL_PASSWORD }}
-          subject: "✅ TEST - Health Check Passed - ${{ secrets.VM_HOST }}"
-          to: ${{ secrets.TEAM_EMAILS }}
-          from: "GitHub Actions <${{ secrets.EMAIL_USERNAME }}>"
-          body: |
-            ✅ TEST HEALTH CHECK SUCCESS ✅
-            
-            This is a TEST notification - health check passed on branch: ${{ github.ref_name }}
-
-
