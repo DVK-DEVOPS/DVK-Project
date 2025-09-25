@@ -15,7 +15,7 @@ The requirements to run this project will be reflected in the [requirements.txt]
 
 [Security Issues With Legacy Project](/documentation/legacy_codebase/Legacy_Codebase_Problems.md)
 
-## Actions
+## Github Actions
 [![Deploy to Azure VM](https://github.com/DVK-DEVOPS/DVK-Project/actions/workflows/azure.yml/badge.svg)](https://github.com/DVK-DEVOPS/DVK-Project/actions/workflows/azure.yml)
 [![Scheduled Health Check](https://github.com/DVK-DEVOPS/DVK-Project/actions/workflows/health.yml/badge.svg)](https://github.com/DVK-DEVOPS/DVK-Project/actions/workflows/health.yml)
 [![Golangci Lint](https://github.com/DVK-DEVOPS/DVK-Project/actions/workflows/golangci_lint.yml/badge.svg)](https://github.com/DVK-DEVOPS/DVK-Project/actions/workflows/golangci_lint.yml)
