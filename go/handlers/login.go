@@ -45,8 +45,8 @@ func (lh *LoginHandler) ShowLogin(w http.ResponseWriter, r *http.Request) {
 // @Tags users
 // @Accept application/x-www-form-urlencoded
 // @Produce application/json
-// @Param username formData string true "Username"
-// @Param password formData string true "Password"
+// @Param username formData string true "username"
+// @Param password formData string true "password"
 // @Success 200 {object} models.AuthResponse "Successful registration"
 // @Failure 422 {object} models.HTTPValidationError "Validation error"
 // @Router /api/login [post]
