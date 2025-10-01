@@ -27,6 +27,13 @@ func main() {
 	pageRepository := db.NewPageRepository(database)
 
 	r := mux.NewRouter()
+
+	//Healthcheck
+	r.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"status":"ok"}`))
+	})
+
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 
 	r.HandleFunc("/", handlers.HomeHandler).Methods("GET")
