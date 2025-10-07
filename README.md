@@ -23,6 +23,12 @@ The requirements to run this project will be reflected in the [requirements.txt]
 ## The Legacy Project
 Peruse the documentation regarding running and installing the legacy project [here.](documentation\legacy_codebase\README.md)
 
+## Quality Analysis
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=DVK-DEVOPS_DVK-Project&metric=bugs)](https://sonarcloud.io/summary/new_code?id=DVK-DEVOPS_DVK-Project)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=DVK-DEVOPS_DVK-Project&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=DVK-DEVOPS_DVK-Project)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=DVK-DEVOPS_DVK-Project&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=DVK-DEVOPS_DVK-Project)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=DVK-DEVOPS_DVK-Project&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=DVK-DEVOPS_DVK-Project)
+
 
 **Below is the original readme file from the WhoKnows repository.**
 ## Whoknows Variations - Repository ReadMe
