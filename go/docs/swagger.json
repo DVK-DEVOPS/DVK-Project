@@ -1,7 +1,8 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "title": "Who knows",
+        "version": "3.0.0"
     },
     "paths": {
         "/api/login": {
