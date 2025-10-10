@@ -1,0 +1,11 @@
+services:
+  whoknows:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    container_name: whoknows-prod
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./go/database.db:/whoknows/database.db
+    restart: unless-stopped
