@@ -27,4 +27,4 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-            docker buildx build --file ./Dockerfile.prod --push ./go
+            docker buildx build --file ./Dockerfile.prod --tag ghcr.io/dvk-devops/dvk-project:latest --push ./go
