@@ -1,8 +1,8 @@
 FROM golang:latest AS builder
 WORKDIR /whoknows
-RUN go install github.com/cosmtrek/air@latest
+RUN go install github.com/air-verse/air@latest
 ENV PATH="/root/go/bin:${PATH}"
-COPY go.mod go.sum ./
+COPY go/go.mod go/go.sum ./
 RUN go mod download
 COPY go/. .
 EXPOSE 8080
