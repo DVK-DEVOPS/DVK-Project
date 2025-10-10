@@ -2,7 +2,7 @@ FROM golang:latest AS builder
 WORKDIR /whoknows
 COPY go/go.mod go/go.sum ./
 RUN go mod download
-COPY go/. .
+COPY go/. ./go
 RUN go build -o app main.go
 
 FROM debian:bookworm-slim
