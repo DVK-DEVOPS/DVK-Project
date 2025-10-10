@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   whoknows:
     build:
@@ -13,5 +11,5 @@ services:
       - ./go/database.db:/whoknows/database.db
     env_file:
       - ./go/.env
-    command: air -c .air.toml
+    command: air -c /whoknows/.air.toml
     restart: unless-stopped
