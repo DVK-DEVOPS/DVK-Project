@@ -1,12 +1,12 @@
 FROM golang:latest AS builder
-WORKDIR /whoknows
+WORKDIR /whoknows/go
 COPY go/go.mod go/go.sum ./
 RUN go mod download
-COPY go/. ./go
-RUN go build -o app main.go
+COPY go/ ./
+RUN go build -o app .
 
 FROM debian:bookworm-slim
-WORKDIR /whoknows
-COPY --from=builder /whoknows/app .
+WORKDIR /whoknows/go
+COPY --from=builder /whoknows/go/app .
 EXPOSE 8080
 CMD ["./app"]
