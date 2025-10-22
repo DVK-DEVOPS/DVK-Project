@@ -1,0 +1,12 @@
+services:
+  whoknows:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    image: ghcr.io/dvk-devops/dvk-project:latest
+    container_name: whoknows-prod
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./go/database.db:/whoknows/database.db
+    restart: unless-stopped
