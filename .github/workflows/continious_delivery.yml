@@ -11,6 +11,12 @@ env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   DOCKER_GITHUB_USERNAME: ${{ github.actor }}
 
+permissions:
+    contents: read
+    packages: write
+    attestations: write
+    id-token: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
