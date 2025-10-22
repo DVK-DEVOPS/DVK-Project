@@ -2,22 +2,15 @@ package main
 
 import (
 	"DVK-Project/client"
-	"DVK-Project/config"
 	"DVK-Project/db"
 	"DVK-Project/handlers"
-	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/joho/godotenv"
 )
 
 func main() {
-	//debugging
-	godotenv.Load()
-
-	fmt.Println("API_KEY:", config.GetAPIKey())
 
 	database, err := db.InitDB()
 	if err != nil {
