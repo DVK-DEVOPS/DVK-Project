@@ -54,8 +54,7 @@ func GetAPIKey() string { //returns the api key from .env in dev and from azure 
 			log.Fatalf("Failed to fetch secret: %v", err)
 		}
 
-		apiKey := *resp.Value
-		fmt.Println("API Key:", apiKey)
+		cachedAPIKey = *resp.Value
 
 	})
 
