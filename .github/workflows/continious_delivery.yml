@@ -31,9 +31,9 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ env.DOCKER_GITHUB_USERNAME }}
+          password: ${{ env.GITHUB_TOKEN }}
 
       - name: Build and Push Docker Image
         run: |
-            docker buildx build --file ./Dockerfile.prod --tag ghcr.io/dvk-devops/dvk-project:latest --push .
+            docker buildx build --file ./Dockerfile.prod --tag ghcr.io/dvk-devops/dvk-project:latest --platform linux/amd64,linux/arm64 --push .
