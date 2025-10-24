@@ -67,7 +67,7 @@ func (wc *WeatherController) FetchAndParseWeatherResponse(city string) (*models.
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse forecast: %w", err)
 	}
-	if forecast != nil {
+	if forecast != nil && len(forecast.List) > 0 {
 		fmt.Println(forecast.List[0].Main.Temp) //for debug
 	}
 	return forecast, nil
