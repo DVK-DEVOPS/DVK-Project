@@ -1,4 +1,5 @@
 version: "2"
+
 run:
   timeout: 5m
   tests: true
@@ -11,11 +12,10 @@ linters:
     - errcheck
   disable:
     - godot
-
-linters-settings:
-  errcheck:
-    ignore:
-      - ".*Encode"
-      - ".*Write"
-      - ".*Execute"
-
+  settings:
+    errcheck:
+      exclude-functions:
+        - "fmt.Fprintf"
+        - "fmt.Fprintln"
+        - "(*bytes.Buffer).Write"
+        - "(*bytes.Buffer).WriteString"
