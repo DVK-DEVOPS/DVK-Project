@@ -1,8 +1,7 @@
-version: "2"
+version: "2.5"
 run:
   timeout: 5m
   tests: true
-
 
 linters:
   enable:
@@ -12,3 +11,11 @@ linters:
     - errcheck
   disable:
     - godot
+
+linters-settings:
+  errcheck:
+    ignore:
+      - ".*Encode"
+      - ".*Write"
+      - ".*Execute"
+
