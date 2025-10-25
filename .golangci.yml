@@ -15,7 +15,9 @@ linters:
   settings:
     errcheck:
       exclude-functions:
-        - "fmt.Fprintf"
-        - "fmt.Fprintln"
-        - "(*bytes.Buffer).Write"
-        - "(*bytes.Buffer).WriteString"
+          - "(net/http.ResponseWriter).Write"
+          - "encoding/json.(*Encoder).Encode"
+          - "html/template.(*Template).Execute"
+          - "github.com/gorilla/mux.(*Router).Walk"
+          - "(*net/http.Response.Body).Close"
+          - "(*database/sql.Rows).Close"
