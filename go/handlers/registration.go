@@ -76,7 +76,15 @@ func (rc *RegistrationController) Register(w http.ResponseWriter, r *http.Reques
 	}
 
 	hashedPassword, err := db.HashPassword(password)
-
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		_ = json.NewEncoder(w).Encode(models.HTTPValidationError{
+			Detail: []models.ValidationErrorDetail{
+				{Loc: []interface{}{"db"}, Msg: "Internal server error", Type: "internal_error"},
+			},
+		})
+		return
+	}
 	user := models.User{
 		Username: username,
 		Email:    email,

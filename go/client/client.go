@@ -39,13 +39,13 @@ func (c *APIClient) FetchForecast(city string) ([]byte, error) {
 	fmt.Println(reqURL)
 	resp, err := c.Client.Get(reqURL)
 	if err != nil {
-		return nil, fmt.Errorf("Fetch error: %w", err)
+		return nil, fmt.Errorf("fetch error: %w", err)
 	}
 	fmt.Println("response status:", resp.Status)
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("Fetch error: %w", err)
+		return nil, fmt.Errorf("fetch error: %w", err)
 	}
 	return body, nil
 }
