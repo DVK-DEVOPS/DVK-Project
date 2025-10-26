@@ -62,7 +62,7 @@ func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 		}
 		if err := json.NewDecoder(r.Body).Decode(&creds); err != nil {
 			w.WriteHeader(http.StatusUnprocessableEntity)
-			json.NewEncoder(w).Encode(models.HTTPValidationError{
+			_ = json.NewEncoder(w).Encode(models.HTTPValidationError{
 				Detail: []models.ValidationErrorDetail{
 					{Loc: []interface{}{"body"}, Msg: "Invalid JSON body", Type: "parse_error"},
 				},
@@ -73,7 +73,7 @@ func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 	} else {
 		if err := r.ParseForm(); err != nil {
 			w.WriteHeader(http.StatusUnprocessableEntity)
-			json.NewEncoder(w).Encode(models.HTTPValidationError{
+			_ = json.NewEncoder(w).Encode(models.HTTPValidationError{
 				Detail: []models.ValidationErrorDetail{
 					{Loc: []interface{}{"body", "form"}, Msg: "Form parse error", Type: "parse_error"},
 				},
@@ -101,14 +101,14 @@ func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 				Type: "validation_error",
 			})
 		}
-		json.NewEncoder(w).Encode(models.HTTPValidationError{Detail: details})
+		_ = json.NewEncoder(w).Encode(models.HTTPValidationError{Detail: details})
 		return
 	}
 
 	ok, err := lh.UserRepository.CheckCredentialsByUsername(username, password)
 	if err != nil {
 		w.WriteHeader(http.StatusUnprocessableEntity)
-		json.NewEncoder(w).Encode(models.HTTPValidationError{
+		_ = json.NewEncoder(w).Encode(models.HTTPValidationError{
 			Detail: []models.ValidationErrorDetail{
 				{Loc: []interface{}{"db"}, Msg: "Database error", Type: "internal_error"},
 			},
@@ -118,7 +118,7 @@ func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	if !ok {
 		w.WriteHeader(http.StatusUnprocessableEntity)
-		json.NewEncoder(w).Encode(models.HTTPValidationError{
+		_ = json.NewEncoder(w).Encode(models.HTTPValidationError{
 			Detail: []models.ValidationErrorDetail{
 				{Loc: []interface{}{"body", "credentials"}, Msg: "Invalid credentials", Type: "validation_error"},
 			},
@@ -136,7 +136,7 @@ func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 	})
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(models.AuthResponse{
+	_ = json.NewEncoder(w).Encode(models.AuthResponse{
 		StatusCode: 3070,
 		Message:    fmt.Sprintf("User authenticated with username %s", username),
 	})

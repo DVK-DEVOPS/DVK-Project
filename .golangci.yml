@@ -1,8 +1,8 @@
 version: "2"
+
 run:
   timeout: 5m
   tests: true
-
 
 linters:
   enable:
@@ -12,3 +12,12 @@ linters:
     - errcheck
   disable:
     - godot
+  settings:
+    errcheck:
+      exclude-functions:
+          - "(net/http.ResponseWriter).Write"
+          - "encoding/json.(*Encoder).Encode"
+          - "html/template.(*Template).Execute"
+          - "github.com/gorilla/mux.(*Router).Walk"
+          - "(*net/http.Response.Body).Close"
+          - "(*database/sql.Rows).Close"
