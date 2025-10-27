@@ -1,7 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>DVK</title>
+    <link rel="stylesheet" href="../static/index.css">
 </head>
 <body>
 <div class="navigation">
@@ -10,19 +12,20 @@
         <a id="nav-logout" href="/logout">Log out</a>
         <a id="nav-login" href="/login">Log in</a>
         <a id="nav-register" href="/register">Register</a>
+        <a id="nav-weather" href="/weather"> Check weather in Copenhagen</a>
     </nav>
 <h1>DVK-Project</h1>
 <p>Search for java or 'c'</p>
 <form action="/search" method="get">
     <input type="text" name="q" placeholder="Search..."> <br>
     <label for="language">Choose a language</label>
-    <select name="language" id="language">
+    <select name="language" id="language" class="search-select">
         <option value="en">English</option>
         <option value="ro">Romanian</option>
     </select>
-    <br>
-    <button type="submit">Search</button>
-    </form>
+    <button type="submit" class="search-btn">Search</button>
+</form>
+
 </div>
 <div class="footer">
     <span>¿Who Knows? &copy; 2009</span>
