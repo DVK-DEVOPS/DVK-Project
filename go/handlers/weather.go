@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 )
 
@@ -41,20 +42,27 @@ func (wc *WeatherController) ShowWeatherPage(w http.ResponseWriter, req *http.Re
 // @Failure      500 {object} map[string]string "Internal Server Error"
 // @Router       /api/weather [get]
 func (wc *WeatherController) GetWeatherForecast(w http.ResponseWriter, req *http.Request) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("panic in GetWeatherForecast: %v", r)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+	}()
+
+	log.Println("GET /api/weather called")
 
 	w.Header().Set("Content-Type", "application/json")
 	forecast, err := wc.FetchAndParseWeatherResponse("Copenhagen")
 	if err != nil {
+		log.Printf("fetch error: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(models.StandardResponse{
-			Data: "failed to fetch weather forecast",
-		})
+		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
 		return
 	}
+
+	log.Printf("Forecast fetched: %+v\n", forecast)
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(models.StandardResponse{
-		Data: forecast,
-	})
+	json.NewEncoder(w).Encode(forecast)
 }
 
 func (wc *WeatherController) FetchAndParseWeatherResponse(city string) (*models.Forecast, error) {
