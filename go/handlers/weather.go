@@ -26,12 +26,26 @@ func NewWeatherController(c *client.APIClient) *WeatherController {
 // @Failure 404 {string} string "Template not found"
 // @Router /weather [get]
 func (wc *WeatherController) ShowWeatherPage(w http.ResponseWriter, req *http.Request) {
-	tmpl, _ := template.ParseFiles("templates/weather.html")
-	err := tmpl.Execute(w, nil)
+	forecast, err := wc.getForecastData()
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to get forecast: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	tmpl, err := template.ParseFiles("templates/weather.html")
 	if err != nil {
 		http.Error(w, "Template not found", http.StatusNotFound)
 		return
 	}
+
+	if err := tmpl.Execute(w, forecast); err != nil {
+		http.Error(w, "Template execution failed", http.StatusInternalServerError)
+		return
+	}
+}
+
+func (wc *WeatherController) getForecastData() (*models.Forecast, error) {
+	return wc.FetchAndParseWeatherResponse("Copenhagen")
 }
 
 // @Summary      Get weather forecast
@@ -52,7 +66,7 @@ func (wc *WeatherController) GetWeatherForecast(w http.ResponseWriter, req *http
 	log.Println("GET /api/weather called")
 
 	w.Header().Set("Content-Type", "application/json")
-	forecast, err := wc.FetchAndParseWeatherResponse("Copenhagen")
+	forecast, err := wc.getForecastData()
 	if err != nil {
 		log.Printf("fetch error: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
