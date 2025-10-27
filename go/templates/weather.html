@@ -2,17 +2,28 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Weather forecast</title>
+    <title>Weather Forecast</title>
+    <link rel="stylesheet" href="/weather.css">
 </head>
 <body>
 <h1>Weather Forecast</h1>
-<ul>
+<table>
+    <thead>
+    <tr>
+        <th>Date & Time</th>
+        <th>Temperature (°C)</th>
+        <th>Condition</th>
+    </tr>
+    </thead>
+    <tbody>
     {{range .List}}
-    <li>
-        <strong>{{.DtText}}</strong>: {{.Main.Temp}}°C -
-        {{ (index .Weather 0).Description }}
-    </li>
+    <tr>
+        <td>{{.DtText}}</td>
+        <td>{{printf "%.2f" .Main.Temp}}</td>
+        <td>{{(index .Weather 0).Description}}</td>
+    </tr>
     {{end}}
-</ul>
+    </tbody>
+</table>
 </body>
 </html>
