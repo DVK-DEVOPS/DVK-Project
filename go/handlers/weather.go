@@ -60,23 +60,33 @@ func (wc *WeatherController) GetWeatherForecast(w http.ResponseWriter, req *http
 		return
 	}
 
-	log.Printf("Forecast fetched: %+v\n", forecast)
+	log.Printf("GetWeatherForecast: Forecast fetched: %+v\n", forecast)
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(forecast)
 }
 
 func (wc *WeatherController) FetchAndParseWeatherResponse(city string) (*models.Forecast, error) {
+	log.Printf("Fetching weather for city: %s\n", city)
+
 	data, err := wc.Client.FetchForecast(city)
 	if err != nil {
+		log.Printf("FetchAndParseWeatherResponse FetchForecast error: %v\n", err)
 		return nil, fmt.Errorf("failed to fetch forecast: %w", err)
 	}
+	log.Println("FetchAndParseWeatherResponse: FetchForecast succeeded, data length:", len(data))
 
 	forecast, err := models.ParseApiResponse(data)
 	if err != nil {
+		log.Printf("FetchAndParseWeatherResponse: ParseApiResponse error: %v\n", err)
 		return nil, fmt.Errorf("failed to parse forecast: %w", err)
 	}
+
 	if forecast != nil && len(forecast.List) > 0 {
-		fmt.Println(forecast.List[0].Main.Temp) //for debug
+		log.Printf("FetchAndParseWeatherResponse: First forecast temp: %v\n", forecast.List[0].Main.Temp)
+	} else {
+		log.Println("FetchAndParseWeatherResponse: Forecast list is empty or nil")
 	}
+
+	log.Println("FetchAndParseWeatherResponse returning successfully")
 	return forecast, nil
 }
