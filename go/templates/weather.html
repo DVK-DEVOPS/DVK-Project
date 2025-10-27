@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Weather forecast</title>
+</head>
+<body>
+<h1>Weather Forecast</h1>
+<ul>
+    {{range .List}}
+    <li>
+        <strong>{{.DtText}}</strong>: {{.Main.Temp}}°C -
+        {{ (index .Weather 0).Description }}
+    </li>
+    {{end}}
+</ul>
+</body>
+</html>

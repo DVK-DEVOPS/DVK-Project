@@ -7,31 +7,28 @@
     <link rel="stylesheet" href="../static/register.css">
 </head>
 <body>
-<main class="wrap">
-    <section class="card">
-        <h1 class="title">Sign up</h1>
+        <h2 class="title">Sign up</h2>
         {{if .Error}}
-        <div class="error">{{.Error}}</div>
+        <div class="error"><strong>Error:</strong>{{.Error}}</div>
         {{end}}
         <form method="post" action="/api/register" class="form">
-            <label class="label">Username
-                <input class="input" name="username" required value="{{.Username}}">
-            </label>
-            <label class="label">Email
-                <input class="input" type="email" name="email" required value="{{.Email}}">
-            </label>
-            <label class="label">Password
-                <input class="input" type="password" name="password" required>
-            </label>
-            <label class="label">Confirm Password
-                <input class="input" type="password" name="confirm_password" required>
-            </label>
+            <dl>
+                <dt>Username:</dt>
+                <dd><input class="input" type="text" name="username" size="30" value="{{ .Username }}"></dd>
+
+                <dt>Email:</dt>
+                <dd><input class="input" type="email" name="email" size="30" value="{{ .Email }}"></dd>
+
+                <dt>Password:</dt>
+                <dd><input class="input" type="password" name="password" size="30"></dd>
+
+                <dt>Confirm Password:</dt>
+                <dd><input class="input" type="password" name="confirm_password" size="30"></dd>
+            </dl>
             <div class="actions">
                 <button class="btn primary" type="submit">Sign up</button>
                 <a class="btn ghost" href="/login">Already have an account?</a>
             </div>
         </form>
-    </section>
-</main>
 </body>
 </html>

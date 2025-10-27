@@ -36,3 +36,40 @@ Go is highly suited for small scale systems such as the legacy system that the t
 As has been repeatedly stated above the scale of the legacy project inevitably plays a role in going with an SQLite database. The team wanted *simplicity*, *portability* and *low overhead* which an SQLite database provides. SQLite provides fast performance and is a lightweight solution. Perfect for our project.
 
 # How we work with environment variables
+
+Azure Vault + env variables in systemd config on the server.
+
+# What version control strategy we chose and how we enforced it?
+
+We decided to use GitHub Flow. For every new feature or bug fix, we create a separate feature branch with a descriptive name. We regularly commit and push our work to the remote.
+
+Before merging to main, we make a pull request, so the code is reviewed by at least one team member (we have set up branch protection rules on GitHub so no one can push directly to main). The point of the review is rather informational than quality control - it is that everybody knows exactly what the other team members have been working on. Therefore, we do not write an actual review on GitHub but simply merge the pull request when it was created. In that regard our flow resembles Feature branching strategy.
+If someone has already merged new changes into main, we pull those updates into our feature branch before creating the PR to avoid conflicts. Once a pull request is approved and merged, the code can be deployed right away.
+
+So overall, we only have one long-living branch (main), and the feature branches are merged frequently.
+
+We chose git merge as our branch integration strategy because we want to preserve the commit history the way it actually happened and clearly see when each feature branch was merged into main.
+
+# Why did we choose the one we did? Why didn't we choose others?
+
+The reason why we chose GitHub flow is that it’s a simple branching strategy that fits well with our team size and the project which is not very complex.  The alternative to GitHub flow was Git flow and Trunk based development.
+
+Git Flow was an overkill for our small team, as it uses long-living branches (develop and release), which would make things more complicated and slow down our delivery.
+
+Trunk based development seemed too risky, since it means committing directly to main. Given that we have no tests yet, it would increase the chance of bugs in production.
+
+# What advantages and disadvantages did we run into during the course?
+
+One of the advantages we experienced is that the workflow is familiar and simple, so there haven’t been any merge conflicts.  Another thing we enjoyed about this strategy is that it works nicely with our CI/CD pipeline, and the main branch always stays stable and ready for deployment.
+
+The disadvantage we encountered was that even small fixes must go through a pull request, which slows down the process. Also, the pull request templates can feel a bit annoying to fill in for quick changes.
+
+After you have setup a these code quality tools and gone through the issues, your group should create a brief document that answers the following questions:
+
+# Do you agree with the findings?
+
+# Which ones did you fix?
+
+# Which ones did you ignore?
+
+# Why?

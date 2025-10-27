@@ -10,6 +10,7 @@ DotEnv
 *.so
 database.db
 
+go/.env
 # Distribution / packaging
 .Python
 build/
@@ -126,7 +127,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
+go/.env
 .venv
 env/
 venv/

@@ -17,7 +17,7 @@ const docTemplate = `{
     "paths": {
         "/api/login": {
             "post": {
-                "description": "Authenticates a user using email and password",
+                "description": "Authenticates a user using username and password",
                 "consumes": [
                     "application/x-www-form-urlencoded"
                 ],
@@ -31,14 +31,14 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "User email",
-                        "name": "email",
+                        "description": "username",
+                        "name": "username",
                         "in": "formData",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "User password",
+                        "description": "password",
                         "name": "password",
                         "in": "formData",
                         "required": true
@@ -165,6 +165,93 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/weather": {
+            "get": {
+                "description": "Get weather forecast (temperature, conditions) for 5 days in Copenhagen",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "weather"
+                ],
+                "summary": "Get weather forecast",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.StandardResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.Forecast"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/login": {
+            "get": {
+                "description": "Displays the login page",
+                "produces": [
+                    "text/html"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Show login page",
+                "responses": {
+                    "200": {
+                        "description": "Successful",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/logout": {
+            "get": {
+                "description": "Logs the user out by deleting the session cookie and redirects to login page",
+                "produces": [
+                    "text/html"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Logout",
+                "responses": {
+                    "200": {
+                        "description": "Successful logout",
+                        "schema": {
+                            "$ref": "#/definitions/models.AuthResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/register": {
             "get": {
                 "description": "Show the registration page.",
@@ -191,25 +278,25 @@ const docTemplate = `{
                 }
             }
         },
-        "/login": {
+        "/weather": {
             "get": {
-                "description": "Displays the login page",
+                "description": "Show the weather page.",
                 "produces": [
                     "text/html"
                 ],
                 "tags": [
-                    "users"
+                    "weather"
                 ],
-                "summary": "Show login page",
+                "summary": "Serve weather page",
                 "responses": {
                     "200": {
-                        "description": "Successful",
+                        "description": "OK",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "404": {
-                        "description": "Error",
+                        "description": "Template not found",
                         "schema": {
                             "type": "string"
                         }
@@ -267,6 +354,41 @@ const docTemplate = `{
                 }
             }
         },
+        "models.Forecast": {
+            "type": "object",
+            "properties": {
+                "list": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "dt_txt": {
+                                "type": "string"
+                            },
+                            "main": {
+                                "type": "object",
+                                "properties": {
+                                    "temp": {
+                                        "type": "number"
+                                    }
+                                }
+                            },
+                            "weather": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "description": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "models.HTTPValidationError": {
             "type": "object",
             "properties": {
@@ -276,6 +398,12 @@ const docTemplate = `{
                         "$ref": "#/definitions/models.ValidationErrorDetail"
                     }
                 }
+            }
+        },
+        "models.StandardResponse": {
+            "type": "object",
+            "properties": {
+                "data": {}
             }
         },
         "models.ValidationErrorDetail": {

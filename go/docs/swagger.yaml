@@ -30,12 +30,38 @@ definitions:
       statusCode:
         type: integer
     type: object
+  models.Forecast:
+    properties:
+      list:
+        items:
+          properties:
+            dt_txt:
+              type: string
+            main:
+              properties:
+                temp:
+                  type: number
+              type: object
+            weather:
+              items:
+                properties:
+                  description:
+                    type: string
+                type: object
+              type: array
+          type: object
+        type: array
+    type: object
   models.HTTPValidationError:
     properties:
       detail:
         items:
           $ref: '#/definitions/models.ValidationErrorDetail'
         type: array
+    type: object
+  models.StandardResponse:
+    properties:
+      data: {}
     type: object
   models.ValidationErrorDetail:
     properties:
@@ -54,14 +80,14 @@ paths:
     post:
       consumes:
       - application/x-www-form-urlencoded
-      description: Authenticates a user using email and password
+      description: Authenticates a user using username and password
       parameters:
-      - description: User email
+      - description: username
         in: formData
-        name: email
+        name: username
         required: true
         type: string
-      - description: User password
+      - description: password
         in: formData
         name: password
         required: true
@@ -151,23 +177,30 @@ paths:
       summary: Search pages
       tags:
       - search
-  /register:
+  /api/weather:
     get:
-      description: Show the registration page.
+      description: Get weather forecast (temperature, conditions) for 5 days in Copenhagen
       produces:
-      - text/html
+      - application/json
       responses:
         "200":
-          description: HTML of registration page
+          description: OK
           schema:
-            type: string
-        "404":
-          description: Template not found
+            allOf:
+            - $ref: '#/definitions/models.StandardResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.Forecast'
+              type: object
+        "500":
+          description: Internal Server Error
           schema:
-            type: string
-      summary: Serve register page
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get weather forecast
       tags:
-      - users
+      - weather
   /login:
     get:
       description: Displays the login page
@@ -185,4 +218,52 @@ paths:
       summary: Show login page
       tags:
       - users
+  /logout:
+    get:
+      description: Logs the user out by deleting the session cookie and redirects
+        to login page
+      produces:
+      - text/html
+      responses:
+        "200":
+          description: Successful logout
+          schema:
+            $ref: '#/definitions/models.AuthResponse'
+      summary: Logout
+      tags:
+      - users
+  /register:
+    get:
+      description: Show the registration page.
+      produces:
+      - text/html
+      responses:
+        "200":
+          description: HTML of registration page
+          schema:
+            type: string
+        "404":
+          description: Template not found
+          schema:
+            type: string
+      summary: Serve register page
+      tags:
+      - users
+  /weather:
+    get:
+      description: Show the weather page.
+      produces:
+      - text/html
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "404":
+          description: Template not found
+          schema:
+            type: string
+      summary: Serve weather page
+      tags:
+      - weather
 swagger: "2.0"

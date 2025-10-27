@@ -17,20 +17,23 @@
         <option value="en">English</option>
         <option value="ro">Romanian</option>
     </select>
-    <button type="submit" class="search-btn">Search</button>
-</form>
+    <br>
+    <button type="submit">Search</button>
+    </form>
+    <div id="results">
 
-{{if .}}
-<ul class="results">
-    {{range .}}
-    <li>
-        <strong>{{.Title}}</strong>
-        <a href="{{.Url}}" target="_blank">{{.Url}}</a>
-    </li>
+    {{if .}}
+    <ul class="results">
+        {{range .}}
+        <li>
+            <strong>{{.Title}}</strong>
+            <a href="{{.Url}}" target="_blank">{{.Url}}</a>
+        </li>
+        {{end}}
+    </ul>
+    {{else}}
+        <p class="no-results">No results found.</p>
     {{end}}
-</ul>
-{{else}}
-<p class="no-results">No results found.</p>
-{{end}}
+    </div>
 </body>
 </html>
