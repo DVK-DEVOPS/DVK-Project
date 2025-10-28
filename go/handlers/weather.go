@@ -3,6 +3,7 @@ package handlers
 import (
 	"DVK-Project/client"
 	"DVK-Project/models"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -26,11 +27,12 @@ func NewWeatherController(c *client.APIClient) *WeatherController {
 // @Failure 404 {string} string "Template not found"
 // @Router /weather [get]
 func (wc *WeatherController) ShowWeatherPage(w http.ResponseWriter, req *http.Request) {
-	forecast, err := wc.getForecastData()
+	forecast, err := wc.GetForecastData()
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Failed to get forecast: %v", err), http.StatusInternalServerError)
+		http.Error(w, "Failed to get forecast", http.StatusInternalServerError)
 		return
 	}
+	formatted := models.FormatForecastData(forecast)
 
 	tmpl, err := template.ParseFiles("templates/weather.html")
 	if err != nil {
@@ -38,13 +40,16 @@ func (wc *WeatherController) ShowWeatherPage(w http.ResponseWriter, req *http.Re
 		return
 	}
 
-	if err := tmpl.Execute(w, forecast); err != nil {
+	var buf bytes.Buffer
+	if err := tmpl.Execute(&buf, formatted); err != nil {
 		http.Error(w, "Template execution failed", http.StatusInternalServerError)
 		return
 	}
+
+	buf.WriteTo(w)
 }
 
-func (wc *WeatherController) getForecastData() (*models.Forecast, error) {
+func (wc *WeatherController) GetForecastData() (*models.Forecast, error) {
 	return wc.FetchAndParseWeatherResponse("Copenhagen")
 }
 
@@ -66,7 +71,7 @@ func (wc *WeatherController) GetWeatherForecast(w http.ResponseWriter, req *http
 	log.Println("GET /api/weather called")
 
 	w.Header().Set("Content-Type", "application/json")
-	forecast, err := wc.getForecastData()
+	forecast, err := wc.GetForecastData()
 	if err != nil {
 		log.Printf("fetch error: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
