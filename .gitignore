@@ -9,7 +9,7 @@ DotEnv
 # C extensions
 *.so
 database.db
-
+app
 go/.env
 # Distribution / packaging
 .Python
