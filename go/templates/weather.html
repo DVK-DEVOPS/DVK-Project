@@ -6,24 +6,25 @@
     <link rel="stylesheet" href="/weather.css">
 </head>
 <body>
-<h1>Weather Forecast</h1>
+<h1>Weather conditions for the next 5 days in Copenhagen, Denmark</h1>
 <table>
     <thead>
     <tr>
-        <th>Date & Time</th>
+        <th>Date</th>
         <th>Temperature (°C)</th>
         <th>Condition</th>
     </tr>
     </thead>
     <tbody>
-    {{range .List}}
+    {{range .}}
     <tr>
-        <td>{{.DtText}}</td>
-        <td>{{printf "%.2f" .Main.Temp}}</td>
-        <td>{{(index .Weather 0).Description}}</td>
+        <td>{{.Date}}</td>
+        <td>{{printf "%.1f" .Temperature}}</td>
+        <td>{{.Description}}</td>
     </tr>
     {{end}}
     </tbody>
 </table>
+
 </body>
 </html>
