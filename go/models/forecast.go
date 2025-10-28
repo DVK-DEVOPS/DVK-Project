@@ -22,3 +22,9 @@ func ParseApiResponse(data []byte) (*Forecast, error) {
 	}
 	return &forecast, nil
 }
+
+type ForecastDto struct {
+	Date        string
+	Temperature float64
+	Description string
+}
