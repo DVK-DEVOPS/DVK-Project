@@ -16,9 +16,9 @@ func NewPageRepository(db *sql.DB) *PageRepository {
 // For page templating
 func (r *PageRepository) FindSearchResults(searchStr string, language string) ([]Result, error) {
 	query := `SELECT Title, Url, Content, Language, CreatedAt, UpdatedAt 
-	FROM pages WHERE LOWER(Title) LIKE LOWER(?)`
+	FROM pages_fts WHERE pages_fts MATCH ?`
 
-	args := []interface{}{"%" + searchStr + "%"}
+	args := []interface{}{searchStr}
 
 	if language != "" {
 		query += " AND LOWER(Language) = LOWER(?)"
