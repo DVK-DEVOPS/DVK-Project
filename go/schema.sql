@@ -1,6 +1,5 @@
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS pages;
-DROP TABLE IF EXISTS pages_fts;
 
 CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -30,44 +29,3 @@ INSERT INTO pages (title, url, content, language, createdAt, updatedAt) VALUES (
 INSERT INTO pages (title, url, content, language, createdAt, updatedAt) VALUES ('JavaScript Promises Patterns v2', 'progurl4.dev-v2', 'Chaining, error handling, and converting callbacks to promises.', 'en', '2025-09-12 14:30:00', '2025-09-12 14:30:00');
 INSERT INTO pages (title, url, content, language, createdAt, updatedAt) VALUES ('Rust Ownership Cheatsheet v2', 'progurl5.dev-v2', 'Ownership, borrowing, lifetimes, and common borrow checker fixes.', 'en', '2025-09-12 14:30:00', '2025-09-12 14:30:00');
 INSERT INTO pages (title, url, content, language, createdAt, updatedAt) VALUES ('Go Concurrency Patterns v2', 'progurl6.dev-v2', 'Goroutines, channels, worker pools, and select usage.', 'en', '2025-09-12 14:30:00', '2025-09-12 14:30:00');
-
-CREATE VIRTUAL TABLE pages_fts USING fts5(
-  title,
-  url,
-  content,
-  language,
-  createdAt,
-  updatedAt,
-  content='pages',
-  content_rowid='rowid'
-);
-
-INSERT INTO pages_fts(pages_fts) VALUES('rebuild');
-
-
-CREATE TRIGGER pages_ai AFTER INSERT ON pages BEGIN
-    INSERT INTO pages_fts(rowid, title, url, content, language, createdAt, updatedAt)
-    VALUES (new.rowid, new.title, new.url, new.content, new.language, new.createdAt, new.updatedAt);
-END;
-
-CREATE TRIGGER pages_ad AFTER DELETE ON pages BEGIN
-    INSERT INTO pages_fts(pages_fts, rowid, title, url, content, language, createdAt, updatedAt)
-    VALUES('delete', old.rowid, old.title, old.url, old.content, old.language, old.createdAt, old.updatedAt);
-END;
-
-CREATE TRIGGER pages_au AFTER UPDATE ON pages BEGIN
-    INSERT INTO pages_fts(pages_fts, rowid, title, url, content, language, createdAt, updatedAt)
-    VALUES('delete', old.rowid, old.title, old.url, old.content, old.language, old.createdAt, old.updatedAt);
-    INSERT INTO pages_fts(rowid, title, url, content, language, createdAt, updatedAt)
-    VALUES (new.rowid, new.title, new.url, new.content, new.language, new.createdAt, new.updatedAt);
-END;
-
-
--- ===========================
---  Example FTS query
--- ===========================
--- SELECT title, bm25(pages_fts) AS rank
--- FROM pages
--- JOIN pages_fts ON pages.rowid = pages_fts.rowid
--- WHERE pages_fts MATCH 'promises OR goroutines'
--- ORDER BY rank;
