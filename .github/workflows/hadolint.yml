@@ -14,4 +14,4 @@ jobs:
       - name: Hadolint Dockerfile
         uses: hadolint/hadolint-action@master
         with:
-          dockerfile: "../Dockerfile.prod"
+          dockerfile: "Dockerfile.prod"
