@@ -1,0 +1,17 @@
+name: Hadolint Dockerfile
+
+on:
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  linter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Hadolint Dockerfile
+        uses: hadolint/hadolint-action@3.3.0
+        with:
+          dockerfile: "../Dockerfile.prod"
