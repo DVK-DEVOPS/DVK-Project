@@ -33,30 +33,35 @@ INSERT INTO pages (title, url, content, language, createdAt, updatedAt) VALUES (
 
 CREATE VIRTUAL TABLE pages_fts USING fts5(
   title,
+  url,
   content,
-  content='pages',          -- Link to real table
-  content_rowid='rowid'     -- 'rowid' is implicit primary key in pages
+  language,
+  createdAt,
+  updatedAt,
+  content='pages',
+  content_rowid='rowid'
 );
 
 INSERT INTO pages_fts(pages_fts) VALUES('rebuild');
 
 
 CREATE TRIGGER pages_ai AFTER INSERT ON pages BEGIN
-    INSERT INTO pages_fts(rowid, title, content)
-    VALUES (new.rowid, new.title, new.content);
+    INSERT INTO pages_fts(rowid, title, url, content, language, createdAt, updatedAt)
+    VALUES (new.rowid, new.title, new.url, new.content, new.language, new.createdAt, new.updatedAt);
 END;
 
 CREATE TRIGGER pages_ad AFTER DELETE ON pages BEGIN
-    INSERT INTO pages_fts(pages_fts, rowid, title, content)
-    VALUES ('delete', old.rowid, old.title, old.content);
+    INSERT INTO pages_fts(pages_fts, rowid, title, url, content, language, createdAt, updatedAt)
+    VALUES('delete', old.rowid, old.title, old.url, old.content, old.language, old.createdAt, old.updatedAt);
 END;
 
 CREATE TRIGGER pages_au AFTER UPDATE ON pages BEGIN
-    INSERT INTO pages_fts(pages_fts, rowid, title, content)
-    VALUES ('delete', old.rowid, old.title, old.content);
-    INSERT INTO pages_fts(rowid, title, content)
-    VALUES (new.rowid, new.title, new.content);
+    INSERT INTO pages_fts(pages_fts, rowid, title, url, content, language, createdAt, updatedAt)
+    VALUES('delete', old.rowid, old.title, old.url, old.content, old.language, old.createdAt, old.updatedAt);
+    INSERT INTO pages_fts(rowid, title, url, content, language, createdAt, updatedAt)
+    VALUES (new.rowid, new.title, new.url, new.content, new.language, new.createdAt, new.updatedAt);
 END;
+
 
 -- ===========================
 --  Example FTS query
