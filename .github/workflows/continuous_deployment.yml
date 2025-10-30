@@ -2,7 +2,7 @@ name: Continuous Deployment
 
 on:
     push:
-     branches: [ main ]
+     branches: [ main, add-cd-workflow ]
     workflow_dispatch:
     workflow_run:
         workflows: ["Continuous Delivery"] 
