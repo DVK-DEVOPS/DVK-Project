@@ -11,6 +11,7 @@ env:
   VM_HOST: ${{ secrets.VM_HOST }}
   VM_USERNAME: ${{ secrets.AZURE_USERNAME }}
   VM_KEY: ${{ secrets.AZURE_KEY }}
+  GH_PAT: ${{ secrets.GH_PAT}}
 
 permissions:
   contents: read
@@ -43,7 +44,7 @@ jobs:
           port: 22
           script: |
             echo "Logging into GitHub Container Registry..."
-            echo "$GITHUB_TOKEN" | docker login ghcr.io -u $DOCKER_GITHUB_USERNAME --password-stdin
+            echo "$GH_PAT" | docker login ghcr.io -u $DOCKER_GITHUB_USERNAME --password-stdin
 
             echo "Navigating to deployment directory..."
             cd ~/whoknows
