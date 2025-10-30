@@ -9,5 +9,6 @@ FROM debian:bookworm-slim
 WORKDIR /whoknows/go
 COPY --from=builder /whoknows/go/app .
 COPY go/schema.sql ./schema.sql
+RUN apt-get update && apt-get install -y ca-certificates && update-ca-certificates
 EXPOSE 8080
 CMD ["./app"]
