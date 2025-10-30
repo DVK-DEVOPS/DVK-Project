@@ -14,7 +14,7 @@ env:
 
 permissions:
   contents: read
-  packages: write
+  packages: read
   id-token: write
 
 jobs:
@@ -47,9 +47,6 @@ jobs:
 
             echo "Navigating to deployment directory..."
             cd ~/whoknows
-
-            echo "Creating .env file..."
-            echo "API_KEY=${{ secrets.API_KEY }}" > .env
 
             echo "Pulling latest Docker images..."
             sudo docker compose -f docker-compose.prod.yml pull
