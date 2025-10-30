@@ -8,5 +8,6 @@ RUN go build -o app .
 FROM debian:bookworm-slim
 WORKDIR /whoknows/go
 COPY --from=builder /whoknows/go/app .
+COPY go/schema.sql ./schema.sql
 EXPOSE 8080
 CMD ["./app"]
