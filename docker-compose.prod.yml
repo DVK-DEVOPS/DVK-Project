@@ -7,6 +7,8 @@ services:
     environment:
       - KEYVAULT_NAME=${KEYVAULT_NAME}
       - SECRET_NAME=${SECRET_NAME}
+      - API_KEY=${API_KEY}
+      - API_URL=${API_URL}
     container_name: whoknows-prod
     ports:
       - "8080:8080"
