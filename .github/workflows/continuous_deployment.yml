@@ -22,6 +22,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - name: Copy docker-compose file to server
         run: |
           echo "Preparing SSH key..."
