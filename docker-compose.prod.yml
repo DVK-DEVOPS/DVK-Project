@@ -5,8 +5,8 @@ services:
       dockerfile: Dockerfile.prod
     image: ghcr.io/dvk-devops/dvk-project:latest
     environment:
-      - KEYVAULT_NAME=${{KEYVAULT_NAME}}
-      - SECRET_NAME=${{SECRET_NAME}}
+      - KEYVAULT_NAME=${KEYVAULT_NAME}
+      - SECRET_NAME=${SECRET_NAME}
     container_name: whoknows-prod
     ports:
       - "8080:8080"
