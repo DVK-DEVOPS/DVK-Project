@@ -1,0 +1,32 @@
+name: Setup VM for Docker
+
+on:
+  push:
+    branches: [ add-cd-workflow ]
+  workflow_dispatch:
+
+env:
+  VM_HOST: ${{ secrets.VM_HOST }}
+  VM_USERNAME: ${{ secrets.AZURE_USERNAME }}
+  VM_KEY: ${{ secrets.AZURE_KEY }}
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Docker and Docker Compose
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ env.VM_HOST }}
+          username: ${{ env.VM_USERNAME }}
+          key: ${{ env.VM_KEY }}
+          port: 22
+          script: |
+            echo "Installing Docker..."
+            curl -fsSL https://get.docker.com | sh
+
+            echo "Verifying installation..."
+            docker --version
+            docker compose version
+
+            echo "Setup complete."

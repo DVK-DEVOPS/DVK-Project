@@ -52,9 +52,9 @@ jobs:
             echo "API_KEY=${{ secrets.API_KEY }}" > .env
 
             echo "Pulling latest Docker images..."
-            docker compose -f docker-compose.prod.yml pull
+            sudo docker compose -f docker-compose.prod.yml pull
 
             echo "Starting containers..."
-            docker compose -f docker-compose.prod.yml up -d
+            sudo docker compose -f docker-compose.prod.yml up -d
 
             echo "Deployment complete."
