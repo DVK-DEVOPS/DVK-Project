@@ -31,19 +31,15 @@ jobs:
           chmod 600 key.pem
 
           echo "Copying docker-compose.prod.yml to VM..."
-          scp -i key.pem -o StrictHostKeyChecking=no docker-compose.prod.yml ${{ env.VM_USERNAME }}@${{ env.VM_HOST }}:~/whoknows
+          scp -i key.pem -o StrictHostKeyChecking=no docker-compose.prod.yml $VM_USERNAME@$VM_HOST:~/whoknows
           echo "File copied successfully."
 
       - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ env.VM_HOST }}
-          username: ${{ env.VM_USERNAME }}
-          key: ${{ env.VM_KEY }}
-          port: 22
-          script: |
+        run: |
+            echo "ssh into server..."
+            ssh -i ~/.ssh/ssh_key -o StrictHostKeyChecking=no $VM_USERNAME@$VM_HOST << "EOF"
             echo "Logging into GitHub Container Registry..."
-            echo "${{ env.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ env.DOCKER_GITHUB_USERNAME }} --password-stdin
+            echo "$GITHUB_TOKEN" | docker login ghcr.io -u $DOCKER_GITHUB_USERNAME --password-stdin
 
             echo "Navigating to deployment directory..."
             cd ~/whoknows
