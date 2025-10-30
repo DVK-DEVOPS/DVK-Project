@@ -1,4 +1,4 @@
-name: Continuous Deployment 
+name: Continuous Deployment
 
 on:
   push:
@@ -22,31 +22,37 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
       - name: Copy docker-compose file to server
         run: |
-            echo "${{ env.VM_KEY }}" > key.pem
-            chmod 600 key.pem
-            scp -i key.pem -o StrictHostKeyChecking=no docker-compose.prod.yml ${{ env.VM_USERNAME }}@${{ env.VM_HOST }}:~/whoknows
+          echo "Preparing SSH key..."
+          echo "${{ env.VM_KEY }}" > key.pem
+          chmod 600 key.pem
 
-      - name: Login to server via SSH
+          echo "Copying docker-compose.prod.yml to VM..."
+          scp -i key.pem -o StrictHostKeyChecking=no docker-compose.prod.yml ${{ env.VM_USERNAME }}@${{ env.VM_HOST }}:~/whoknows
+          echo "File copied successfully."
+
+      - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ env.VM_HOST }}
           username: ${{ env.VM_USERNAME }}
           key: ${{ env.VM_KEY }}
           port: 22
+          script: |
+            echo "Logging into GitHub Container Registry..."
+            echo "${{ env.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ env.DOCKER_GITHUB_USERNAME }} --password-stdin
 
-      - name: Login to GitHub Container Registry on the server 
-        run: echo ${{ env.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ env.DOCKER_GITHUB_USERNAME }} --password-stdin
-      - name: Create .env file
-        run: |
-          cd ~/whoknows
-          echo "API_KEY=$API_KEY" >> .env
+            echo "Navigating to deployment directory..."
+            cd ~/whoknows
 
-      - name: Pull and Run the docker compose file
-        run: |
+            echo "Creating .env file..."
+            echo "API_KEY=${{ secrets.API_KEY }}" > .env
+
+            echo "Pulling latest Docker images..."
             docker compose -f docker-compose.prod.yml pull
-            docker compose -f docker-compose.prod.yml up
+
+            echo "Starting containers..."
+            docker compose -f docker-compose.prod.yml up -d
+
+            echo "Deployment complete."
