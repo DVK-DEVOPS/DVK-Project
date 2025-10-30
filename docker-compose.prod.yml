@@ -8,5 +8,5 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./go/database.db:/whoknows/go/database.db
+      - ./go/database.db:/whoknows/go/database.db 
     restart: unless-stopped
