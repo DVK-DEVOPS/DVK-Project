@@ -55,10 +55,12 @@ jobs:
             sudo docker stop whoknows-prod
 
             echo "Pulling latest Docker images..."
-            sudo docker compose -f KEYVAULT_NAME:${{env.AZURE_VAULT_NAME}} SECRET_NAME:${{env.AZURE_VAULT_SECRET_NAME}} docker-compose.prod.yml pull
+            export KEYVAULT_NAME=${{ env.AZURE_VAULT_NAME }}
+            export SECRET_NAME=${{ env.AZURE_VAULT_SECRET_NAME }}
+            sudo -E docker compose -f docker-compose.prod.yml pull
 
             echo "Starting containers..."
-            sudo docker compose -f docker-compose.prod.yml up -d
+            sudo -E docker compose -f docker-compose.prod.yml up -d
 
     
             echo "Deployment complete."
