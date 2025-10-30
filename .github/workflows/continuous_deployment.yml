@@ -12,6 +12,8 @@ env:
   VM_USERNAME: ${{ secrets.AZURE_USERNAME }}
   VM_KEY: ${{ secrets.AZURE_KEY }}
   GH_PAT: ${{ secrets.GH_PAT}}
+  AZURE_VAULT_SECRET_NAME: ${{secrets.AZURE_VAULT_KEY}}
+  AZURE_VAULT_NAME: ${{secrets.AZURE_VAULT_USERNAME}}
 
 permissions:
   contents: read
@@ -37,6 +39,10 @@ jobs:
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.2.0
+        env:
+            KEYVAULT_NAME: ${{ env.AZURE_VAULT_NAME}}
+            SECRET_NAME: ${{env.AZURE_VAULT_SECRET_NAME}}
+        
         with:
           host: ${{ env.VM_HOST }}
           username: ${{ env.VM_USERNAME }}
@@ -44,10 +50,13 @@ jobs:
           port: 22
           script: |
             echo "Logging into GitHub Container Registry..."
-            echo "${{ env.GH_PAT }}" | sudo docker login ghcr.io -u ${{ env.DOCKER_GITHUB_USERNAME}} --password-stdin
+            echo "${{ env.GITHUB_TOKEN }}" | sudo docker login ghcr.io -u ${{ env.DOCKER_GITHUB_USERNAME}} --password-stdin
 
             echo "Navigating to deployment directory..."
             cd ~/whoknows
+
+            echo "Stopping older containers"
+            sudo docker stop whoknows-prod
 
             echo "Pulling latest Docker images..."
             sudo docker compose -f docker-compose.prod.yml pull

@@ -4,6 +4,9 @@ services:
       context: .
       dockerfile: Dockerfile.prod
     image: ghcr.io/dvk-devops/dvk-project:latest
+    environment:
+      - KEYVAULT_NAME=
+      - SECRET_NAME=${{env.}}
     container_name: whoknows-prod
     ports:
       - "8080:8080"
