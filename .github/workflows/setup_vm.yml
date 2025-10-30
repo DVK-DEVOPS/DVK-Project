@@ -2,7 +2,7 @@ name: Setup VM for Docker
 
 on:
   push:
-    branches: [ add-cd-workflow ]
+    branches: [ main, add-cd-workflow ]
   workflow_dispatch:
 
 env:
