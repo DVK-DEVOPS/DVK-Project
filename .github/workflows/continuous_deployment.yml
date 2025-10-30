@@ -22,13 +22,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Checkout repository
         uses: actions/checkout@v4
+
       - name: Copy docker-compose file to server
         run: |
-            echo "copying the docker-compose-prod file from runner to server..."
-            scp -o StrictHostKeyChecking=no docker-compose.prod.yml ${{ env.VM_USERNAME }}@${{ env.VM_HOST }}:~/whoknows2
+            echo "${{ env.VM_KEY }}" > key.pem
+            chmod 600 key.pem
+            scp -i key.pem -o StrictHostKeyChecking=no docker-compose.prod.yml ${{ env.VM_USERNAME }}@${{ env.VM_HOST }}:~/whoknows2
 
       - name: Login to server via SSH
         uses: appleboy/ssh-action@v1.2.0
