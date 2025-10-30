@@ -29,7 +29,7 @@ jobs:
         run: |
             echo "${{ env.VM_KEY }}" > key.pem
             chmod 600 key.pem
-            scp -i key.pem -o StrictHostKeyChecking=no docker-compose.prod.yml ${{ env.VM_USERNAME }}@${{ env.VM_HOST }}:~/whoknows2
+            scp -i key.pem -o StrictHostKeyChecking=no docker-compose.prod.yml ${{ env.VM_USERNAME }}@${{ env.VM_HOST }}:~/whoknows
 
       - name: Login to server via SSH
         uses: appleboy/ssh-action@v1.2.0
@@ -40,11 +40,10 @@ jobs:
           port: 22
 
       - name: Login to GitHub Container Registry on the server 
-        run: docker login ghcr.io -u ${{ env.DOCKER_GITHUB_USERNAME }} -p ${{ env.GITHUB_TOKEN }}
-
+        run: echo ${{ env.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ env.DOCKER_GITHUB_USERNAME }} --password-stdin
       - name: Create .env file
         run: |
-          cd ~/whoknows2
+          cd ~/whoknows
           echo "API_KEY=$API_KEY" >> .env
 
       - name: Pull and Run the docker compose file
