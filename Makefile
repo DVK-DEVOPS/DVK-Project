@@ -1,5 +1,4 @@
 GO_DIR := go
-GO_TAGS := fts5
 BIN := app
 
 ifneq ("$(wildcard $(GO_DIR)/.env)","")
@@ -8,13 +7,13 @@ ifneq ("$(wildcard $(GO_DIR)/.env)","")
 endif
 
 run:
-	cd $(GO_DIR) && go run -tags "$(GO_TAGS)" .
+	cd $(GO_DIR) && go run .
 
 build:
-	cd $(GO_DIR) && go build -tags "$(GO_TAGS)" -o ../$(BIN) .
+	cd $(GO_DIR) && go build -o ../$(BIN) .
 
 test:
-	cd $(GO_DIR) && go test -tags "$(GO_TAGS)" ./...
+	cd $(GO_DIR) && go test ./...
 
 up:
 	docker-compose -f docker-compose.dev.yml up --build

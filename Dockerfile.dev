@@ -14,4 +14,4 @@ ENV PATH="/root/go/bin:${PATH}"
 COPY go/. .
 
 EXPOSE 8080
-CMD ["go", "run", "-tags fts5", "main.go"]
+CMD ["go", "run", "main.go"]
