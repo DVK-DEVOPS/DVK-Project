@@ -3,7 +3,7 @@ WORKDIR /whoknows/go
 COPY go/go.mod go/go.sum ./
 RUN go mod download
 COPY go/ ./
-RUN go build -o app .
+RUN go build -tags fts5 -o app .
 
 FROM debian:bookworm-slim
 WORKDIR /whoknows/go
