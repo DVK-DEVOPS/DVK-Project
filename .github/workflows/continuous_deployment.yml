@@ -1,9 +1,11 @@
 name: Continuous Deployment
 
 on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
+  #push:
+    #branches: [ main ]
+  workflow_run:
+    workflows: [ Continuous Delivery ]
+  #workflow_dispatch: #Should not be possible to trigger manual workflow run as deployment will only run when delivery workflow is complete
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
