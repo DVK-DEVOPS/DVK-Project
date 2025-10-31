@@ -4,9 +4,13 @@ services:
       context: .
       dockerfile: Dockerfile.prod
     image: ghcr.io/dvk-devops/dvk-project:latest
+    environment:
+      - KEYVAULT_NAME=${KEYVAULT_NAME}
+      - SECRET_NAME=${SECRET_NAME}
+      - API_URL=${API_URL}
     container_name: whoknows-prod
     ports:
       - "8080:8080"
     volumes:
-      - ./go/database.db:/whoknows/database.db
+      - ./go/database.db:/whoknows/go/database.db 
     restart: unless-stopped
