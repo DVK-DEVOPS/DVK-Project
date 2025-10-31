@@ -7,9 +7,13 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./go:/whoknows
-      - ./go/database.db:/whoknows/database.db
+      - ./:/whoknows:cached
+      - ./go/database.db:/whoknows/go/database.db
+      - ${SSH_AUTH_SOCK:-/ssh-agent}:/ssh-agent
+    working_dir: /whoknows/go
+    environment:
+      - SSH_AUTH_SOCK=/ssh-agent
     env_file:
       - ./go/.env
-    command: air -c /whoknows/.air.toml
+    command: go run main.go
     restart: unless-stopped
