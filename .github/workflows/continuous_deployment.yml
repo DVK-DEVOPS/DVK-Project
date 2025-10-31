@@ -1,9 +1,12 @@
 name: Continuous Deployment
 
 on:
-    push:
-     branches: [ main, add-cd-workflow ]
-    workflow_dispatch:
+  workflow_run:
+    workflows: ["Continuous Delivery"]
+    types:
+      - completed
+    branches: [ main ]
+  workflow_dispatch:
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -15,7 +18,6 @@ env:
   AZURE_VAULT_SECRET_NAME: ${{secrets.AZURE_VAULT_KEY}}
   AZURE_VAULT_NAME: ${{secrets.AZURE_VAULT_USERNAME}}
   API_URL: ${{secrets.API_URL}}
-  API_KEY: ${{secrets.API_KEY}}
 
 permissions:
   contents: read
@@ -23,9 +25,10 @@ permissions:
   id-token: write
 
 jobs:
-    
+
   deploy:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
       - name: Checkout repository
@@ -60,6 +63,7 @@ jobs:
             echo "Pulling latest Docker images..."
             export KEYVAULT_NAME=${{ env.AZURE_VAULT_NAME }}
             export SECRET_NAME=${{ env.AZURE_VAULT_SECRET_NAME }}
+            export API_URL=${{ env.API_URL }}
             sudo -E docker compose -f docker-compose.prod.yml pull
 
             echo "Starting containers..."
