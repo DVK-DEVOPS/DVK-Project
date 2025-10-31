@@ -1,0 +1,22 @@
+{
+  "name": "DVK-Project Go Devcontainer",
+  "dockerComposeFile": [ "../docker-compose.dev.yml" ],
+  "service": "whoknows",
+  "workspaceFolder": "/whoknows",
+  "runServices": ["whoknows"],
+  "forwardPorts": [8080],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "golang.go"
+      ],
+      "settings": {
+        "go.gopath": "/root/go",
+        "go.toolsGopath": "/root/go"
+      }
+    }
+  },
+  "postCreateCommand": "go mod download || true",
+  "postStartCommand": "echo 'Devcontainer started. To run the app use: air -c /whoknows/.air.toml or go run main.go'",
+  "remoteUser": "root"
+}
