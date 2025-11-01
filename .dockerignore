@@ -1,3 +1,5 @@
 go/database.db
 docs
 go/.env
+.gitignore
+go/test
