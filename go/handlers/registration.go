@@ -63,7 +63,7 @@ func (rc *RegistrationController) Register(w http.ResponseWriter, r *http.Reques
 
 	if username == "" || email == "" || password == "" {
 		w.WriteHeader(http.StatusUnprocessableEntity)
-		json.NewEncoder(w).Encode(models.HTTPValidationError{
+		if err := json.NewEncoder(w).Encode(models.HTTPValidationError{
 			Detail: []models.ValidationErrorDetail{
 				{
 					Loc:  []interface{}{"body", "fields"},
@@ -71,7 +71,9 @@ func (rc *RegistrationController) Register(w http.ResponseWriter, r *http.Reques
 					Type: "validation_error",
 				},
 			},
-		})
+		}); err != nil {
+			http.Error(w, fmt.Sprintf("failed to write response: %v", err), http.StatusInternalServerError)
+		}
 		return
 	}
 
