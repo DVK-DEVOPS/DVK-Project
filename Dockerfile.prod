@@ -9,7 +9,7 @@ FROM debian:bookworm-slim
 WORKDIR /whoknows/go
 COPY --from=builder /whoknows/go/app .
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends ca-certificates \
+    && apt-get install -y --no-install-recommends ca-certificates=20230311+deb12u1 \
     && update-ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 EXPOSE 8080
