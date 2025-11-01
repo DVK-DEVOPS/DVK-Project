@@ -4,3 +4,9 @@ go/.env
 .gitignore
 go/test
 app
+documentation
+nginx
+*.md
+.github
+.git
+.devcontainer
