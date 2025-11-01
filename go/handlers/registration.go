@@ -112,7 +112,7 @@ func (rc *RegistrationController) Register(w http.ResponseWriter, r *http.Reques
 
 	if exists {
 		w.WriteHeader(http.StatusUnprocessableEntity)
-		json.NewEncoder(w).Encode(models.HTTPValidationError{
+		if err := json.NewEncoder(w).Encode(models.HTTPValidationError{
 			Detail: []models.ValidationErrorDetail{
 				{
 					Loc:  []interface{}{"body", "email"},
@@ -120,20 +120,28 @@ func (rc *RegistrationController) Register(w http.ResponseWriter, r *http.Reques
 					Type: "validation_error",
 				},
 			},
-		})
+		}); err != nil {
+			fmt.Printf("failed to write JSON error response: %v\n", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+		return
 	}
 
 	id, err := rc.UserRepository.AddUser(user)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(models.HTTPValidationError{
+		if encErr := json.NewEncoder(w).Encode(models.HTTPValidationError{
 			Detail: []models.ValidationErrorDetail{
 				{
 					Loc:  []interface{}{"db"},
 					Msg:  "Error adding user",
-					Type: "internal_error"},
+					Type: "internal_error",
+				},
 			},
-		})
+		}); encErr != nil {
+			fmt.Printf("failed to write JSON error response: %v\n", encErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
 		return
 	}
 
