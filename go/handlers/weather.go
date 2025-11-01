@@ -46,7 +46,11 @@ func (wc *WeatherController) ShowWeatherPage(w http.ResponseWriter, req *http.Re
 		return
 	}
 
-	buf.WriteTo(w)
+	if _, err := buf.WriteTo(w); err != nil {
+		fmt.Printf("weather.go: failed to write buffer to ResponseWriter: %v\n", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (wc *WeatherController) GetForecastData() (*models.Forecast, error) {
