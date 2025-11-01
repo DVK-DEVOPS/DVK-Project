@@ -15,4 +15,4 @@ jobs:
         id: health-check
         run: |
           echo "Testing health check on branch: ${{ github.ref_name }}"
-          curl -f --max-time 30 https://${{ secrets.DVK-URL }}/api/health || (echo "App health check failed!" && exit 1)
+          curl -f --max-time 30 https://${{ secrets.DVK_URL }}/api/health || (echo "App health check failed!" && exit 1)
