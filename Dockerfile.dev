@@ -5,7 +5,8 @@ COPY go/go.mod go/go.sum ./
 RUN go mod download
 
 RUN apt-get update && \
-    # hadolint ignore=DL3008 #Ignoring here since instructing linter to ignore here provides us with flexibility.
+    #Ignoring here since instructing linter to ignore here provides us with flexibility.
+    # hadolint ignore=DL3008
     apt-get install -y --no-install-recommends git openssh-client ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
