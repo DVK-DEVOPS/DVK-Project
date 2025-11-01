@@ -34,4 +34,10 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-            docker buildx build --file ./Dockerfile.prod --tag ghcr.io/dvk-devops/dvk-project:latest --platform linux/amd64,linux/arm64 --push .
+          docker buildx build \
+            --file ./Dockerfile.prod \
+            --tag ghcr.io/dvk-devops/dvk-project:latest \
+            --platform linux/amd64 \
+            --cache-from=type=registry,ref=ghcr.io/dvk-devops/dvk-project:latest \
+            --cache-to=type=registry,ref=ghcr.io/dvk-devops/dvk-project:latest,mode=max \
+            --push .
