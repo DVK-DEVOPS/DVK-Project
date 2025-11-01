@@ -45,7 +45,7 @@ func (rc *RegistrationController) Register(w http.ResponseWriter, r *http.Reques
 
 	if err := r.ParseForm(); err != nil {
 		w.WriteHeader(http.StatusUnprocessableEntity)
-		json.NewEncoder(w).Encode(models.HTTPValidationError{
+		if err := json.NewEncoder(w).Encode(models.HTTPValidationError{
 			Detail: []models.ValidationErrorDetail{
 				{
 					Loc:  []interface{}{"body", "form"},
@@ -53,7 +53,9 @@ func (rc *RegistrationController) Register(w http.ResponseWriter, r *http.Reques
 					Type: "parse_error",
 				},
 			},
-		})
+		}); err != nil {
+			http.Error(w, fmt.Sprintf("failed to write response: %v\n", err), http.StatusInternalServerError)
+		}
 		return
 	}
 
