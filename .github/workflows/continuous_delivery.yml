@@ -47,7 +47,7 @@ jobs:
           docker buildx build \
             --file nginx/Dockerfile \
             --tag ghcr.io/dvk-devops/nginx:latest \
-            --platform linux/amd64\
-            ./nginx \
-            --push
+            --platform linux/amd64 \
+            --push \
+            ./nginx
 

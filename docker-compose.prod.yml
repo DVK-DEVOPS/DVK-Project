@@ -21,11 +21,9 @@ services:
     ports:
       - "80:80"
       - "443:443"
-    environment:
-      - LETSENCRYPT_DOMAIN=${LETSENCRYPT_DOMAIN}
     volumes:
-      - /etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}:/etc/letsencrypt/live/${LETSENCRYPT_DOMAIN}:ro
-      - /etc/letsencrypt/archive/${LETSENCRYPT_DOMAIN}:/etc/letsencrypt/archive/${LETSENCRYPT_DOMAIN}:ro
+      - /etc/letsencrypt/live/whoknows-dvk.dk:/etc/letsencrypt/live/whoknows-dvk.dk:ro
+      - /etc/letsencrypt/archive/whoknows-dvk.dk:/etc/letsencrypt/archive/whoknows-dvk.dk:ro
     depends_on:
       - whoknows
     networks:

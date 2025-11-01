@@ -64,7 +64,6 @@ jobs:
             export KEYVAULT_NAME=${{ env.AZURE_VAULT_NAME }}
             export SECRET_NAME=${{ env.AZURE_VAULT_SECRET_NAME }}
             export API_URL=${{ env.API_URL }}
-            export LETSENCRYPT_DOMAIN=${{ env.LETSENCRYPT_DOMAIN }}
             
             echo "Pulling latest Docker images..."
             sudo -E docker compose -f docker-compose.prod.yml pull
