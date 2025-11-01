@@ -1,3 +1,6 @@
+x-environment:
+  LETSENCRYPT_DOMAIN: whoknows-dvk.dk
+
 services:
   whoknows:
     build:
@@ -19,8 +22,6 @@ services:
 
   nginx:
     image: nginx:latest
-    environment:
-      - LETSENCRYPT_DOMAIN=whoknows-dvk.dk
     container_name: whoknows-nginx
     restart: always
     ports:
