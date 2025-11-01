@@ -72,7 +72,7 @@ func (rc *RegistrationController) Register(w http.ResponseWriter, r *http.Reques
 				},
 			},
 		}); err != nil {
-			http.Error(w, fmt.Sprintf("failed to write response: %v", err), http.StatusInternalServerError)
+			http.Error(w, fmt.Sprintf("failed to write response: %v\n", err), http.StatusInternalServerError)
 		}
 		return
 	}
@@ -96,14 +96,16 @@ func (rc *RegistrationController) Register(w http.ResponseWriter, r *http.Reques
 	exists, err := rc.UserRepository.CheckIfUserExists(user.Email)
 	if err != nil {
 		http.Error(w, "Database error", http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(models.HTTPValidationError{
+		if err := json.NewEncoder(w).Encode(models.HTTPValidationError{
 			Detail: []models.ValidationErrorDetail{
 				{
 					Loc:  []interface{}{"db"},
 					Msg:  "Database error",
 					Type: "internal_error"},
 			},
-		})
+		}); err != nil {
+			fmt.Printf("registration.go: failed to write json error response: %v\n", err)
+		}
 	}
 
 	if exists {
