@@ -3,3 +3,4 @@ docs
 go/.env
 .gitignore
 go/test
+app
