@@ -146,9 +146,13 @@ func (rc *RegistrationController) Register(w http.ResponseWriter, r *http.Reques
 	}
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(models.AuthResponse{
+	if err := json.NewEncoder(w).Encode(models.AuthResponse{
 		StatusCode: http.StatusOK,
 		Message:    fmt.Sprintf("User created with ID %d", id),
-	})
+	}); err != nil {
+		fmt.Printf("failed to write JSON error response: %v\n", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 
 }
