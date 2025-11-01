@@ -5,6 +5,8 @@ on:
     #branches: [ main ]
   workflow_run:
     workflows: [ Continuous Delivery ]
+    types:
+      - completed
   #workflow_dispatch: #Should not be possible to trigger manual workflow run as deployment will only run when delivery workflow is complete
 
 env:
