@@ -58,12 +58,14 @@ jobs:
             cd ~/whoknows
 
             echo "Stopping older containers"
-            sudo docker stop whoknows-prod
+            sudo docker compose -f docker-compose.prod.yml down
 
-            echo "Pulling latest Docker images..."
+            echo "Setting environment variables for Compose..."
             export KEYVAULT_NAME=${{ env.AZURE_VAULT_NAME }}
             export SECRET_NAME=${{ env.AZURE_VAULT_SECRET_NAME }}
             export API_URL=${{ env.API_URL }}
+            
+            echo "Pulling latest Docker images..."
             sudo -E docker compose -f docker-compose.prod.yml pull
 
             echo "Starting containers..."

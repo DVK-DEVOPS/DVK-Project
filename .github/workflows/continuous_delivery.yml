@@ -32,6 +32,22 @@ jobs:
           username: ${{ env.DOCKER_GITHUB_USERNAME }}
           password: ${{ env.GITHUB_TOKEN }}
 
-      - name: Build and Push Docker Image
+      - name: Build and Push App Image
         run: |
-            docker buildx build --file ./Dockerfile.prod --tag ghcr.io/dvk-devops/dvk-project:latest --platform linux/amd64,linux/arm64 --push .
+          docker buildx build \
+            --file ./Dockerfile.prod \
+            --tag ghcr.io/dvk-devops/dvk-project:latest \
+            --platform linux/amd64 \
+            --cache-from=type=registry,ref=ghcr.io/dvk-devops/dvk-project:latest \
+            --cache-to=type=registry,ref=ghcr.io/dvk-devops/dvk-project:latest,mode=max \
+            --push .
+
+      - name: Build and Push Nginx Image
+        run: |
+          docker buildx build \
+            --file nginx/Dockerfile \
+            --tag ghcr.io/dvk-devops/nginx:latest \
+            --platform linux/amd64 \
+            --push \
+            ./nginx
+
