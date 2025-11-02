@@ -42,7 +42,12 @@ func (c *APIClient) FetchForecast(city string) ([]byte, error) {
 		return nil, fmt.Errorf("fetch error: %w", err)
 	}
 	fmt.Println("response status:", resp.Status)
-	defer resp.Body.Close()
+	defer func() {
+		if cerr := resp.Body.Close(); cerr != nil {
+			fmt.Printf("Warning client.go: failed to close response body: %v\n", cerr)
+		}
+	}()
+	//defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("fetch error: %w", err)

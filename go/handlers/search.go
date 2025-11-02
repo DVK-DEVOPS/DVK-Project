@@ -3,6 +3,7 @@ package handlers
 import (
 	"DVK-Project/db"
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"net/http"
 )
@@ -18,7 +19,11 @@ func (sc *SearchController) ShowSearchResults(w http.ResponseWriter, r *http.Req
 
 	if searchStr == "" { //trigger 'No results' block in html.
 		tmpl := template.Must(template.ParseFiles("templates/search.html"))
-		tmpl.Execute(w, nil)
+		if err := tmpl.Execute(w, nil); err != nil {
+			fmt.Printf("search.go: failed to execute template: %v\n", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
 		return
 	}
 
@@ -29,7 +34,11 @@ func (sc *SearchController) ShowSearchResults(w http.ResponseWriter, r *http.Req
 	}
 
 	tmpl := template.Must(template.ParseFiles("templates/search.html"))
-	tmpl.Execute(w, results)
+	if err := tmpl.Execute(w, results); err != nil {
+		fmt.Printf("search.go: failed to execute template: %v\n", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 }
 
 // SearchAPI godoc

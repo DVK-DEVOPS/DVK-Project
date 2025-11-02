@@ -46,7 +46,11 @@ func (wc *WeatherController) ShowWeatherPage(w http.ResponseWriter, req *http.Re
 		return
 	}
 
-	buf.WriteTo(w)
+	if _, err := buf.WriteTo(w); err != nil {
+		fmt.Printf("weather.go: failed to write buffer to ResponseWriter: %v\n", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (wc *WeatherController) GetForecastData() (*models.Forecast, error) {
@@ -75,13 +79,20 @@ func (wc *WeatherController) GetWeatherForecast(w http.ResponseWriter, req *http
 	if err != nil {
 		log.Printf("fetch error: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+		if encErr := json.NewEncoder(w).Encode(map[string]string{"error": err.Error()}); encErr != nil {
+			fmt.Printf("failed to write JSON error response: %v\n", encErr)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
 		return
 	}
 
 	log.Printf("GetWeatherForecast: Forecast fetched: %+v\n", forecast)
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(forecast)
+	if err := json.NewEncoder(w).Encode(forecast); err != nil {
+		fmt.Printf("failed to write JSON response: %v\n", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (wc *WeatherController) FetchAndParseWeatherResponse(city string) (*models.Forecast, error) {

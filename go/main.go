@@ -53,11 +53,13 @@ func main() {
 	r.HandleFunc("/api/weather", wc.GetWeatherForecast).Methods("GET")
 
 	fmt.Println("Registered routes:") //debug
-	r.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
+	if err := r.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
 		t, _ := route.GetPathTemplate()
 		fmt.Println(t)
 		return nil
-	})
+	}); err != nil {
+		fmt.Printf("error walking routes: %v\n", err)
+	}
 
 	log.Println("Server running on :8080")
 	log.Fatal(http.ListenAndServe(":8080", r))
