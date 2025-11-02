@@ -4,6 +4,8 @@ WORKDIR /whoknows
 COPY go/go.mod go/go.sum ./
 RUN go mod download
 
+#Ignoring here since instructing linter to ignore here provides us with flexibility.
+# hadolint ignore=DL3008
 RUN apt-get update && \
     apt-get install -y --no-install-recommends git openssh-client ca-certificates && \
     rm -rf /var/lib/apt/lists/*
