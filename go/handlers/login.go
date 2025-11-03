@@ -55,34 +55,28 @@ func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	var username, password string
 
-	if strings.Contains(r.Header.Get("Content-Type"), "application/json") {
+	_ = r.ParseForm()
+	username = r.Form.Get("username")
+	password = r.Form.Get("password")
+
+	// If form fields not present, try JSON
+	if strings.TrimSpace(username) == "" || strings.TrimSpace(password) == "" {
 		var creds struct {
 			Username string `json:"username"`
 			Password string `json:"password"`
 		}
-		if err := json.NewDecoder(r.Body).Decode(&creds); err != nil {
-			w.WriteHeader(http.StatusUnprocessableEntity)
-			_ = json.NewEncoder(w).Encode(models.HTTPValidationError{
-				Detail: []models.ValidationErrorDetail{
-					{Loc: []interface{}{"body"}, Msg: "Invalid JSON body", Type: "parse_error"},
-				},
-			})
-			return
+		if err := json.NewDecoder(r.Body).Decode(&creds); err == nil {
+			if username == "" {
+				username = creds.Username
+			}
+			if password == "" {
+				password = creds.Password
+			}
 		}
-		username, password = creds.Username, creds.Password
-	} else {
-		if err := r.ParseForm(); err != nil {
-			w.WriteHeader(http.StatusUnprocessableEntity)
-			_ = json.NewEncoder(w).Encode(models.HTTPValidationError{
-				Detail: []models.ValidationErrorDetail{
-					{Loc: []interface{}{"body", "form"}, Msg: "Form parse error", Type: "parse_error"},
-				},
-			})
-			return
-		}
-		username = r.FormValue("username")
-		password = r.FormValue("password")
 	}
+
+	username = strings.TrimSpace(username)
+	password = strings.TrimSpace(password)
 
 	if username == "" || password == "" {
 		w.WriteHeader(http.StatusUnprocessableEntity)
