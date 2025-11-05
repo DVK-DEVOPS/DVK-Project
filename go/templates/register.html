@@ -1,34 +1,58 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Sign up</title>
-    <link rel="stylesheet" href="../static/register.css">
-</head>
-<body>
-        <h2 class="title">Sign up</h2>
-        {{if .Error}}
-        <div class="error"><strong>Error:</strong>{{.Error}}</div>
-        {{end}}
-        <form method="post" action="/api/register" class="form">
-            <dl>
-                <dt>Username:</dt>
-                <dd><input class="input" type="text" name="username" size="30" value="{{ .Username }}"></dd>
+    <link rel="stylesheet" href="../static/register.css" />
+    <script
+      src="https://js-de.sentry-cdn.com/34adec4d1e1b1f74bb4be01266185d4e.min.js"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <h2 class="title">Sign up</h2>
+    {{if .Error}}
+    <div class="error"><strong>Error:</strong>{{.Error}}</div>
+    {{end}}
+    <form method="post" action="/api/register" class="form">
+      <dl>
+        <dt>Username:</dt>
+        <dd>
+          <input
+            class="input"
+            type="text"
+            name="username"
+            size="30"
+            value="{{ .Username }}"
+          />
+        </dd>
 
-                <dt>Email:</dt>
-                <dd><input class="input" type="email" name="email" size="30" value="{{ .Email }}"></dd>
+        <dt>Email:</dt>
+        <dd>
+          <input
+            class="input"
+            type="email"
+            name="email"
+            size="30"
+            value="{{ .Email }}"
+          />
+        </dd>
 
-                <dt>Password:</dt>
-                <dd><input class="input" type="password" name="password" size="30"></dd>
+        <dt>Password:</dt>
+        <dd>
+          <input class="input" type="password" name="password" size="30" />
+        </dd>
 
-                <dt>Confirm Password:</dt>
-                <dd><input class="input" type="password" name="password2" size="30"></dd>
-            </dl>
-            <div class="actions">
-                <button class="btn primary" type="submit">Sign up</button>
-                <a class="btn ghost" href="/login">Already have an account?</a>
-            </div>
-        </form>
-</body>
+        <dt>Confirm Password:</dt>
+        <dd>
+          <input class="input" type="password" name="password2" size="30" />
+        </dd>
+      </dl>
+      <div class="actions">
+        <button class="btn primary" type="submit">Sign up</button>
+        <a class="btn ghost" href="/login">Already have an account?</a>
+      </div>
+    </form>
+  </body>
 </html>
