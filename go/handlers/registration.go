@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+
+	"github.com/getsentry/sentry-go"
 )
 
 type RegistrationController struct {
@@ -21,9 +23,19 @@ type RegistrationController struct {
 // @Failure 404 {string} string "Template not found"
 // @Router /register [get]
 func (rc *RegistrationController) ShowRegistrationPage(w http.ResponseWriter, r *http.Request) {
-	tmpl, _ := template.ParseFiles("templates/register.html")
-	err := tmpl.Execute(w, nil)
+	tmpl, err := template.ParseFiles("templates/register.html")
 	if err != nil {
+        if hub := sentry.GetHubFromContext(r.Context()); hub != nil {
+            hub.CaptureException(err)
+        }
+		http.Error(w, "Template not found", http.StatusNotFound)
+		return
+	}
+	err = tmpl.Execute(w, nil)
+	if err != nil {
+        if hub := sentry.GetHubFromContext(r.Context()); hub != nil {
+            hub.CaptureException(err)
+        }
 		http.Error(w, "Template not found", http.StatusNotFound)
 		return
 	}
@@ -44,6 +56,9 @@ func (rc *RegistrationController) Register(w http.ResponseWriter, r *http.Reques
 	w.Header().Set("Content-Type", "application/json")
 
 	if err := r.ParseForm(); err != nil {
+        if hub := sentry.GetHubFromContext(r.Context()); hub != nil {
+            hub.CaptureException(err)
+        }
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		if err := json.NewEncoder(w).Encode(models.HTTPValidationError{
 			Detail: []models.ValidationErrorDetail{
@@ -81,6 +96,9 @@ func (rc *RegistrationController) Register(w http.ResponseWriter, r *http.Reques
 
 	hashedPassword, err := db.HashPassword(password)
 	if err != nil {
+        if hub := sentry.GetHubFromContext(r.Context()); hub != nil {
+            hub.CaptureException(err)
+        }
 		w.WriteHeader(http.StatusInternalServerError)
 		_ = json.NewEncoder(w).Encode(models.HTTPValidationError{
 			Detail: []models.ValidationErrorDetail{
@@ -97,6 +115,9 @@ func (rc *RegistrationController) Register(w http.ResponseWriter, r *http.Reques
 
 	exists, err := rc.UserRepository.CheckIfUserExists(user.Email)
 	if err != nil {
+        if hub := sentry.GetHubFromContext(r.Context()); hub != nil {
+            hub.CaptureException(err)
+        }
 		http.Error(w, "Database error", http.StatusInternalServerError)
 		if err := json.NewEncoder(w).Encode(models.HTTPValidationError{
 			Detail: []models.ValidationErrorDetail{
@@ -129,6 +150,9 @@ func (rc *RegistrationController) Register(w http.ResponseWriter, r *http.Reques
 
 	id, err := rc.UserRepository.AddUser(user)
 	if err != nil {
+        if hub := sentry.GetHubFromContext(r.Context()); hub != nil {
+            hub.CaptureException(err)
+        }
 		w.WriteHeader(http.StatusInternalServerError)
 		if encErr := json.NewEncoder(w).Encode(models.HTTPValidationError{
 			Detail: []models.ValidationErrorDetail{

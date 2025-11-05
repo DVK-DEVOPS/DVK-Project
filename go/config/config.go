@@ -15,6 +15,11 @@ import (
 var (
 	apiKeyOnce   sync.Once
 	cachedAPIKey string
+
+	// Sentry config caching
+	sentryOnce      sync.Once
+	cachedSentryDSN string
+	cachedSentryEnv string
 )
 
 func GetAPIKey() string { //returns the api key from .env in dev and from azure vault in prod
@@ -59,4 +64,25 @@ func GetAPIKey() string { //returns the api key from .env in dev and from azure 
 	})
 
 	return cachedAPIKey
+}
+
+// GetSentryDSN returns the Sentry DSN from environment or empty if not set
+func GetSentryDSN() string {
+	sentryOnce.Do(func() {
+		// Load .env if present in dev
+		_ = godotenv.Load()
+		cachedSentryDSN = os.Getenv("SENTRY_DSN")
+		cachedSentryEnv = os.Getenv("SENTRY_ENVIRONMENT")
+		if cachedSentryEnv == "" {
+			cachedSentryEnv = "development"
+		}
+	})
+	return cachedSentryDSN
+}
+
+// GetSentryEnvironment returns the Sentry environment, defaults to "development"
+func GetSentryEnvironment() string {
+	// Ensure we've attempted to load once
+	_ = GetSentryDSN()
+	return cachedSentryEnv
 }

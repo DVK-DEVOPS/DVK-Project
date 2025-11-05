@@ -2,28 +2,63 @@ package main
 
 import (
 	"DVK-Project/client"
+	"DVK-Project/config"
 	"DVK-Project/db"
 	"DVK-Project/handlers"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"strconv"
+	"time"
 
 	"github.com/getsentry/sentry-go"
+	sentryhttp "github.com/getsentry/sentry-go/http"
 	"github.com/gorilla/mux"
 )
 
 func main() {
 
-	err := sentry.Init(sentry.ClientOptions{
-		Dsn:        "https://151577fe59653bf5f819029d4c53265d@o4510312610201600.ingest.de.sentry.io/4510312638644304",
-		EnableLogs: true,
-		// Set TracesSampleRate to 1.0 to capture 100%
-		// of transactions for tracing.
-		// We recommend adjusting this value in production,
-		TracesSampleRate: 1.0,
-	})
-	if err != nil {
-		log.Fatalf("sentry.Init: %s", err)
+	// Initialize Sentry using configuration/env (only if DSN is provided)
+	dsn := config.GetSentryDSN()
+	if dsn != "" {
+		// parse trace sample rate with conservative default
+		traceRate := 0.05
+		if v := os.Getenv("SENTRY_TRACES_SAMPLE_RATE"); v != "" {
+			if f, err := strconv.ParseFloat(v, 64); err == nil {
+				traceRate = f
+			}
+		}
+		err := sentry.Init(sentry.ClientOptions{
+			Dsn:              dsn,
+			Environment:      config.GetSentryEnvironment(),
+			Release:          os.Getenv("SENTRY_RELEASE"),
+			Debug:            os.Getenv("SENTRY_DEBUG") == "true",
+			EnableLogs:       true,
+			TracesSampleRate: traceRate,
+			BeforeSend: func(event *sentry.Event, hint *sentry.EventHint) *sentry.Event {
+				if event == nil || event.Request == nil {
+					return event
+				}
+				// Redact cookies and authorization headers
+				if event.Request.Headers != nil {
+					if _, ok := event.Request.Headers["Authorization"]; ok {
+						event.Request.Headers["Authorization"] = "[REDACTED]"
+					}
+					if _, ok := event.Request.Headers["Cookie"]; ok {
+						event.Request.Headers["Cookie"] = "[REDACTED]"
+					}
+				}
+				if event.Request.Cookies != "" {
+					event.Request.Cookies = "[REDACTED]"
+				}
+				return event
+			},
+		})
+		if err != nil {
+			log.Fatalf("sentry.Init: %s", err)
+		}
+		defer sentry.Flush(2 * time.Second)
 	}
 
 	database, err := db.InitDB()
@@ -75,5 +110,15 @@ func main() {
 	}
 
 	log.Println("Server running on :8080")
-	log.Fatal(http.ListenAndServe(":8080", r))
+	if dsn == "" {
+		log.Fatal(http.ListenAndServe(":8080", r))
+		return
+	}
+	// Wrap router with Sentry HTTP handler to capture panics and request context
+	sentryHandler := sentryhttp.New(sentryhttp.Options{
+		Repanic:         true,
+		WaitForDelivery: false,
+		Timeout:         1 * time.Second,
+	})
+	log.Fatal(http.ListenAndServe(":8080", sentryHandler.Handle(r)))
 }

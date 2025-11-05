@@ -3,21 +3,43 @@ package handlers
 import (
 	"html/template"
 	"net/http"
+
+	"github.com/getsentry/sentry-go"
 )
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
-	tmpl, _ := template.ParseFiles("templates/index.html") //Removing go/ from path serves the html correctly and does not crash the app when navigating to /
-	err := tmpl.Execute(w, nil)
+	tmpl, err := template.ParseFiles("templates/index.html")
 	if err != nil {
+		if hub := sentry.GetHubFromContext(r.Context()); hub != nil {
+			hub.CaptureException(err)
+		}
+		http.Error(w, "Template not found", http.StatusNotFound)
+		return
+	}
+	err = tmpl.Execute(w, nil)
+	if err != nil {
+		if hub := sentry.GetHubFromContext(r.Context()); hub != nil {
+			hub.CaptureException(err)
+		}
 		http.Error(w, "Template not found", http.StatusNotFound)
 		return
 	}
 }
 
 func AboutHandler(w http.ResponseWriter, r *http.Request) {
-	tmpl, _ := template.ParseFiles("templates/about.html") //Removing go/ from path serves the html correctly and does not crash the app when navigating to /
-	err := tmpl.Execute(w, nil)
+	tmpl, err := template.ParseFiles("templates/about.html")
 	if err != nil {
+		if hub := sentry.GetHubFromContext(r.Context()); hub != nil {
+			hub.CaptureException(err)
+		}
+		http.Error(w, "Template not found", http.StatusNotFound)
+		return
+	}
+	err = tmpl.Execute(w, nil)
+	if err != nil {
+		if hub := sentry.GetHubFromContext(r.Context()); hub != nil {
+			hub.CaptureException(err)
+		}
 		http.Error(w, "Template not found", http.StatusNotFound)
 		return
 	}

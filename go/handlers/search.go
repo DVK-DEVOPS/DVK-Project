@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+
+	"github.com/getsentry/sentry-go"
 )
 
 type SearchController struct {
@@ -20,6 +22,9 @@ func (sc *SearchController) ShowSearchResults(w http.ResponseWriter, r *http.Req
 	if searchStr == "" { //trigger 'No results' block in html.
 		tmpl := template.Must(template.ParseFiles("templates/search.html"))
 		if err := tmpl.Execute(w, nil); err != nil {
+			if hub := sentry.GetHubFromContext(r.Context()); hub != nil {
+				hub.CaptureException(err)
+			}
 			fmt.Printf("search.go: failed to execute template: %v\n", err)
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
@@ -27,14 +32,24 @@ func (sc *SearchController) ShowSearchResults(w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	// Trace DB search
+	span := sentry.StartSpan(r.Context(), "db.query",
+		sentry.WithDescription("FindSearchResults"))
 	results, err := sc.PageRepository.FindSearchResults(searchStr, language)
+	span.Finish()
 	if err != nil {
+		if hub := sentry.GetHubFromContext(r.Context()); hub != nil {
+			hub.CaptureException(err)
+		}
 		http.Error(w, "Database error: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	tmpl := template.Must(template.ParseFiles("templates/search.html"))
 	if err := tmpl.Execute(w, results); err != nil {
+		if hub := sentry.GetHubFromContext(r.Context()); hub != nil {
+			hub.CaptureException(err)
+		}
 		fmt.Printf("search.go: failed to execute template: %v\n", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
@@ -71,8 +86,14 @@ func (sc *SearchController) SearchAPI(w http.ResponseWriter, req *http.Request) 
 		return
 	}
 
+	span := sentry.StartSpan(req.Context(), "db.query",
+		sentry.WithDescription("FindSearchResults"))
 	results, err := sc.PageRepository.FindSearchResults(searchStr, language)
+	span.Finish()
 	if err != nil {
+		if hub := sentry.GetHubFromContext(req.Context()); hub != nil {
+			hub.CaptureException(err)
+		}
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -83,6 +104,9 @@ func (sc *SearchController) SearchAPI(w http.ResponseWriter, req *http.Request) 
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(response); err != nil {
+		if hub := sentry.GetHubFromContext(req.Context()); hub != nil {
+			hub.CaptureException(err)
+		}
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
