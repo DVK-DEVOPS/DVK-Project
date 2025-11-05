@@ -74,7 +74,7 @@ func GetSentryDSN() string {
 		cachedSentryDSN = os.Getenv("SENTRY_DSN")
 		cachedSentryEnv = os.Getenv("SENTRY_ENVIRONMENT")
 		if cachedSentryEnv == "" {
-			cachedSentryEnv = "development"
+			cachedSentryEnv = "dev"
 		}
 	})
 	return cachedSentryDSN
