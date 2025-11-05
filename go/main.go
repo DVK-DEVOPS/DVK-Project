@@ -8,10 +8,23 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/getsentry/sentry-go"
 	"github.com/gorilla/mux"
 )
 
 func main() {
+
+	err := sentry.Init(sentry.ClientOptions{
+		Dsn:        "https://151577fe59653bf5f819029d4c53265d@o4510312610201600.ingest.de.sentry.io/4510312638644304",
+		EnableLogs: true,
+		// Set TracesSampleRate to 1.0 to capture 100%
+		// of transactions for tracing.
+		// We recommend adjusting this value in production,
+		TracesSampleRate: 1.0,
+	})
+	if err != nil {
+		log.Fatalf("sentry.Init: %s", err)
+	}
 
 	database, err := db.InitDB()
 	if err != nil {
