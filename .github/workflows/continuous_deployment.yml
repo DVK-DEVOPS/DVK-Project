@@ -19,6 +19,8 @@ env:
   AZURE_VAULT_SECRET_NAME: ${{secrets.AZURE_VAULT_KEY}}
   AZURE_VAULT_NAME: ${{secrets.AZURE_VAULT_USERNAME}}
   API_URL: ${{secrets.API_URL}}
+  SENTRY_DSN: ${{secrets.SENTRY_DSN}}
+  SENTRY_ENV: ${{secrets.SENTRY_ENV}}
 
 permissions:
   contents: read
@@ -64,6 +66,8 @@ jobs:
             export KEYVAULT_NAME=${{ env.AZURE_VAULT_NAME }}
             export SECRET_NAME=${{ env.AZURE_VAULT_SECRET_NAME }}
             export API_URL=${{ env.API_URL }}
+            export SENTRY_DSN=${{env.SENTRY_DSN}}
+            export SENTRY_ENV=${{env.SENTRY_ENV}}
             
             echo "Pulling latest Docker images..."
             sudo -E docker compose -f docker-compose.prod.yml pull

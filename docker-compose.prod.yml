@@ -5,6 +5,8 @@ services:
       - KEYVAULT_NAME=${KEYVAULT_NAME}
       - SECRET_NAME=${SECRET_NAME}
       - API_URL=${API_URL}
+      - SENTRY_DSN=${SENTRY_DSN}
+      - SENTRY_ENV=${SENTRY_ENV}
     container_name: whoknows-prod
     ports:
       - "8080:8080"
