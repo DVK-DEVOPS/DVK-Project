@@ -3,11 +3,9 @@ package handlers
 import (
 	"DVK-Project/client"
 	"DVK-Project/models"
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"log"
 	"net/http"
 
@@ -32,41 +30,15 @@ func NewWeatherController(c *client.APIClient) *WeatherController {
 func (wc *WeatherController) ShowWeatherPage(w http.ResponseWriter, req *http.Request) {
 	forecast, err := wc.GetForecastData(req.Context())
 	if err != nil {
-		// capture error with request context
 		if hub := sentry.GetHubFromContext(req.Context()); hub != nil {
 			hub.CaptureException(err)
 		}
 		http.Error(w, "Failed to get forecast", http.StatusInternalServerError)
 		return
 	}
+
 	formatted := models.FormatForecastData(forecast)
-
-	tmpl, err := template.ParseFiles("templates/weather.html")
-	if err != nil {
-		if hub := sentry.GetHubFromContext(req.Context()); hub != nil {
-			hub.CaptureException(err)
-		}
-		http.Error(w, "Template not found", http.StatusNotFound)
-		return
-	}
-
-	var buf bytes.Buffer
-	if err := tmpl.Execute(&buf, formatted); err != nil {
-		if hub := sentry.GetHubFromContext(req.Context()); hub != nil {
-			hub.CaptureException(err)
-		}
-		http.Error(w, "Template execution failed", http.StatusInternalServerError)
-		return
-	}
-
-	if _, err := buf.WriteTo(w); err != nil {
-		if hub := sentry.GetHubFromContext(req.Context()); hub != nil {
-			hub.CaptureException(err)
-		}
-		fmt.Printf("weather.go: failed to write buffer to ResponseWriter: %v\n", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
+	renderTemplate(w, req, "weather.html", formatted)
 }
 
 func (wc *WeatherController) GetForecastData(ctx context.Context) (*models.Forecast, error) {

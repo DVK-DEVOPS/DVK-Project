@@ -5,7 +5,6 @@ import (
 	"DVK-Project/models"
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"net/http"
 	"strings"
 
@@ -29,21 +28,7 @@ type LoginHandler struct {
 // @Failure 404 {string} string "Error"
 // @Router /login [get]
 func (lh *LoginHandler) ShowLogin(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFiles("templates/login.html")
-	if err != nil {
-		if hub := sentry.GetHubFromContext(r.Context()); hub != nil {
-			hub.CaptureException(err)
-		}
-		http.Error(w, "Template error: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-	err = tmpl.Execute(w, nil)
-	if err != nil {
-		if hub := sentry.GetHubFromContext(r.Context()); hub != nil {
-			hub.CaptureException(err)
-		}
-		http.Error(w, "Template execution error: "+err.Error(), http.StatusInternalServerError)
-	}
+	renderTemplate(w, r, "login.html", nil)
 }
 
 // Login authenticates a user with username and password.

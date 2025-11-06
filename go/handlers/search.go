@@ -3,8 +3,6 @@ package handlers
 import (
 	"DVK-Project/db"
 	"encoding/json"
-	"fmt"
-	"html/template"
 	"net/http"
 
 	"github.com/getsentry/sentry-go"
@@ -20,15 +18,7 @@ func (sc *SearchController) ShowSearchResults(w http.ResponseWriter, r *http.Req
 	language := r.FormValue("language")
 
 	if searchStr == "" { //trigger 'No results' block in html.
-		tmpl := template.Must(template.ParseFiles("templates/search.html"))
-		if err := tmpl.Execute(w, nil); err != nil {
-			if hub := sentry.GetHubFromContext(r.Context()); hub != nil {
-				hub.CaptureException(err)
-			}
-			fmt.Printf("search.go: failed to execute template: %v\n", err)
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			return
-		}
+		renderTemplate(w, r, "search.html", nil)
 		return
 	}
 
@@ -45,15 +35,7 @@ func (sc *SearchController) ShowSearchResults(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	tmpl := template.Must(template.ParseFiles("templates/search.html"))
-	if err := tmpl.Execute(w, results); err != nil {
-		if hub := sentry.GetHubFromContext(r.Context()); hub != nil {
-			hub.CaptureException(err)
-		}
-		fmt.Printf("search.go: failed to execute template: %v\n", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
+	renderTemplate(w, r, "search.html", results)
 }
 
 // SearchAPI godoc
