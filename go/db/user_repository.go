@@ -55,15 +55,15 @@ func (r *UserRepository) CheckCredentialsByUsername(username, password string) (
 
 // Checking isAffected column
 func (r *UserRepository) CheckIfUserIsAffected(username string) (bool, error) {
-	var affected bool
-	err := r.DB.QueryRow("SELECT isAffected FROM users WHERE username = ?", username).Scan(&affected)
+	var isAffected bool
+	err := r.DB.QueryRow("SELECT isAffected FROM users WHERE username = ?", username).Scan(&isAffected)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return false, nil //User not found
 		}
 		return false, err //DB error
 	}
-	return affected, nil
+	return isAffected, nil
 }
 
 // Reset password
