@@ -1,9 +1,11 @@
 package db
 
 import (
+	"DVK-Project/db"
 	"DVK-Project/models"
 	"database/sql"
 	"errors"
+	//"os/user"
 )
 
 type UserRepository struct {
@@ -49,4 +51,35 @@ func (r *UserRepository) CheckCredentialsByUsername(username, password string) (
 		return false, err
 	}
 	return VerifyPassword(storedPassword, password), nil
+}
+
+// Checking isAffected column
+func (r *UserRepository) CheckIfUserIsAffected(username string) (bool, error) {
+	var affected bool
+	err := r.DB.QueryRow("SELECT isAffected FROM users WHERE username = ?", username).Scan(&affected)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return false, nil //User not found
+		}
+		return false, err //DB error
+	}
+	return affected, nil
+}
+
+// Reset password
+func (r *UserRepository) UserResetPassword(username, newPassword string) (int64, error) {
+	hashedPassword := db.HashPassword(newPassword)
+	query := "UPDATE USERS SET PASSWORD = ? WHERE USERNAME = ?"
+	res, err := r.DB.Exec(query, hashedPassword, username)
+	if err != nil {
+		return 0, err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+
+	return rowsAffected, nil
+
 }
