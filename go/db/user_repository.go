@@ -54,16 +54,16 @@ func (r *UserRepository) CheckCredentialsByUsername(username, password string) (
 }
 
 // Checking isAffected column
-func (r *UserRepository) CheckIfUserIsAffected(username string) (bool, error) {
+func (r *UserRepository) CheckIfUserIsAffected(username string) bool {
 	var isAffected bool
-	err := r.DB.QueryRow("SELECT isAffected FROM users WHERE username = ?", username).Scan(&isAffected)
+	err := r.DB.QueryRow("SELECT isAffected FROM users WHERE username = ?", username).Scan(&isAffected) //TODO: awaiting final column name
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return false, nil //User not found
+			return false //User not found
 		}
-		return false, err //DB error
+		return false //DB error
 	}
-	return isAffected, nil
+	return isAffected
 }
 
 // Reset password
@@ -80,6 +80,6 @@ func (r *UserRepository) UserResetPassword(username, newPassword string) (int64,
 		return 0, err
 	}
 
-	return rowsAffected, nil
+	return rowsAffected, nil //return 1 or 0
 
 }

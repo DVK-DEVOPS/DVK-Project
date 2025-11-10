@@ -43,6 +43,8 @@ func (lh *LoginHandler) ShowLogin(w http.ResponseWriter, r *http.Request) {
 // @Failure 422 {object} models.HTTPValidationError "Validation error"
 // @Router /api/login [post]
 func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
+	isBrowser := strings.Contains(r.Header.Get("Accept"), "text/html")
+
 	w.Header().Set("Content-Type", "application/json")
 
 	var username, password string
@@ -69,6 +71,20 @@ func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	username = strings.TrimSpace(username)
 	password = strings.TrimSpace(password)
+
+	if lh.UserRepository.CheckIfUserIsAffected(username) { //Is user affected by security breach?
+		if isBrowser {
+			http.Redirect(w, r, "/password-reset.html", http.StatusFound)
+			return
+		}
+		//TODO: pass hashedpassword here or inside the method call
+		w.WriteHeader(http.StatusForbidden)
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"error": "Password reset required",
+			"url":   "/password-reset.html",
+		})
+		return
+	}
 
 	if username == "" || password == "" {
 		w.WriteHeader(http.StatusUnprocessableEntity)
