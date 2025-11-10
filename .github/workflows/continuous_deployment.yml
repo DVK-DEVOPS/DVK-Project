@@ -64,7 +64,7 @@ jobs:
             sudo docker compose -f docker-compose.prod.yml down
 
             echo "Setting environment variables for Compose..."
-            export KEYVAULT_NAME=${{ env.AZURE_KEYVAULT_NAME }}
+            export AZURE_KEYVAULT_NAME=${{ env.AZURE_KEYVAULT_NAME }}
             export API_KEY_SECRET_NAME=${{ env.API_KEY_SECRET_NAME }}
             export DB_URL_SECRET_NAME=${{ env.DB_URL_SECRET_NAME}}
             export API_URL=${{ env.API_URL }}
