@@ -16,9 +16,8 @@ env:
   VM_USERNAME: ${{ secrets.AZURE_USERNAME }}
   VM_KEY: ${{ secrets.AZURE_KEY }}
   GH_PAT: ${{ secrets.GH_PAT}}
-  AZURE_KEYVAULT_NAME: ${{secrets.AZURE_KEYVAULT_NAME}}
-  API_KEY_SECRET_NAME: ${{secrets.API_KEY_SECRET_NAME}}
-  DB_URL_SECRET_NAME: ${{secrets.DB_URL_SECRET_NAME}}
+  AZURE_VAULT_SECRET_NAME: ${{secrets.AZURE_VAULT_KEY}}
+  AZURE_VAULT_NAME: ${{secrets.AZURE_VAULT_USERNAME}}
   API_URL: ${{secrets.API_URL}}
   SENTRY_DSN: ${{secrets.SENTRY_DSN}}
   SENTRY_ENV: ${{secrets.SENTRY_ENV}}
@@ -64,9 +63,8 @@ jobs:
             sudo docker compose -f docker-compose.prod.yml down
 
             echo "Setting environment variables for Compose..."
-            export KEYVAULT_NAME=${{ env.AZURE_KEYVAULT_NAME }}
-            export API_KEY_SECRET_NAME=${{ env.API_KEY_SECRET_NAME }}
-            export DB_URL_SECRET_NAME=${{ env.DB_URL_SECRET_NAME}}
+            export KEYVAULT_NAME=${{ env.AZURE_VAULT_NAME }}
+            export SECRET_NAME=${{ env.AZURE_VAULT_SECRET_NAME }}
             export API_URL=${{ env.API_URL }}
             export SENTRY_DSN=${{env.SENTRY_DSN}}
             export SENTRY_ENV=${{env.SENTRY_ENV}}
