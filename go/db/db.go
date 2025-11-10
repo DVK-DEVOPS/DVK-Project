@@ -1,14 +1,20 @@
 package db
 
 import (
+	"DVK-Project/config"
 	"database/sql"
 	"os"
 
-	_ "modernc.org/sqlite"
+	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 )
 
 func InitDB() (*sql.DB, error) {
-	db, err := sql.Open("sqlite", "./database.db")
+
+	_ = godotenv.Load()
+	dbURL := config.GetSecret("DB_URL", os.Getenv("KEYVAULT_NAME"), os.Getenv("DB_URL_SECRET_NAME"))
+
+	db, err := sql.Open("postgres", dbURL)
 	if err != nil {
 		return nil, err
 	}
