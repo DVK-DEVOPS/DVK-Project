@@ -2,7 +2,6 @@ GO_DIR := go
 BIN := app
 LOCAL_DB_PORT := 55432
 SSH_TUNNEL_PID_FILE := /tmp/ssh_tunnel.pid
-APP_VM_PUBLIC_IP := 51.142.201.55
 SSH_KEY := ~/.ssh/id_rsa
 
 ifneq ("$(wildcard $(GO_DIR)/.env)","")
