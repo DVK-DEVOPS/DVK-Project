@@ -1,6 +1,7 @@
 package db
 
 import (
+	"DVK-Project/config"
 	"database/sql"
 	"os"
 
@@ -11,7 +12,7 @@ import (
 func InitDB() (*sql.DB, error) {
 
 	_ = godotenv.Load()
-	dbURL := os.Getenv("DB_URL")
+	dbURL := config.GetSecret("DB_URL", os.Getenv("KEYVAULT_NAME"), os.Getenv("DB_URL_SECRET_NAME"))
 
 	db, err := sql.Open("postgres", dbURL)
 	if err != nil {
