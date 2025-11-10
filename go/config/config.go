@@ -13,8 +13,8 @@ import (
 )
 
 var (
-	apiKeyOnce   sync.Once
-	cachedAPIKey string
+	secretCache = make(map[string]string)
+	secretOnce  = make(map[string]*sync.Once)
 
 	// Sentry config caching
 	sentryOnce      sync.Once
@@ -22,28 +22,29 @@ var (
 	cachedSentryEnv string
 )
 
-func GetAPIKey() string { //returns the api key from .env in dev and from azure vault in prod
-	apiKeyOnce.Do(func() {
+func GetSecret(envVar, keyVaultName, secretName string) string {
+	if _, exists := secretOnce[envVar]; !exists {
+		secretOnce[envVar] = &sync.Once{}
+	}
+
+	secretOnce[envVar].Do(func() {
 		// Load .env if present
 		if err := godotenv.Load(); err != nil {
 			log.Println(".env file not found, assuming production")
 		}
 
-		// Check for dev API_KEY
-		if key := os.Getenv("API_KEY"); key != "" {
-			cachedAPIKey = key
+		// Check environment variable first (dev)
+		if val := os.Getenv(envVar); val != "" {
+			secretCache[envVar] = val
 			return
 		}
 
-		// Fetch from Key Vault
-		vaultName := os.Getenv("KEYVAULT_NAME")
-		secretName := os.Getenv("SECRET_NAME")
-		if vaultName == "" || secretName == "" {
-			log.Fatal("KEYVAULT_NAME or SECRET_NAME environment variables not set")
+		// Fetch from Key Vault (prod)
+		if keyVaultName == "" || secretName == "" {
+			log.Fatalf("KEYVAULT_NAME or SECRET_NAME not set for %s", envVar)
 		}
 
-		kvURL := fmt.Sprintf("https://%s.vault.azure.net/", vaultName)
-
+		kvURL := fmt.Sprintf("https://%s.vault.azure.net/", keyVaultName)
 		cred, err := azidentity.NewDefaultAzureCredential(nil)
 		if err != nil {
 			log.Fatalf("Failed to get Azure credential: %v", err)
@@ -54,16 +55,15 @@ func GetAPIKey() string { //returns the api key from .env in dev and from azure 
 			log.Fatalf("Failed to create Key Vault client: %v", err)
 		}
 
-		resp, err := client.GetSecret(context.Background(), secretName, "", nil) // "" = latest version
+		resp, err := client.GetSecret(context.Background(), secretName, "", nil)
 		if err != nil {
-			log.Fatalf("Failed to fetch secret: %v", err)
+			log.Fatalf("Failed to fetch secret %s: %v", secretName, err)
 		}
 
-		cachedAPIKey = *resp.Value
-
+		secretCache[envVar] = *resp.Value
 	})
 
-	return cachedAPIKey
+	return secretCache[envVar]
 }
 
 // GetSentryDSN returns the Sentry DSN from environment or empty if not set
