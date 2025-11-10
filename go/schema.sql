@@ -1,5 +1,5 @@
 -- Drop tables in correct dependency order
-DROP TABLE IF EXISTS pages_fts;
+-- DROP TABLE IF EXISTS pages_fts; -- (Obsolete: was used for FTS in old schema. Remove if not needed for migration.)
 DROP TABLE IF EXISTS pages;
 DROP TABLE IF EXISTS users;
 
