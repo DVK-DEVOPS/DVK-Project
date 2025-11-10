@@ -21,7 +21,7 @@ type APIClient struct {
 func NewAPIClient() *APIClient {
 	_ = godotenv.Load()
 	url := os.Getenv("API_URL")
-	apiKey := config.GetSecret("API_KEY", os.Getenv("AZURE_KEYVAULT_NAME"), os.Getenv("API_KEY_SECRET_NAME"))
+	apiKey := config.GetSecret("API_KEY", os.Getenv("KEYVAULT_NAME"), os.Getenv("API_KEY_SECRET_NAME"))
 	if url == "" || apiKey == "" {
 		log.Fatal("API_URL or API_KEY not set")
 	}

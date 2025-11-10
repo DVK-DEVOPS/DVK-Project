@@ -2,7 +2,7 @@ services:
   whoknows:
     image: ghcr.io/dvk-devops/dvk-project:latest
     environment:
-      - AZURE_KEYVAULT_NAME=${AZURE_KEYVAULT_NAME}
+      - KEYVAULT_NAME=${KEYVAULT_NAME}
       - API_KEY_SECRET_NAME=${API_KEY_SECRET_NAME}
       - DB_URL_SECRET_NAME=${DB_URL_SECRET_NAME}
       - API_URL=${API_URL}
