@@ -9,7 +9,9 @@ import (
 )
 
 type SearchController struct {
-	PageRepository *db.PageRepository
+	//PageRepository *db.PageRepository
+	PageRepository db.PageRepoInterface
+	RenderTemplate func(w http.ResponseWriter, r *http.Request, filename string, data interface{})
 }
 
 // ### Page Templating ###
@@ -18,7 +20,7 @@ func (sc *SearchController) ShowSearchResults(w http.ResponseWriter, r *http.Req
 	language := r.FormValue("language")
 
 	if searchStr == "" { //trigger 'No results' block in html.
-		renderTemplate(w, r, "search.html", nil)
+		sc.RenderTemplate(w, r, "search.html", nil)
 		return
 	}
 
@@ -35,7 +37,8 @@ func (sc *SearchController) ShowSearchResults(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	renderTemplate(w, r, "search.html", results)
+	//renderTemplate(w, r, "search.html", results)
+	sc.RenderTemplate(w, r, "search.html", results)
 }
 
 // SearchAPI godoc
