@@ -52,23 +52,23 @@ func (r *UserRepository) CheckCredentialsByUsername(username, password string) (
 	return VerifyPassword(storedPassword, password), nil
 }
 
-// Checking isAffected column
-func (r *UserRepository) CheckIfUserIsAffected(username string) bool {
-	var isAffected bool
-	err := r.DB.QueryRow("SELECT isAffected FROM users WHERE username = ?", username).Scan(&isAffected) //TODO: awaiting final column name
+// Checking isInactive column
+func (r *UserRepository) CheckIfUserisInactive(username string) bool {
+	var isInactive bool
+	err := r.DB.QueryRow("SELECT isInactive FROM users WHERE username = ?", username).Scan(&isInactive) //TODO: awaiting final column name
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return false //User not found
 		}
 		return false //DB error
 	}
-	return isAffected
+	return isInactive
 }
 
 // Reset password
 func (r *UserRepository) UserResetPassword(username, newPassword string) (int64, error) {
 	//hashedPassword := db.HashPassword(newPassword)
-	query := "UPDATE USERS SET PASSWORD = ?, isAffected = false WHERE USERNAME = ?" //Update the boolean column name
+	query := "UPDATE USERS SET PASSWORD = ?, isInactive = false WHERE USERNAME = ?" //Update the boolean column name
 	res, err := r.DB.Exec(query, newPassword, username)
 	if err != nil {
 		return 0, err

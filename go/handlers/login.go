@@ -92,7 +92,7 @@ func (lh *LoginHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	// Update password
 	//err = lh.UserRepository.UpdatePassword(username, newPassword)
 	var rowsAffected int64
-	rowsAffected, err = lh.UserRepository.UserResetPassword(username, newPassword) //Need to check if the inputted user is affected in order to combat changing other users' passwords
+	rowsAffected, err = lh.UserRepository.UserResetPassword(username, newPassword) //Need to check if the inputted user is inactive in order to combat changing other users' passwords
 	if err != nil {
 		data["Error"] = "Failed to update password"
 		renderTemplate(w, r, "password-reset.html", data)
@@ -149,10 +149,10 @@ func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 	username = strings.TrimSpace(username)
 	password = strings.TrimSpace(password)
 
-	if lh.UserRepository.CheckIfUserIsAffected(username) { //Is user affected by security breach?
-		fmt.Println("(Login.go)Checking if user is affected by security breach.")
+	if lh.UserRepository.CheckIfUserisInactive(username) { //Is user inactive by security breach?
+		fmt.Println("(Login.go)Checking if user is inactive by security breach.")
 		if isBrowser {
-			fmt.Println("(Login.go) !AFFECTED! User is accessing through browser. Trying redirect.")
+			fmt.Println("(Login.go) !INACTIVE! User is accessing through browser. Trying redirect.")
 			http.SetCookie(w, &http.Cookie{
 				Name:     "password_reset_user",
 				Value:    username,
@@ -163,7 +163,7 @@ func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/password-reset", http.StatusFound)
 			return
 		}
-		fmt.Println("(Login.go) !AFFECTED! User is accessing via api and json")
+		fmt.Println("(Login.go) !INACTIVE! User is accessing via api and json")
 		w.WriteHeader(http.StatusForbidden)
 		_ = json.NewEncoder(w).Encode(map[string]any{
 			"error": "Password reset required",
