@@ -36,7 +36,7 @@ func (lh *LoginHandler) ShowPasswordReset(w http.ResponseWriter, r *http.Request
 }
 
 func (lh *LoginHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
-	var username, email, oldPassword, newPassword string
+	var username, email, oldPassword, newPasswordStr, newPassword string
 
 	//_ = r.ParseForm()
 	if err := r.ParseForm(); err != nil {
@@ -46,12 +46,13 @@ func (lh *LoginHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	username = r.Form.Get("username")
 	//email = r.Form.Get("email")
 	oldPassword = r.Form.Get("password")
-	newPassword = r.Form.Get("newPassword")
+	newPasswordStr = r.Form.Get("newPassword")
 
 	username = strings.TrimSpace(username)
 	//email = strings.TrimSpace(email)
 	oldPassword = strings.TrimSpace(oldPassword)
-	newPassword = strings.TrimSpace(newPassword)
+	newPasswordStr = strings.TrimSpace(newPassword)
+	newPassword, _ = db.HashPassword(newPasswordStr)
 
 	// Prepare data to pass to template
 	data := map[string]interface{}{

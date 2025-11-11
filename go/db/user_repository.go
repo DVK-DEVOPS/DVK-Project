@@ -1,7 +1,6 @@
 package db
 
 import (
-	"DVK-Project/db"
 	"DVK-Project/models"
 	"database/sql"
 	"errors"
@@ -68,9 +67,9 @@ func (r *UserRepository) CheckIfUserIsAffected(username string) bool {
 
 // Reset password
 func (r *UserRepository) UserResetPassword(username, newPassword string) (int64, error) {
-	hashedPassword := db.HashPassword(newPassword)
-	query := "UPDATE USERS SET PASSWORD = ? WHERE USERNAME = ?"
-	res, err := r.DB.Exec(query, hashedPassword, username)
+	//hashedPassword := db.HashPassword(newPassword)
+	query := "UPDATE USERS SET PASSWORD = ? WHERE USERNAME = ?" //Update the boolean column
+	res, err := r.DB.Exec(query, newPassword, username)
 	if err != nil {
 		return 0, err
 	}
