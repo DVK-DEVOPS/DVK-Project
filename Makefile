@@ -19,12 +19,14 @@ ssh-tunnel:
 
 
 ssh-tunnel-stop:
-	@if lsof -ti:$(LOCAL_DB_PORT) >/dev/null 2>&1; then \
+	if lsof -ti:$(LOCAL_DB_PORT) >/dev/null 2>&1; then \
 		echo "Killing SSH tunnel on port $(LOCAL_DB_PORT)..."; \
-		pkill -f "ssh -f -N -L $(LOCAL_DB_PORT):localhost:5432"; \
+		kill -9 $$(lsof -ti:$(LOCAL_DB_PORT)); \
+		rm -f $(SSH_TUNNEL_PID_FILE); \
 	else \
 		echo "No SSH tunnel running"; \
 	fi
+
 
 run: ssh-tunnel
 	cd $(GO_DIR) && go run .
