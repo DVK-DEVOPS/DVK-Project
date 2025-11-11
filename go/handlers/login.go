@@ -66,7 +66,7 @@ func (lh *LoginHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	//email = strings.TrimSpace(email)
 	oldPassword = strings.TrimSpace(oldPassword)
 	newPasswordStr = strings.TrimSpace(newPasswordStr)
-	fmt.Printf("Username: %s, OldPassword: %s, NewPasswordStr: %s\n", username, oldPassword, newPasswordStr)
+	//fmt.Printf("Username: %s, OldPassword: %s, NewPasswordStr: %s\n", username, oldPassword, newPasswordStr)
 	newPassword, _ = db.HashPassword(newPasswordStr)
 
 	// Prepare data to pass to template
@@ -82,7 +82,7 @@ func (lh *LoginHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
-	fmt.Printf("Boolean is %t", ok)
+	//fmt.Printf("Boolean is %t", ok)
 
 	if !ok {
 		data["Error"] = "Credentials are incorrect. Please make sure to check your username and previous password."
@@ -92,7 +92,7 @@ func (lh *LoginHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	// Update password
 	//err = lh.UserRepository.UpdatePassword(username, newPassword)
 	var rowsAffected int64
-	rowsAffected, err = lh.UserRepository.UserResetPassword(username, newPassword) //Need to check if the inputted user is inactive in order to combat changing other users' passwords
+	rowsAffected, err = lh.UserRepository.UserResetPassword(username, newPassword)
 	if err != nil {
 		data["Error"] = "Failed to update password"
 		renderTemplate(w, r, "password-reset.html", data)
