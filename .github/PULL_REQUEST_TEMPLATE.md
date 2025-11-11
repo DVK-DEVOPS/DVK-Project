@@ -1,7 +1,14 @@
+---
+name: "Standard Issue"
+about: "Create a detailed issue for bugs, features, or tasks"
+title: "[ISSUE] "
+labels: ""
+assignees: ""
+---
+
 ## Description
 
 Please include a summary of the change and which issue is fixed. Please also include relevant motivation and context.
-
 
 ## Type of change
 
