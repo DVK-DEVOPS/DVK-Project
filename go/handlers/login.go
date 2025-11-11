@@ -31,6 +31,66 @@ func (lh *LoginHandler) ShowLogin(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, r, "login.html", nil)
 }
 
+func (lh *LoginHandler) ShowPasswordReset(w http.ResponseWriter, r *http.Request) {
+	renderTemplate(w, r, "password-reset.html", nil)
+}
+
+func (lh *LoginHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
+	var username, email, oldPassword, newPassword string
+
+	//_ = r.ParseForm()
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Invalid form submission", http.StatusBadRequest)
+		return
+	}
+	username = r.Form.Get("username")
+	//email = r.Form.Get("email")
+	oldPassword = r.Form.Get("password")
+	newPassword = r.Form.Get("newPassword")
+
+	username = strings.TrimSpace(username)
+	//email = strings.TrimSpace(email)
+	oldPassword = strings.TrimSpace(oldPassword)
+	newPassword = strings.TrimSpace(newPassword)
+
+	// Prepare data to pass to template
+	data := map[string]interface{}{
+		"Username": username,
+		"Email":    email,
+		"Error":    "", // default no error
+	}
+
+	ok, err := lh.UserRepository.CheckCredentialsByUsername(username, oldPassword)
+	if err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	if !ok {
+		data["Error"] = "Old password is incorrect"
+		renderTemplate(w, r, "password-reset.html", data)
+		return
+	}
+	// Update password
+	//err = lh.UserRepository.UpdatePassword(username, newPassword)
+	var rowsAffected int64
+	rowsAffected, err = lh.UserRepository.UserResetPassword(username, newPassword)
+	if err != nil {
+		data["Error"] = "Failed to update password"
+		renderTemplate(w, r, "password-reset.html", data)
+		return
+	}
+
+	if rowsAffected == 0 {
+		data["Error"] = "No user found with that username"
+		renderTemplate(w, r, "password-reset.html", data)
+		return
+	}
+
+	data["Success"] = "Password updated successfully"
+	renderTemplate(w, r, "password-reset.html", data)
+}
+
 // Login authenticates a user with username and password.
 // @Summary Login
 // @Description Authenticates a user using username and password
@@ -73,15 +133,17 @@ func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 	password = strings.TrimSpace(password)
 
 	if lh.UserRepository.CheckIfUserIsAffected(username) { //Is user affected by security breach?
+		fmt.Println("(Login.go)Checking if user is affected by security breach.")
 		if isBrowser {
-			http.Redirect(w, r, "/password-reset.html", http.StatusFound)
+			fmt.Println("(Login.go) !AFFECTED! User is accessing through browser. Trying redirect.")
+			http.Redirect(w, r, "/password-reset", http.StatusFound)
 			return
 		}
-		//TODO: pass hashedpassword here or inside the method call
+		fmt.Println("(Login.go) !AFFECTED! User is accessing via api and json")
 		w.WriteHeader(http.StatusForbidden)
 		_ = json.NewEncoder(w).Encode(map[string]any{
 			"error": "Password reset required",
-			"url":   "/password-reset.html",
+			"url":   "/password-reset",
 		})
 		return
 	}

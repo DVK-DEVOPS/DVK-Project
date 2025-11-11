@@ -84,6 +84,8 @@ func main() {
 	lh := &handlers.LoginHandler{UserRepository: userRepository}
 	r.HandleFunc("/login", lh.ShowLogin).Methods("GET")
 	r.HandleFunc("/api/login", lh.Login).Methods("POST")
+	r.HandleFunc("/password-reset", lh.ShowPasswordReset).Methods("GET")
+	r.HandleFunc("/api/password-reset", lh.ResetPassword).Methods("POST")
 
 	r.HandleFunc("/logout", lh.Logout).Methods("GET")
 
