@@ -12,7 +12,7 @@ import (
 func InitDB() (*sql.DB, error) {
 
 	_ = godotenv.Load()
-	dbURL := config.GetSecret("DB_URL", os.Getenv("KEYVAULT_NAME"), os.Getenv("DB_URL_SECRET_NAME"))
+	dbURL := config.GetSecret("DB_URL", os.Getenv("AZURE_KEYVAULT_NAME"), os.Getenv("DB_URL_SECRET_NAME"))
 
 	db, err := sql.Open("postgres", dbURL)
 	if err != nil {
