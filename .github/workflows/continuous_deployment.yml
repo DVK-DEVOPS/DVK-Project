@@ -21,7 +21,7 @@ env:
   API_URL: ${{secrets.API_URL}}
   SENTRY_DSN: ${{secrets.SENTRY_DSN}}
   SENTRY_ENV: ${{secrets.SENTRY_ENV}}
-
+  GF_ADMIN_PASSWORD: ${{secrets.GF_ADMIN_PASSWORD}}
 permissions:
   contents: read
   packages: read
@@ -68,6 +68,7 @@ jobs:
             export API_URL=${{ env.API_URL }}
             export SENTRY_DSN=${{env.SENTRY_DSN}}
             export SENTRY_ENV=${{env.SENTRY_ENV}}
+            export GF_ADMIN_PASSWORD=${{env.GF_ADMIN_PASSWORD}}
             
             echo "Pulling latest Docker images..."
             sudo -E docker compose -f docker-compose.prod.yml pull
