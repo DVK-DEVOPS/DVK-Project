@@ -1,21 +1,20 @@
-## ✨ Feature Request
-
-Thanks for suggesting an idea to improve this project! Please provide as much detail as possible.
-
+---
+name: "Standard Issue"
+about: "Create a detailed issue for bugs, features, or tasks"
+title: "[ISSUE] "
+labels: ""
+assignees: ""
 ---
 
-### 🚀 Summary
-A clear and concise description of the feature you’d like to see.
+## Description
 
----
+Please include a summary of the change and which issue is fixed. Please also include relevant motivation and context.
 
-### 🤔 Problem
-Is your feature request related to a problem?  
-(e.g., *“I’m frustrated when…”*)
+## Type of change
 
----
+Please delete options that are not relevant.
 
-### 💡 Proposed Solution
-Describe the solution you’d like.  
-How should this feature work?
-
+- [ ] Bug fix (non-breaking change which fixes an issue)
+- [ ] New feature (non-breaking change which adds functionality)
+- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
+- [ ] Documentation update
