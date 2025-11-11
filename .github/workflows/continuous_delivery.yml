@@ -10,7 +10,7 @@ env:
   DOCKER_GITHUB_USERNAME: ${{ github.actor }}
 
 permissions:
-    contents: read
+    contents: write
     packages: write
     attestations: write
     id-token: write
