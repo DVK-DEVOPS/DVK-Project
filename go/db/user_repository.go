@@ -68,7 +68,7 @@ func (r *UserRepository) CheckIfUserIsAffected(username string) bool {
 // Reset password
 func (r *UserRepository) UserResetPassword(username, newPassword string) (int64, error) {
 	//hashedPassword := db.HashPassword(newPassword)
-	query := "UPDATE USERS SET PASSWORD = ? WHERE USERNAME = ?" //Update the boolean column
+	query := "UPDATE USERS SET PASSWORD = ?, isAffected = false WHERE USERNAME = ?" //Update the boolean column name
 	res, err := r.DB.Exec(query, newPassword, username)
 	if err != nil {
 		return 0, err

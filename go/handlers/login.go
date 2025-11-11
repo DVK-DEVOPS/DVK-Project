@@ -33,7 +33,20 @@ func (lh *LoginHandler) ShowLogin(w http.ResponseWriter, r *http.Request) {
 
 func (lh *LoginHandler) ShowPasswordReset(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Accessing ShowPasswordReset() Showing password-reset.html")
-	renderTemplate(w, r, "password-reset.html", nil)
+	cookie, err := r.Cookie("password_reset_user")
+	if err != nil || cookie.Value == "" {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+	username := cookie.Value
+
+	data := map[string]interface{}{
+		"Username": username, // will populate readonly input
+		"Error":    "",
+		"Success":  "",
+	}
+
+	renderTemplate(w, r, "password-reset.html", data)
 }
 
 func (lh *LoginHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
@@ -72,20 +85,19 @@ func (lh *LoginHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("Boolean is %t", ok)
 
 	if !ok {
-		data["Error"] = "Old password is incorrect"
+		data["Error"] = "Credentials are incorrect. Please make sure to check your username and previous password."
 		renderTemplate(w, r, "password-reset.html", data)
 		return
 	}
 	// Update password
 	//err = lh.UserRepository.UpdatePassword(username, newPassword)
 	var rowsAffected int64
-	rowsAffected, err = lh.UserRepository.UserResetPassword(username, newPassword)
+	rowsAffected, err = lh.UserRepository.UserResetPassword(username, newPassword) //Need to check if the inputted user is affected in order to combat changing other users' passwords
 	if err != nil {
 		data["Error"] = "Failed to update password"
 		renderTemplate(w, r, "password-reset.html", data)
 		return
 	}
-
 	if rowsAffected == 0 {
 		data["Error"] = "No user found with that username"
 		renderTemplate(w, r, "password-reset.html", data)
@@ -141,6 +153,13 @@ func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("(Login.go)Checking if user is affected by security breach.")
 		if isBrowser {
 			fmt.Println("(Login.go) !AFFECTED! User is accessing through browser. Trying redirect.")
+			http.SetCookie(w, &http.Cookie{
+				Name:     "password_reset_user",
+				Value:    username,
+				Path:     "/",
+				HttpOnly: true,
+				MaxAge:   600,
+			})
 			http.Redirect(w, r, "/password-reset", http.StatusFound)
 			return
 		}
