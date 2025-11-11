@@ -32,6 +32,7 @@ func (lh *LoginHandler) ShowLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func (lh *LoginHandler) ShowPasswordReset(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Accessing ShowPasswordReset() Showing password-reset.html")
 	renderTemplate(w, r, "password-reset.html", nil)
 }
 
