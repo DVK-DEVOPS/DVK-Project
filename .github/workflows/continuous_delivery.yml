@@ -23,6 +23,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v4
+        with:
+          versionSpec: '6.4.x'
+
+      - name: Determine version
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v4
+
+      - name: Print version
+        run: echo "VERSION=${{ steps.gitversion.outputs.semVer }}"
+
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Login to GitHub Container Registry
@@ -34,8 +47,10 @@ jobs:
 
       - name: Build and Push App Image
         run: |
+          VERSION=${{ steps.gitversion.outputs.semVer }}
           docker buildx build \
             --file ./Dockerfile.prod \
+            --tag ghcr.io/dvk-devops/dvk-project:${VERSION} \
             --tag ghcr.io/dvk-devops/dvk-project:latest \
             --platform linux/amd64 \
             --cache-from=type=registry,ref=ghcr.io/dvk-devops/dvk-project:latest \
@@ -50,4 +65,11 @@ jobs:
             --platform linux/amd64 \
             --push \
             ./nginx
+
+      - name: Create Git Tag
+        if: github.ref == 'refs/heads/main'
+        run: |
+          VERSION=${{ steps.gitversion.outputs.semVer }}
+          git tag v${VERSION}
+          git push origin v${VERSION}
 
