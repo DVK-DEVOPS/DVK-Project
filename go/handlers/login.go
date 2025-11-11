@@ -47,12 +47,13 @@ func (lh *LoginHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	username = r.Form.Get("username")
 	//email = r.Form.Get("email")
 	oldPassword = r.Form.Get("password")
-	newPasswordStr = r.Form.Get("newPassword")
+	newPasswordStr = r.Form.Get("newPasswordStr")
 
 	username = strings.TrimSpace(username)
 	//email = strings.TrimSpace(email)
 	oldPassword = strings.TrimSpace(oldPassword)
-	newPasswordStr = strings.TrimSpace(newPassword)
+	newPasswordStr = strings.TrimSpace(newPasswordStr)
+	fmt.Printf("Username: %s, OldPassword: %s, NewPasswordStr: %s\n", username, oldPassword, newPasswordStr)
 	newPassword, _ = db.HashPassword(newPasswordStr)
 
 	// Prepare data to pass to template
@@ -60,6 +61,7 @@ func (lh *LoginHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		"Username": username,
 		"Email":    email,
 		"Error":    "", // default no error
+		"Success":  "",
 	}
 
 	ok, err := lh.UserRepository.CheckCredentialsByUsername(username, oldPassword)
@@ -67,6 +69,7 @@ func (lh *LoginHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
+	fmt.Printf("Boolean is %t", ok)
 
 	if !ok {
 		data["Error"] = "Old password is incorrect"
