@@ -52,6 +52,8 @@ jobs:
           key: ${{ env.VM_KEY }}
           port: 22
           script: |
+            set -e
+
             echo "Logging into GitHub Container Registry..."
             echo "${{ env.GITHUB_TOKEN }}" | sudo docker login ghcr.io -u ${{ env.DOCKER_GITHUB_USERNAME}} --password-stdin
             echo "Navigating to deployment directory..."
@@ -71,6 +73,7 @@ jobs:
             export SENTRY_ENV=${{env.SENTRY_ENV}}
             export GF_ADMIN_PASSWORD=${{env.GF_ADMIN_PASSWORD}}
             
+
             echo "Pulling latest Docker images..."
             sudo -E docker compose -f docker-compose.prod.yml pull
             echo "Starting containers..."
