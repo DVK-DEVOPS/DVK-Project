@@ -60,7 +60,7 @@ jobs:
             echo "Navigating to deployment directory..."
             cd ~/whoknows
 
-            # Tag current container images for rollback
+            # Save current images for rollback
             echo "Saving current container images for rollback..."
             CURRENT_IMAGES=$(sudo docker compose -f docker-compose.prod.yml images -q)
             for IMAGE in $CURRENT_IMAGES; do
@@ -70,21 +70,19 @@ jobs:
             echo "Stopping current containers..."
             sudo docker compose -f docker-compose.prod.yml down
 
-            echo "Setting environment variables for Compose..."
-            export KEYVAULT_NAME=${{ env.AZURE_KEYVAULT_NAME }}
-            export SECRET_NAME=${{ env.API_KEY_SECRET_NAME }}
-            export API_URL=${{ env.API_URL }}
-            export SENTRY_DSN=${{env.SENTRY_DSN}}
-            export SENTRY_ENV=${{env.SENTRY_ENV}}
-            export GF_ADMIN_PASSWORD=${{env.GF_ADMIN_PASSWORD}}
-            
             echo "Pulling latest Docker images..."
-            sudo -E docker compose -f docker-compose.prod.yml pull
+            sudo docker compose -f docker-compose.prod.yml pull
 
-            echo "Starting new containers..."
-            sudo -E docker compose -f docker-compose.prod.yml up -d
+            echo "Starting new containers with inline environment variables..."
+            sudo KEYVAULT_NAME="${{ env.AZURE_KEYVAULT_NAME }}" \
+                 SECRET_NAME="${{ env.API_KEY_SECRET_NAME }}" \
+                 API_URL="${{ env.API_URL }}" \
+                 SENTRY_DSN="${{ env.SENTRY_DSN }}" \
+                 SENTRY_ENV="${{ env.SENTRY_ENV }}" \
+                 GF_ADMIN_PASSWORD="${{ env.GF_ADMIN_PASSWORD }}" \
+                 docker compose -f docker-compose.prod.yml up -d
 
-            # Health check for new deployment
+            # Health check
             echo "Waiting 10 seconds for containers to initialize..."
             sleep 10
 
@@ -98,4 +96,4 @@ jobs:
               exit 1
             fi
 
-            echo "Deployment successful and healthy:)"
+            echo "Deployment successful and healthy :)"
