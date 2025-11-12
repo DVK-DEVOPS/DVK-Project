@@ -38,9 +38,10 @@ services:
   loki:
     image: grafana/loki:latest
     container_name: loki
+    user: "10001:10001"
     volumes:
       - ./logging/loki-config.yaml:/etc/loki/local-config.yaml
-      - ./data/loki:/loki
+      - loki-data:/loki
     command: -config.file=/etc/loki/local-config.yaml
     networks:
       - webnet
@@ -49,9 +50,10 @@ services:
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
+    user: "65534:65534" 
     volumes:
       - ./logging/prometheus.yml:/etc/prometheus/prometheus.yml
-      - ./data/prometheus:/prometheus
+      - prometheus-data:/prometheus
     networks:
       - webnet
     restart: unless-stopped
@@ -65,6 +67,7 @@ services:
   alloy:
     image: grafana/alloy:latest
     container_name: alloy
+    user: "0:0"
     depends_on:
       - loki
       - prometheus
@@ -72,6 +75,7 @@ services:
       - ./logging/alloy-config.yaml:/etc/alloy/config.alloy
       - /var/run/docker.sock:/var/run/docker.sock
       - /var/log:/var/log:ro
+      - alloy-data:/var/lib/alloy
     command: run --server.http.listen-addr=0.0.0.0:12345 /etc/alloy/config.alloy
     networks:
       - webnet
@@ -88,7 +92,7 @@ services:
     environment:
       - GF_SECURITY_ADMIN_USER=whoknows
       - GF_SECURITY_ADMIN_PASSWORD=${GF_ADMIN_PASSWORD}
-      - GF_SERVER_ROOT_URL=https://whoknows-dvk.dk/grafana
+      - GF_SERVER_ROOT_URL=https://whoknows-dvk.dk/grafana/
       - GF_SERVER_SERVE_FROM_SUB_PATH=true
     networks:
       - webnet
@@ -96,6 +100,9 @@ services:
 
 volumes:
   grafana-data:
+  loki-data:      
+  prometheus-data:
+  alloy-data:
 
 networks:
   webnet:
