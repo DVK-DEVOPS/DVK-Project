@@ -44,7 +44,7 @@ jobs:
           scp -i key.pem -o StrictHostKeyChecking=no docker-compose.prod.yml ${{ env.VM_USERNAME }}@${{ env.VM_HOST }}:~/whoknows
           echo "File copied successfully."
 
-      - name: Deploy via SSH with health check and rollback
+      - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ env.VM_HOST }}
@@ -56,43 +56,27 @@ jobs:
 
             echo "Logging into GitHub Container Registry..."
             echo "${{ env.GITHUB_TOKEN }}" | sudo docker login ghcr.io -u ${{ env.DOCKER_GITHUB_USERNAME}} --password-stdin
-
             echo "Navigating to deployment directory..."
             cd ~/whoknows
-
-            # Tag current container images for rollback
-            echo "Saving current container images for rollback..."
-            CURRENT_IMAGES=$(sudo docker compose -f docker-compose.prod.yml images -q)
-            for IMAGE in $CURRENT_IMAGES; do
-              sudo docker tag $IMAGE ${IMAGE}:rollback
-            done
-
-            echo "Stopping current containers..."
+            echo "Stopping older containers"
             sudo docker compose -f docker-compose.prod.yml down
+            
+            echo "Disabling BuildKit for Compose..."
+            export DOCKER_BUILDKIT=0
+            export COMPOSE_DOCKER_CLI_BUILD=0
+  
+            echo "Setting environment variables for Compose..."
+            export KEYVAULT_NAME=${{ env.AZURE_KEYVAULT_NAME }}
+            export SECRET_NAME=${{ env.API_KEY_SECRET_NAME }}
+            export API_URL=${{ env.API_URL }}
+            export SENTRY_DSN=${{env.SENTRY_DSN}}
+            export SENTRY_ENV=${{env.SENTRY_ENV}}
+            export GF_ADMIN_PASSWORD=${{env.GF_ADMIN_PASSWORD}}
+            
 
             echo "Pulling latest Docker images..."
             sudo -E docker compose -f docker-compose.prod.yml pull
-
-            echo "Starting new containers with inline environment variables..."
-            sudo KEYVAULT_NAME="${{ env.AZURE_KEYVAULT_NAME }}" \
-                 SECRET_NAME="${{ env.API_KEY_SECRET_NAME }}" \
-                 API_URL="${{ env.API_URL }}" \
-                 SENTRY_DSN="${{ env.SENTRY_DSN }}" \
-                 SENTRY_ENV="${{ env.SENTRY_ENV }}" \
-                 GF_ADMIN_PASSWORD="${{ env.GF_ADMIN_PASSWORD }}" \
-                 docker compose -f docker-compose.prod.yml up -d
-
-            echo "Waiting 10 seconds for containers to initialize..."
-            sleep 10
-
-            echo "Checking application health..."
-            if ! curl -f --max-time 30 ${{ env.HEALTHCHECK_URL }}; then
-              echo "Deployment failed health check! Rolling back..."
-              for IMAGE in $CURRENT_IMAGES; do
-                sudo docker tag ${IMAGE}:rollback $IMAGE
-              done
-              sudo docker compose -f docker-compose.prod.yml up -d
-              exit 1
-            fi
-
-            echo "Deployment successful and healthy:)"
+            echo "Starting containers..."
+            sudo -E docker compose -f docker-compose.prod.yml up -d
+            
+            echo "Deployment complete."
