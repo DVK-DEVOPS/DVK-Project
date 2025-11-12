@@ -25,6 +25,12 @@ func InitDB() (*sql.DB, error) {
 		return nil, err
 	}
 
+	log.Println("[InitDB] Pinging database to verify connection...")
+	if err := db.Ping(); err != nil {
+		log.Printf("[InitDB] Error pinging database: %v\n", err)
+		db.Close()
+		return nil, err
+	}
 	log.Println("[InitDB] Database connection established successfully.")
 	return db, nil
 }
