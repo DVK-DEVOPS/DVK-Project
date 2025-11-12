@@ -1,45 +1,40 @@
 package test
 
 import (
-	"context"
+	"DVK-Project/config"
 	"log"
 	"os"
 	"testing"
-
-	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
-	"github.com/Azure/azure-sdk-for-go/sdk/keyvault/azsecrets"
 )
 
-// checks that the application can fetch a secret from azure vault
-func TestKeyVaultFetch(t *testing.T) {
-	vaultName := os.Getenv("KEYVAULT_NAME")
-	secretName := os.Getenv("SECRET_NAME")
+// TestGetSecret ensures secrets are fetched either from env or Azure Key Vault.
+func TestGetSecret(t *testing.T) {
+	// Expected environment variable names
+	vaultEnv := "AZURE_KEYVAULT_NAME"
+	apiSecretEnv := "API_KEY_SECRET_NAME"
+	dbSecretEnv := "DB_URL_SECRET_NAME"
 
-	if vaultName == "" || secretName == "" {
-		t.Skip("Skipping Key Vault test: KEYVAULT_NAME or SECRET_NAME not set")
+	vaultName := os.Getenv(vaultEnv)
+	apiSecretName := os.Getenv(apiSecretEnv)
+	dbSecretName := os.Getenv(dbSecretEnv)
+
+	// If vault info missing, skip (e.g., in CI without Azure creds)
+	if vaultName == "" || apiSecretName == "" || dbSecretName == "" {
+		t.Skipf("Skipping test: missing required env vars (%s, %s, %s)",
+			vaultEnv, apiSecretEnv, dbSecretEnv)
 	}
 
-	kvURL := "https://" + vaultName + ".vault.azure.net/"
-
-	cred, err := azidentity.NewDefaultAzureCredential(nil)
-	if err != nil {
-		t.Fatalf("Failed to get Azure credential: %v", err)
+	// --- Test API Key Secret ---
+	apiKey := config.GetSecret("API_KEY", vaultName, apiSecretName)
+	if apiKey == "" {
+		t.Fatalf("Expected non-empty API key for %s", apiSecretEnv)
 	}
+	log.Printf("✅ Successfully fetched API key secret (%d chars)", len(apiKey))
 
-	client, err := azsecrets.NewClient(kvURL, cred, nil)
-	if err != nil {
-		t.Fatalf("Failed to create Key Vault client: %v", err)
+	// --- Test DB URL Secret ---
+	dbURL := config.GetSecret("DB_URL", vaultName, dbSecretName)
+	if dbURL == "" {
+		t.Fatalf("Expected non-empty DB URL for %s", dbSecretEnv)
 	}
-
-	resp, err := client.GetSecret(context.Background(), secretName, "", nil)
-	if err != nil {
-		t.Fatalf("Failed to fetch secret: %v", err)
-	}
-
-	if resp.Value == nil || *resp.Value == "" {
-		t.Fatalf("Secret value is empty")
-	}
-
-	log.Printf("✅ Successfully fetched secret %q from Key Vault %q (length %d)",
-		secretName, vaultName, len(*resp.Value))
+	log.Printf("✅ Successfully fetched DB URL secret (%d chars)", len(dbURL))
 }

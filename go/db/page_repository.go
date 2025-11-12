@@ -15,17 +15,17 @@ func NewPageRepository(db *sql.DB) *PageRepository {
 
 // For page templating
 func (r *PageRepository) FindSearchResults(searchStr string, language string) ([]Result, error) {
-	query := `SELECT Title, Url, Content, Language, CreatedAt, UpdatedAt 
-	FROM pages_fts WHERE pages_fts MATCH ?`
-
+	query := `SELECT title, url, content, language, createdat, updatedat
+			  FROM pages
+			  WHERE search_vector @@ plainto_tsquery('english', $1)`
 	args := []interface{}{searchStr}
 
 	if language != "" {
-		query += " AND LOWER(Language) = LOWER(?)"
+		query += " AND LOWER(language) = LOWER($2)"
 		args = append(args, language)
 	}
-	rows, err := r.DB.Query(query, args...)
 
+	rows, err := r.DB.Query(query, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -35,8 +35,9 @@ func (r *PageRepository) FindSearchResults(searchStr string, language string) ([
 	for rows.Next() {
 		var res Result
 		var lang sql.NullString
-		var createdAtStr, updatedAtStr string
-		if err := rows.Scan(&res.Title, &res.Url, &res.Content, &lang, &createdAtStr, &updatedAtStr); err != nil {
+		var createdAt, updatedAt time.Time
+
+		if err := rows.Scan(&res.Title, &res.Url, &res.Content, &lang, &createdAt, &updatedAt); err != nil {
 			return nil, err
 		}
 
@@ -45,8 +46,8 @@ func (r *PageRepository) FindSearchResults(searchStr string, language string) ([
 		} else {
 			res.Language = ""
 		}
-		res.CreatedAt, _ = time.Parse("2006-01-02 15:04:05", createdAtStr)
-		res.UpdatedAt, _ = time.Parse("2006-01-02 15:04:05", updatedAtStr)
+		res.CreatedAt = createdAt
+		res.UpdatedAt = updatedAt
 		results = append(results, res)
 	}
 
