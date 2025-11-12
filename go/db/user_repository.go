@@ -14,35 +14,29 @@ type UserRepository struct {
 func NewUserRepository(db *sql.DB) *UserRepository {
 	return &UserRepository{DB: db}
 }
-
 func (r *UserRepository) CheckIfUserExists(email string) (bool, error) {
 	var count int
-	query := "SELECT COUNT(*) FROM users WHERE email = ?"
+	query := "SELECT COUNT(*) FROM users WHERE email = $1"
 	err := r.DB.QueryRow(query, email).Scan(&count)
 	if err != nil {
 		return false, err
 	}
-
 	return count > 0, nil
 }
 
 func (r *UserRepository) AddUser(user models.User) (int, error) {
-	query := "INSERT INTO users (username, email, password) VALUES (?, ?, ?)"
-	res, err := r.DB.Exec(query, user.Username, user.Email, user.Password)
+	query := "INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING id"
+	var id int
+	err := r.DB.QueryRow(query, user.Username, user.Email, user.Password).Scan(&id)
 	if err != nil {
 		return 0, err
 	}
-	id, err := res.LastInsertId()
-	if err != nil {
-		return 0, err
-	}
-	return int(id), nil
+	return id, nil
 }
 
-// for login
 func (r *UserRepository) CheckCredentialsByUsername(username, password string) (bool, error) {
 	var storedPassword string
-	err := r.DB.QueryRow("SELECT password FROM users WHERE username = ?", username).Scan(&storedPassword)
+	err := r.DB.QueryRow("SELECT password FROM users WHERE username = $1", username).Scan(&storedPassword)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return false, nil

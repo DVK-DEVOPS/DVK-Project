@@ -15,14 +15,89 @@ import (
 	"github.com/getsentry/sentry-go"
 	sentryhttp "github.com/getsentry/sentry-go/http"
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
+
+var (
+	httpRequestsTotal = promauto.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "http_requests_total",
+			Help: "Total number of HTTP requests",
+		},
+		[]string{"method", "endpoint", "status"},
+	)
+
+	httpRequestDuration = promauto.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:    "http_request_duration_seconds",
+			Help:    "Duration of HTTP requests in seconds",
+			Buckets: prometheus.DefBuckets,
+		},
+		[]string{"method", "endpoint"},
+	)
+
+	dbQueryDuration = promauto.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:    "db_query_duration_seconds",
+			Help:    "Duration of database queries in seconds",
+			Buckets: prometheus.DefBuckets,
+		},
+		[]string{"query_type"},
+	)
+
+	activeUsers = promauto.NewGauge(
+		prometheus.GaugeOpts{
+			Name: "active_users",
+			Help: "Number of currently active users",
+		},
+	)
+)
+
+func metricsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+
+		rw := &responseWriter{ResponseWriter: w, statusCode: http.StatusOK}
+
+		next.ServeHTTP(rw, r)
+
+		duration := time.Since(start).Seconds()
+
+		route := mux.CurrentRoute(r)
+		path, _ := route.GetPathTemplate()
+		if path == "" {
+			path = r.URL.Path
+		}
+
+		httpRequestsTotal.WithLabelValues(
+			r.Method,
+			path,
+			strconv.Itoa(rw.statusCode),
+		).Inc()
+
+		httpRequestDuration.WithLabelValues(
+			r.Method,
+			path,
+		).Observe(duration)
+	})
+}
+
+type responseWriter struct {
+	http.ResponseWriter
+	statusCode int
+}
+
+func (rw *responseWriter) WriteHeader(code int) {
+	rw.statusCode = code
+	rw.ResponseWriter.WriteHeader(code)
+}
 
 func main() {
 
-	// Initialize Sentry using configuration/env (only if DSN is provided)
 	dsn := config.GetSentryDSN()
 	if dsn != "" {
-		// parse trace sample rate with conservative default
 		traceRate := 0.05
 		if v := os.Getenv("SENTRY_TRACES_SAMPLE_RATE"); v != "" {
 			if f, err := strconv.ParseFloat(v, 64); err == nil {
@@ -40,7 +115,6 @@ func main() {
 				if event == nil || event.Request == nil {
 					return event
 				}
-				// Redact cookies and authorization headers
 				if event.Request.Headers != nil {
 					if _, ok := event.Request.Headers["Authorization"]; ok {
 						event.Request.Headers["Authorization"] = "[REDACTED]"
@@ -69,6 +143,9 @@ func main() {
 	pageRepository := db.NewPageRepository(database)
 
 	r := mux.NewRouter()
+
+	// Prometheus metrics endpoint
+	r.Handle("/metrics", promhttp.Handler())
 
 	//Healthcheck
 	r.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {
@@ -102,6 +179,8 @@ func main() {
 	r.HandleFunc("/weather", wc.ShowWeatherPage).Methods("GET")
 	r.HandleFunc("/api/weather", wc.GetWeatherForecast).Methods("GET")
 
+	r.Use(metricsMiddleware)
+
 	fmt.Println("Registered routes:") //debug
 	if err := r.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
 		t, _ := route.GetPathTemplate()
@@ -112,11 +191,12 @@ func main() {
 	}
 
 	log.Println("Server running on :8080")
+	log.Println("Metrics available at :8080/metrics")
+
 	if dsn == "" {
 		log.Fatal(http.ListenAndServe(":8080", r))
 		return
 	}
-	// Wrap router with Sentry HTTP handler to capture panics and request context
 	sentryHandler := sentryhttp.New(sentryhttp.Options{
 		Repanic:         true,
 		WaitForDelivery: false,
