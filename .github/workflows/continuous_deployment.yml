@@ -1,8 +1,6 @@
 name: Continuous Deployment
 
 on:
-  #push:
-    #branches: [ main ]
   workflow_run:
     workflows: [ Continuous Delivery ]
     types:
@@ -23,6 +21,7 @@ env:
   SENTRY_DSN: ${{secrets.SENTRY_DSN}}
   SENTRY_ENV: ${{secrets.SENTRY_ENV}}
   GF_ADMIN_PASSWORD: ${{secrets.GF_ADMIN_PASSWORD}}
+  HEALTHCHECK_URL: "https://${{ secrets.DVK_URL }}/api/health"
 permissions:
   contents: read
   packages: read
@@ -47,22 +46,26 @@ jobs:
           echo "File copied successfully."
 
       - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.2.0        
+        uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ env.VM_HOST }}
           username: ${{ env.VM_USERNAME }}
           key: ${{ env.VM_KEY }}
           port: 22
           script: |
+            set -e
+
             echo "Logging into GitHub Container Registry..."
             echo "${{ env.GITHUB_TOKEN }}" | sudo docker login ghcr.io -u ${{ env.DOCKER_GITHUB_USERNAME}} --password-stdin
-
             echo "Navigating to deployment directory..."
             cd ~/whoknows
-
             echo "Stopping older containers"
             sudo docker compose -f docker-compose.prod.yml down
-
+            
+            echo "Disabling BuildKit for Compose..."
+            export DOCKER_BUILDKIT=0
+            export COMPOSE_DOCKER_CLI_BUILD=0
+  
             echo "Setting environment variables for Compose..."
             export AZURE_KEYVAULT_NAME=${{ env.AZURE_KEYVAULT_NAME }}
             export API_KEY_SECRET_NAME=${{ env.API_KEY_SECRET_NAME }}
@@ -72,11 +75,10 @@ jobs:
             export SENTRY_ENV=${{env.SENTRY_ENV}}
             export GF_ADMIN_PASSWORD=${{env.GF_ADMIN_PASSWORD}}
             
+
             echo "Pulling latest Docker images..."
             sudo -E docker compose -f docker-compose.prod.yml pull
-
             echo "Starting containers..."
             sudo -E docker compose -f docker-compose.prod.yml up -d
-
-    
+            
             echo "Deployment complete."
