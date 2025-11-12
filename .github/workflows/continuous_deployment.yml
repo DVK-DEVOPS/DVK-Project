@@ -1,8 +1,6 @@
 name: Continuous Deployment
 
 on:
-  #push:
-    #branches: [ main ]
   workflow_run:
     workflows: [ Continuous Delivery ]
     types:
@@ -22,6 +20,7 @@ env:
   SENTRY_DSN: ${{secrets.SENTRY_DSN}}
   SENTRY_ENV: ${{secrets.SENTRY_ENV}}
   GF_ADMIN_PASSWORD: ${{secrets.GF_ADMIN_PASSWORD}}
+  HEALTHCHECK_URL: "https://${{ secrets.DVK_URL }}/api/health"
 permissions:
   contents: read
   packages: read
@@ -45,21 +44,30 @@ jobs:
           scp -i key.pem -o StrictHostKeyChecking=no docker-compose.prod.yml ${{ env.VM_USERNAME }}@${{ env.VM_HOST }}:~/whoknows
           echo "File copied successfully."
 
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.2.0        
+      - name: Deploy via SSH with health check and rollback
+        uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ env.VM_HOST }}
           username: ${{ env.VM_USERNAME }}
           key: ${{ env.VM_KEY }}
           port: 22
           script: |
+            set -e
+
             echo "Logging into GitHub Container Registry..."
             echo "${{ env.GITHUB_TOKEN }}" | sudo docker login ghcr.io -u ${{ env.DOCKER_GITHUB_USERNAME}} --password-stdin
 
             echo "Navigating to deployment directory..."
             cd ~/whoknows
 
-            echo "Stopping older containers"
+            # Tag current container images for rollback
+            echo "Saving current container images for rollback..."
+            CURRENT_IMAGES=$(sudo docker compose -f docker-compose.prod.yml images -q)
+            for IMAGE in $CURRENT_IMAGES; do
+              sudo docker tag $IMAGE ${IMAGE}:rollback
+            done
+
+            echo "Stopping current containers..."
             sudo docker compose -f docker-compose.prod.yml down
 
             echo "Setting environment variables for Compose..."
@@ -73,8 +81,21 @@ jobs:
             echo "Pulling latest Docker images..."
             sudo -E docker compose -f docker-compose.prod.yml pull
 
-            echo "Starting containers..."
+            echo "Starting new containers..."
             sudo -E docker compose -f docker-compose.prod.yml up -d
 
-    
-            echo "Deployment complete."
+            # Health check for new deployment
+            echo "Waiting 10 seconds for containers to initialize..."
+            sleep 10
+
+            echo "Checking application health..."
+            if ! curl -f --max-time 30 ${{ env.HEALTHCHECK_URL }}; then
+              echo "Deployment failed health check! Rolling back..."
+              for IMAGE in $CURRENT_IMAGES; do
+                sudo docker tag ${IMAGE}:rollback $IMAGE
+              done
+              sudo docker compose -f docker-compose.prod.yml up -d
+              exit 1
+            fi
+
+            echo "Deployment successful and healthy:)"
