@@ -62,9 +62,6 @@ jobs:
             echo "Stopping older containers"
             sudo docker compose -f docker-compose.prod.yml down
             
-            echo "Disabling BuildKit for Compose..."
-            export DOCKER_BUILDKIT=0
-            export COMPOSE_DOCKER_CLI_BUILD=0
   
             echo "Setting environment variables for Compose..."
             export AZURE_KEYVAULT_NAME=${{ env.AZURE_KEYVAULT_NAME }}
