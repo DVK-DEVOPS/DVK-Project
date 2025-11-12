@@ -2,8 +2,9 @@ services:
   whoknows:
     image: ghcr.io/dvk-devops/dvk-project:latest
     environment:
-      - KEYVAULT_NAME=${KEYVAULT_NAME}
-      - SECRET_NAME=${SECRET_NAME}
+      - AZURE_KEYVAULT_NAME=${AZURE_KEYVAULT_NAME}
+      - API_KEY_SECRET_NAME=${API_KEY_SECRET_NAME}
+      - DB_URL_SECRET_NAME=${DB_URL_SECRET_NAME}
       - API_URL=${API_URL}
       - SENTRY_DSN=${SENTRY_DSN}
       - SENTRY_ENV=${SENTRY_ENV}
