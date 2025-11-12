@@ -16,4 +16,4 @@ ENV PATH="/root/go/bin:${PATH}"
 COPY go/. .
 
 EXPOSE 8080
-CMD ["go", "run", "main.go"]
+CMD ["air"]
