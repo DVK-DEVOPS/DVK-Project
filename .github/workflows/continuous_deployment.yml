@@ -70,10 +70,6 @@ jobs:
             echo "Stopping current containers..."
             sudo docker compose -f docker-compose.prod.yml down
 
-            echo "Disabling BuildKit for Compose..."
-            export DOCKER_BUILDKIT=0
-            export COMPOSE_DOCKER_CLI_BUILD=0
-            
             echo "Pulling latest Docker images..."
             sudo -E docker compose -f docker-compose.prod.yml pull
 
