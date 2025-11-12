@@ -10,9 +10,10 @@
     "prometheus",
     "loki",
     "alloy",
-    "node-exporter"
+    "node-exporter",
+    "postgres"
   ],
-  "forwardPorts": [8080, 3000, 9090, 3100, 12345],
+  "forwardPorts": [8080, 3000,5432, 9090, 3100, 12345],
   "customizations": {
     "vscode": {
       "extensions": ["golang.go"],
