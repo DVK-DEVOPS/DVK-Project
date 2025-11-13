@@ -29,7 +29,6 @@ services:
       - /etc/letsencrypt/archive/whoknows-dvk.dk:/etc/letsencrypt/archive/whoknows-dvk.dk:ro
     depends_on:
       - whoknows
-      - grafana
       - loki
       - prometheus
     networks:
@@ -81,25 +80,8 @@ services:
       - webnet
     restart: unless-stopped
 
-  grafana:
-    image: grafana/grafana:latest
-    container_name: grafana
-    depends_on:
-      - loki
-      - prometheus
-    volumes:
-      - grafana-data:/var/lib/grafana
-    environment:
-      - GF_SECURITY_ADMIN_USER=whoknows
-      - GF_SECURITY_ADMIN_PASSWORD=${GF_ADMIN_PASSWORD}
-      - GF_SERVER_ROOT_URL=https://whoknows-dvk.dk/grafana/
-      - GF_SERVER_SERVE_FROM_SUB_PATH=true
-    networks:
-      - webnet
-    restart: unless-stopped
 
 volumes:
-  grafana-data:
   loki-data:      
   prometheus-data:
   alloy-data:
