@@ -192,7 +192,7 @@ func main() {
 	log.Println("Metrics available at :8080/metrics")
 
 	if dsn == "" {
-		log.Fatal(http.ListenAndServe(":8080", r))
+		log.Fatal(http.ListenAndServe("0.0.0.0:8080", r))
 		return
 	}
 	sentryHandler := sentryhttp.New(sentryhttp.Options{
@@ -200,5 +200,5 @@ func main() {
 		WaitForDelivery: false,
 		Timeout:         1 * time.Second,
 	})
-	log.Fatal(http.ListenAndServe(":8080", sentryHandler.Handle(r)))
+	log.Fatal(http.ListenAndServe("0.0.0.0:8080", sentryHandler.Handle(r)))
 }
