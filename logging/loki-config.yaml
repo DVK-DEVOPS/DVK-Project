@@ -32,3 +32,4 @@ limits_config:
   ingestion_burst_size_mb: 12
   max_streams_per_user: 20000
   max_line_size: 256000
+  allow_structured_metadata: false
