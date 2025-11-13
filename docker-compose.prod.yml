@@ -43,6 +43,8 @@ services:
     volumes:
       - ./logging/loki-config.yaml:/etc/loki/local-config.yaml
       - loki-data:/loki
+      - ./logging/loki-chunks:/loki/chunks
+      - ./logging/loki-rules:/loki/rules
     command: -config.file=/etc/loki/local-config.yaml
     networks:
       - webnet
