@@ -5,9 +5,7 @@ server:
   grpc_listen_port: 9095
   http_listen_address: 0.0.0.0
 
-
 common:
-  instance_addr: 0.0.0.0
   path_prefix: /loki
   storage:
     filesystem:
@@ -23,18 +21,14 @@ schema_config:
     - from: 2020-10-24
       store: tsdb
       object_store: filesystem
-      schema: v13
+      schema: v11
       index:
         prefix: index_
         period: 24h
 
 limits_config:
-  retention_period: 720h        # 30 days
+  retention_period: 720h
   ingestion_rate_mb: 8
   ingestion_burst_size_mb: 12
   max_streams_per_user: 20000
   max_line_size: 256000
-
-ruler:
-  alertmanager_url: http://alertmanager:9093
-  enable_api: true
