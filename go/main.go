@@ -110,5 +110,5 @@ func main() {
 	log.Println("Server running on :8080")
 	log.Println("Metrics available at :8080/metrics")
 
-	log.Fatal(http.ListenAndServe("0.0.0.0::8080", r))
+	log.Fatal(http.ListenAndServe("0.0.0.0:8080", r))
 }
