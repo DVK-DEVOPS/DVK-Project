@@ -8,6 +8,7 @@ import (
 	"github.com/getsentry/sentry-go"
 )
 
+//go:embed templates/*
 var templatesFS embed.FS
 
 func captureAndRespond(w http.ResponseWriter, r *http.Request, err error, msg string, code int) {
