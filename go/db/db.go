@@ -11,33 +11,26 @@ import (
 )
 
 func InitDB() (*sql.DB, error) {
+
+	log.Println("[InitDB] Loading environment variables...")
 	_ = godotenv.Load()
 
-	env := os.Getenv("APP_ENV")
-	var dbURL string
+	log.Println("[InitDB] Getting database URL secret...")
+	dbURL := config.GetSecret("DB_URL", os.Getenv("AZURE_KEYVAULT_NAME"), os.Getenv("DB_URL_SECRET_NAME"))
 
-	if env == "production" {
-		log.Println("[InitDB] Loading production DB URL from Key Vault...")
-		dbURL = config.GetSecret(
-			"DB_URL",
-			os.Getenv("AZURE_KEYVAULT_NAME"),
-			os.Getenv("DB_URL_SECRET_NAME"),
-		)
-	} else {
-		log.Println("[InitDB] Using local development DB URL from .env...")
-		dbURL = os.Getenv("DB_URL")
-	}
-
+	log.Println("[InitDB] Opening database connection...")
 	db, err := sql.Open("postgres", dbURL)
 	if err != nil {
+		log.Printf("[InitDB] Error opening database connection: %v\n", err)
 		return nil, err
 	}
 
+	log.Println("[InitDB] Pinging database to verify connection...")
 	if err := db.Ping(); err != nil {
+		log.Printf("[InitDB] Error pinging database: %v\n", err)
 		db.Close()
 		return nil, err
 	}
-
 	log.Println("[InitDB] Database connection established successfully.")
 	return db, nil
 }
