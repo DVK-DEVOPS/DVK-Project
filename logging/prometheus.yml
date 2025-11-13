@@ -1,8 +1,4 @@
 scrape_configs:
-  - job_name: 'prometheus'
-    static_configs:
-      - targets: ['10.0.0.4:9090']
-
   - job_name: 'whoknows'
     static_configs:
       - targets: ['10.0.0.4:8080']
