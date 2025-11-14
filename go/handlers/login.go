@@ -149,7 +149,7 @@ func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 	username = strings.TrimSpace(username)
 	password = strings.TrimSpace(password)
 
-	if lh.UserRepository.CheckIfUserisInactive(username) { //Is user inactive by security breach?
+	if lh.UserRepository.CheckIfUseris_inactive(username) { //Is user inactive by security breach?
 		fmt.Println("(Login.go)Checking if user is inactive by security breach.")
 		if isBrowser {
 			fmt.Println("(Login.go) !INACTIVE! User is accessing through browser. Trying redirect.")

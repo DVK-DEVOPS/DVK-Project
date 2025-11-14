@@ -46,23 +46,23 @@ func (r *UserRepository) CheckCredentialsByUsername(username, password string) (
 	return VerifyPassword(storedPassword, password), nil
 }
 
-// Checking isInactive column
-func (r *UserRepository) CheckIfUserisInactive(username string) bool {
-	var isInactive bool
-	err := r.DB.QueryRow("SELECT isInactive FROM users WHERE username = ?", username).Scan(&isInactive)
+// Checking is_inactive column
+func (r *UserRepository) CheckIfUseris_inactive(username string) bool {
+	var is_inactive bool
+	err := r.DB.QueryRow("SELECT is_inactive FROM users WHERE username = $1", username).Scan(&is_inactive)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return false //User not found
 		}
 		return false //DB error
 	}
-	return isInactive
+	return is_inactive
 }
 
 // Reset password
 func (r *UserRepository) UserResetPassword(username, newPassword string) (int64, error) {
 	//hashedPassword := db.HashPassword(newPassword)
-	query := "UPDATE USERS SET PASSWORD = ?, isInactive = false WHERE USERNAME = ?"
+	query := "UPDATE USERS SET PASSWORD = $1, is_inactive = false WHERE USERNAME = $2"
 	res, err := r.DB.Exec(query, newPassword, username)
 	if err != nil {
 		return 0, err
