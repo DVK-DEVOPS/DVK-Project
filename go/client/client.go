@@ -36,7 +36,7 @@ func NewAPIClient() *APIClient {
 func (c *APIClient) FetchForecast(city string) ([]byte, error) {
 	fmt.Println("Fetching forecast")
 	reqURL := fmt.Sprintf("%s?q=%s&appid=%s", c.Url, city, c.ApiKey)
-	fmt.Println(reqURL)
+
 	resp, err := c.Client.Get(reqURL)
 	if err != nil {
 		return nil, fmt.Errorf("fetch error: %w", err)
