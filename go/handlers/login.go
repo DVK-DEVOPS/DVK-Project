@@ -31,6 +31,83 @@ func (lh *LoginHandler) ShowLogin(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, r, "login.html", nil)
 }
 
+func (lh *LoginHandler) ShowPasswordReset(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Accessing ShowPasswordReset() Showing password-reset.html")
+	cookie, err := r.Cookie("password_reset_user")
+	if err != nil || cookie.Value == "" {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+	username := cookie.Value
+
+	data := map[string]interface{}{
+		"Username": username, // will populate readonly input
+		"Error":    "",
+		"Success":  "",
+	}
+
+	renderTemplate(w, r, "password-reset.html", data)
+}
+
+func (lh *LoginHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
+	var username, email, oldPassword, newPasswordStr, newPassword string
+
+	//_ = r.ParseForm()
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Invalid form submission", http.StatusBadRequest)
+		return
+	}
+	username = r.Form.Get("username")
+	//email = r.Form.Get("email")
+	oldPassword = r.Form.Get("password")
+	newPasswordStr = r.Form.Get("newPasswordStr")
+
+	username = strings.TrimSpace(username)
+	//email = strings.TrimSpace(email)
+	oldPassword = strings.TrimSpace(oldPassword)
+	newPasswordStr = strings.TrimSpace(newPasswordStr)
+	//fmt.Printf("Username: %s, OldPassword: %s, NewPasswordStr: %s\n", username, oldPassword, newPasswordStr)
+	newPassword, _ = db.HashPassword(newPasswordStr)
+
+	// Prepare data to pass to template
+	data := map[string]interface{}{
+		"Username": username,
+		"Email":    email,
+		"Error":    "", // default no error
+		"Success":  "",
+	}
+
+	ok, err := lh.UserRepository.CheckCredentialsByUsername(username, oldPassword)
+	if err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+	//fmt.Printf("Boolean is %t", ok)
+
+	if !ok {
+		data["Error"] = "Credentials are incorrect. Please make sure to check your username and previous password."
+		renderTemplate(w, r, "password-reset.html", data)
+		return
+	}
+	// Update password
+	//err = lh.UserRepository.UpdatePassword(username, newPassword)
+	var rowsAffected int64
+	rowsAffected, err = lh.UserRepository.UserResetPassword(username, newPassword)
+	if err != nil {
+		data["Error"] = "Failed to update password"
+		renderTemplate(w, r, "password-reset.html", data)
+		return
+	}
+	if rowsAffected == 0 {
+		data["Error"] = "No user found with that username"
+		renderTemplate(w, r, "password-reset.html", data)
+		return
+	}
+
+	data["Success"] = "Password updated successfully"
+	renderTemplate(w, r, "password-reset.html", data)
+}
+
 // Login authenticates a user with username and password.
 // @Summary Login
 // @Description Authenticates a user using username and password
@@ -43,6 +120,8 @@ func (lh *LoginHandler) ShowLogin(w http.ResponseWriter, r *http.Request) {
 // @Failure 422 {object} models.HTTPValidationError "Validation error"
 // @Router /api/login [post]
 func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
+	isBrowser := strings.Contains(r.Header.Get("Accept"), "text/html")
+
 	w.Header().Set("Content-Type", "application/json")
 
 	var username, password string
@@ -69,6 +148,30 @@ func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	username = strings.TrimSpace(username)
 	password = strings.TrimSpace(password)
+
+	if lh.UserRepository.CheckIfUseris_inactive(username) { //Is user inactive by security breach?
+		fmt.Println("(Login.go)Checking if user is inactive by security breach.")
+		if isBrowser {
+			fmt.Println("(Login.go) !INACTIVE! User is accessing through browser. Trying redirect.")
+			http.SetCookie(w, &http.Cookie{
+				Name:     "password_reset_user",
+				Value:    username,
+				Path:     "/",
+				HttpOnly: true,
+				Secure:   true, //Not able to test on http localhost
+				MaxAge:   600,
+			})
+			http.Redirect(w, r, "/password-reset", http.StatusFound)
+			return
+		}
+		fmt.Println("(Login.go) !INACTIVE! User is accessing via api and json")
+		w.WriteHeader(http.StatusForbidden)
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"error": "Password reset required",
+			"url":   "/password-reset",
+		})
+		return
+	}
 
 	if username == "" || password == "" {
 		w.WriteHeader(http.StatusUnprocessableEntity)

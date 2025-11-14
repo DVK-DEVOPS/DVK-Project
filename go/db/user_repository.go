@@ -4,6 +4,7 @@ import (
 	"DVK-Project/models"
 	"database/sql"
 	"errors"
+	//"os/user"
 )
 
 type UserRepository struct {
@@ -43,4 +44,35 @@ func (r *UserRepository) CheckCredentialsByUsername(username, password string) (
 		return false, err
 	}
 	return VerifyPassword(storedPassword, password), nil
+}
+
+// Checking is_inactive column
+func (r *UserRepository) CheckIfUseris_inactive(username string) bool {
+	var is_inactive bool
+	err := r.DB.QueryRow("SELECT is_inactive FROM users WHERE username = $1", username).Scan(&is_inactive)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return false //User not found
+		}
+		return false //DB error
+	}
+	return is_inactive
+}
+
+// Reset password
+func (r *UserRepository) UserResetPassword(username, newPassword string) (int64, error) {
+	//hashedPassword := db.HashPassword(newPassword)
+	query := "UPDATE USERS SET PASSWORD = $1, is_inactive = false WHERE USERNAME = $2"
+	res, err := r.DB.Exec(query, newPassword, username)
+	if err != nil {
+		return 0, err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+
+	return rowsAffected, nil //return 1 or 0
+
 }
