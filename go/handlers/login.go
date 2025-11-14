@@ -158,6 +158,7 @@ func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 				Value:    username,
 				Path:     "/",
 				HttpOnly: true,
+				Secure:   true, //Not able to test on http localhost
 				MaxAge:   600,
 			})
 			http.Redirect(w, r, "/password-reset", http.StatusFound)
