@@ -4,61 +4,14 @@ import (
 	"DVK-Project/client"
 	"DVK-Project/db"
 	"DVK-Project/handlers"
+	"DVK-Project/metrics"
 	"fmt"
 	"log"
 	"net/http"
-	"strconv"
-	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promauto"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
+	_ "github.com/prometheus/client_golang/prometheus/promhttp"
 )
-
-var (
-	httpRequestsTotal = promauto.NewCounterVec(
-		prometheus.CounterOpts{Name: "http_requests_total", Help: "Total number of HTTP requests"},
-		[]string{"method", "endpoint", "status"},
-	)
-	httpRequestDuration = promauto.NewHistogramVec(
-		prometheus.HistogramOpts{Name: "http_request_duration_seconds", Help: "Duration of HTTP requests in seconds", Buckets: prometheus.DefBuckets},
-		[]string{"method", "endpoint"},
-	)
-	activeUsers = promauto.NewGauge(prometheus.GaugeOpts{Name: "active_users", Help: "Number of currently active users"})
-)
-
-type responseWriter struct {
-	http.ResponseWriter
-	statusCode int
-}
-
-func (rw *responseWriter) WriteHeader(code int) {
-	rw.statusCode = code
-	rw.ResponseWriter.WriteHeader(code)
-}
-
-func metricsMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		start := time.Now()
-		rw := &responseWriter{ResponseWriter: w, statusCode: http.StatusOK}
-
-		next.ServeHTTP(rw, r)
-
-		duration := time.Since(start).Seconds()
-
-		go func() {
-			route := mux.CurrentRoute(r)
-			path, _ := route.GetPathTemplate()
-			if path == "" {
-				path = r.URL.Path
-			}
-
-			httpRequestsTotal.WithLabelValues(r.Method, path, strconv.Itoa(rw.statusCode)).Inc()
-			httpRequestDuration.WithLabelValues(r.Method, path).Observe(duration)
-		}()
-	})
-}
 
 func main() {
 	dbConn, err := db.InitDB()
@@ -70,7 +23,7 @@ func main() {
 
 	r := mux.NewRouter()
 
-	r.Handle("/metrics", promhttp.Handler())
+	r.Handle("/metrics", metrics.Handler())
 	r.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(`{"status":"ok"}`))
@@ -101,7 +54,7 @@ func main() {
 	r.HandleFunc("/weather", wc.ShowWeatherPage).Methods("GET")
 	r.HandleFunc("/api/weather", wc.GetWeatherForecast).Methods("GET")
 
-	r.Use(metricsMiddleware)
+	r.Use(metrics.Middleware)
 
 	fmt.Println("Registered routes:")
 	_ = r.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
