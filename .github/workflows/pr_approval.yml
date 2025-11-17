@@ -1,0 +1,34 @@
+name: PR Approval
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened]
+
+jobs:
+  build:
+    permissions:
+      pull-requests: write
+      contents: write
+    name: Auto-approve
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const allowedUsers = ["DanielJensenKEA","ViAarisKea","KristofferKay"];
+            const prUser = context.payload.pull_request.user.login;
+
+            if (!allowedUsers.includes(prUser)) {
+              console.log(`${prUser} is not allowed to auto-approve.`);
+              return;
+            }
+
+            const result = await github.rest.pulls.createReview({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              event: "APPROVE"
+            });
+            console.log(result.status);
