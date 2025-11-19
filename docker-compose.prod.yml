@@ -11,8 +11,6 @@ services:
     container_name: whoknows-prod
     ports:
       - "8080:8080"
-    volumes:
-      - ./go/database.db:/whoknows/go/database.db
     networks:
       - webnet
     restart: unless-stopped
