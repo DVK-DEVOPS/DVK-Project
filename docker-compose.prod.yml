@@ -11,8 +11,6 @@ services:
     container_name: whoknows-prod
     ports:
       - "8080:8080"
-    volumes:
-      - ./go/database.db:/whoknows/go/database.db
     networks:
       - webnet
     restart: unless-stopped
@@ -41,10 +39,7 @@ services:
     ports:
       - "3100:3100"
     volumes:
-      - ./logging/loki-config.yaml:/etc/loki/local-config.yaml
-      - ./logging/loki-chunks:/loki/chunks
-      - ./logging/loki-rules:/loki/rules
-      - ./logging/loki-wal:/loki/wal
+      - ./logging/loki-data:/loki
     command: -config.file=/etc/loki/local-config.yaml
     networks:
       - webnet
