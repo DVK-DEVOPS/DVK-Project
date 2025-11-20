@@ -1,76 +1,182 @@
-# DVK-Project - What is it?
+# DVK-Project - Migration branch
 
-The DVK Project is a mirror repository of Whoknows Variations for use during the 4th semester DevOps elective(2025) at EK(formerly KEA). This readme file is tasked with providing an easy overview of the directories and files that the team believes to be important in order to understand the motivation of the team behind the rewrite.
+This branch for the DVK-Project showcases how we would implement the goose migration tool for our database. The migration in this branch targets an sqlite database since that was what was in use at the time of implementation.
+This branch is to satisfy the optional subtask [**migration**](https://github.com/who-knows-inc/EK_DAT_DevOps_2025_Autumn/blob/main/00._Course_Material/01._Assignments/10._Databases_ORM_Data_scraping_Web_crawling/02._After/upgrade_the_database.md) of the [overall assignment](https://github.com/who-knows-inc/EK_DAT_DevOps_2025_Autumn/blob/main/00._Course_Material/01._Assignments/10._Databases_ORM_Data_scraping_Web_crawling/02._After/upgrade_the_database.md) of upgrading our database.
 
-The goal is to rewrite a legacy project using traditional DevOps tools and adhering to DevOps principles.
+# Requirements
+**goose** - https://github.com/pressly/goose 
 
-The requirements to run this project will be reflected in the [requirements.txt](path/to/requirements.txt) which will be authored later.
 
-## Notable Content
 
-[Overview of the documentation for this rewrite project](/documentation/)
+## Usage
+Review the official documentation for goose [here.](https://github.com/pressly/goose/blob/main/README.md)
 
-[Our Choices - Programming Language, Repo Structure & More](/documentation/our_choices.md)
+Below is some cherrypicked documentation from the official documentation linked above.
 
-[Our Conventions](/documentation/our_conventions.md)
+# Install
 
-[Security Issues With Legacy Project](/documentation/legacy_codebase/Legacy_Codebase_Problems.md)
+```shell
+go install github.com/pressly/goose/v3/cmd/goose@latest
+```
 
-## Github Actions
+This will install the `goose` binary to your `$GOPATH/bin` directory.
 
-[![Deploy to Azure VM](https://github.com/DVK-DEVOPS/DVK-Project/actions/workflows/azure.yml/badge.svg)](https://github.com/DVK-DEVOPS/DVK-Project/actions/workflows/azure.yml)
-[![Scheduled Health Check](https://github.com/DVK-DEVOPS/DVK-Project/actions/workflows/health.yml/badge.svg)](https://github.com/DVK-DEVOPS/DVK-Project/actions/workflows/health.yml)
-[![Golangci Lint](https://github.com/DVK-DEVOPS/DVK-Project/actions/workflows/golangci_lint.yml/badge.svg)](https://github.com/DVK-DEVOPS/DVK-Project/actions/workflows/golangci_lint.yml)
-[![Hadolint Dockerfile](https://github.com/DVK-DEVOPS/DVK-Project/actions/workflows/hadolint.yml/badge.svg)](https://github.com/DVK-DEVOPS/DVK-Project/actions/workflows/hadolint.yml)
+Binary too big? Build a lite version by excluding the drivers you don't need:
 
-## Quality Analysis
+For macOS users `goose` is available as a [Homebrew
+Formulae](https://formulae.brew.sh/formula/goose#default):
+```shell
+brew install goose
+```
+```
+Commands:
+    up                   Migrate the DB to the most recent version available
+    up-by-one            Migrate the DB up by 1
+    up-to VERSION        Migrate the DB to a specific VERSION
+    down                 Roll back the version by 1
+    down-to VERSION      Roll back to a specific VERSION
+    redo                 Re-run the latest migration
+    reset                Roll back all migrations
+    status               Dump the migration status for the current DB
+    version              Print the current version of the database
+    create NAME [sql|go] Creates new migration file with the current timestamp
+    fix                  Apply sequential ordering to migrations
+    validate             Check migration files without running them
+```
 
-[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=DVK-DEVOPS_DVK-Project&metric=bugs)](https://sonarcloud.io/summary/new_code?id=DVK-DEVOPS_DVK-Project)
-[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=DVK-DEVOPS_DVK-Project&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=DVK-DEVOPS_DVK-Project)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=DVK-DEVOPS_DVK-Project&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=DVK-DEVOPS_DVK-Project)
-[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=DVK-DEVOPS_DVK-Project&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=DVK-DEVOPS_DVK-Project)
 
-## The Legacy Project
+## create
 
-Peruse the documentation regarding running and installing the legacy project [here.](documentation\legacy_codebase\README.md)
+Create a new SQL migration.
 
-**Below is the original readme file from the WhoKnows repository.**
+    $ goose create add_some_column sql
+    $ Created new file: 20170506082420_add_some_column.sql
 
-## Whoknows Variations - Repository ReadMe
+    $ goose -s create add_some_column sql
+    $ Created new file: 00001_add_some_column.sql
 
-This is the Whoknows variations repository. It is not meant for production as it contains several security vulnerabilities and problematic parts on purpose.
+Edit the newly created file to define the behavior of your migration.
 
-### How to get started
+You can also create a Go migration, if you then invoke it with [your own goose
+binary](#go-migrations):
 
-Each branch is a tutorial in a different topic based on the same Flask application as in the `main` branch.
+    $ goose create fetch_user_data go
+    $ Created new file: 20170506082421_fetch_user_data.go
 
-One way to follow along is by:
+## up
 
-1. Forking the repository to your own account.
+Apply all available migrations.
 
-2. Cloning the repository to your local machine.
+    $ goose up
+    $ OK    001_basics.sql
+    $ OK    002_next.sql
+    $ OK    003_and_again.go
 
-3. Checking out the branch you are interested in (e.g. `git checkout <branch_name>`).
+## up-to
 
-4. Following the instructions in the README of the branch.
+Migrate up to a specific version.
 
-5. You can now push changes to your own repository.
+    $ goose up-to 20170506082420
+    $ OK    20170506082420_create_table.sql
 
-### Pull requests
+## up-by-one
 
-If you have any suggestions or improvements to the tutorials, feel free to open a pull request.
+Migrate up a single migration from the current version
 
-## Developing in a Dev Container
+    $ goose up-by-one
+    $ OK    20170614145246_change_type.sql
 
-This repository includes a VS Code devcontainer configuration that uses the project's
-`Dockerfile.dev` so you can run the Go app in a containerised environment similar to production.
+## down
 
-To open the project in the devcontainer from VS Code: use the Command Palette -> "Remote-Containers: Open Folder in Container..." and choose the repository root.
+Roll back a single migration from the current version.
 
-What the devcontainer provides:
+    $ goose down
+    $ OK    003_and_again.go
 
-- Uses `Dockerfile.dev` to build the development image
-- Forwards port 8080 from the container to the host
-- Mounts the workspace into the container so code edits are live
+## down-to
 
-If you prefer to run the same environment with docker-compose locally, there's a `docker-compose.dev.yml` which starts a service named `whoknows` bound to port 8080.
+Roll back migrations to a specific version.
+
+    $ goose down-to 20170506082527
+    $ OK    20170506082527_alter_column.sql
+
+Roll back all migrations:
+
+    $ goose down-to 0
+
+## status
+Print the status of all migrations:
+
+    $ goose status
+    $   Applied At                  Migration
+    $   =======================================
+    $   Sun Jan  6 11:25:03 2013 -- 001_basics.sql
+    $   Sun Jan  6 11:25:03 2013 -- 002_next.sql
+    $   Pending                  -- 003_and_again.go
+
+# Migrations
+
+goose supports migrations written in SQL or in Go.
+
+## SQL Migrations
+
+A sample SQL migration looks like:
+
+```sql
+-- +goose Up
+CREATE TABLE post (
+    id int NOT NULL,
+    title text,
+    body text,
+    PRIMARY KEY(id)
+);
+
+-- +goose Down
+DROP TABLE post;
+```
+
+Each migration file must have exactly one `-- +goose Up` annotation. The `-- +goose Down` annotation
+is optional. If the file has both annotations, then the `-- +goose Up` annotation **must** come
+first.
+
+Notice the annotations in the comments. Any statements following `-- +goose Up` will be executed as
+part of a forward migration, and any statements following `-- +goose Down` will be executed as part
+of a rollback.
+
+By default, all migrations are run within a transaction. Some statements like `CREATE DATABASE`,
+however, cannot be run within a transaction. You may optionally add `-- +goose NO TRANSACTION` to
+the top of your migration file in order to skip transactions within that specific migration file.
+Both Up and Down migrations within this file will be run without transactions.
+
+Example usage, assuming that SQL migrations are placed in the `migrations` directory:
+
+```go
+package main
+
+import (
+    "database/sql"
+    "embed"
+
+    "github.com/pressly/goose/v3"
+)
+
+//go:embed migrations/*.sql
+var embedMigrations embed.FS
+
+func main() {
+    var db *sql.DB
+    // setup database
+
+    goose.SetBaseFS(embedMigrations)
+
+    if err := goose.SetDialect("postgres"); err != nil {
+        panic(err)
+    }
+
+    if err := goose.Up(db, "migrations"); err != nil {
+        panic(err)
+    }
+
+    // run app
+}
+```
