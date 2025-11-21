@@ -13,9 +13,8 @@ scrape_configs:
       - targets: ['loki:3100']
 
   - job_name: 'alloy'
+    metrics_path: /metrics
     static_configs:
       - targets: ['alloy:12345']
 
-remote_write:
-  - url: http://alloy:12345/api/v1/push
 
