@@ -63,12 +63,12 @@ prometheus.exporter.cadvisor "dockermetrics" {
 }
 
 prometheus.relabel "docker_filter" {
-  forward_to = [prometheus.remote_write.default.receiver]
   rule {
     source_labels = ["__name__"]
     regex = "container_spec_(cpu_period|cpu_quota|cpu_shares|memory_limit_bytes|memory_swap_limit_bytes|memory_reservation_limit_bytes)"
     action = "drop"
   }
+  forward_to = []
 }
 
 prometheus.scrape "dockermetrics" {
@@ -95,14 +95,16 @@ prometheus.exporter.unix "system" {
 
 prometheus.scrape "system" {
   targets    = prometheus.exporter.unix.system.targets
-  forward_to = [prometheus.remote_write.default.receiver]
   scrape_interval = "15s"
+  forward_to      = []
 }
 
 // App metrics
 prometheus.scrape "whoknows_app" {
-  targets = ["whoknows-prod:8080"]
+  targets = [
+    { __address__ = "whoknows-prod:8080" },
+  ]
   job_name = "whoknows"
   scrape_interval = "15s"
-  forward_to = [prometheus.remote_write.default.receiver]
+  forward_to      = []
 }
