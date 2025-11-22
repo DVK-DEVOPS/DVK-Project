@@ -101,13 +101,8 @@ prometheus.scrape "system" {
 
 // App metrics
 prometheus.scrape "whoknows_app" {
-  targets = [
-    {
-      __address__ = "whoknows-prod:8080"
-      job         = "whoknows"
-    }
-  ]
-  
+  targets = ["whoknows-prod:8080"]
+  job_name = "whoknows"
   scrape_interval = "15s"
   forward_to = [prometheus.remote_write.default.receiver]
 }
