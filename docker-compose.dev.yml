@@ -105,6 +105,19 @@ services:
       - webnet
     restart: unless-stopped
 
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    ports:
+      - "8081:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /sys:/sys:ro
+    networks:
+      - webnet
+    restart: unless-stopped
+
+
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
