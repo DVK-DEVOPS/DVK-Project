@@ -11,10 +11,7 @@ services:
     volumes:
       - ./:/whoknows:cached
       - ./go/database.db:/whoknows/go/database.db
-      - ${SSH_AUTH_SOCK:-/ssh-agent}:/ssh-agent
     working_dir: /whoknows/go
-    environment:
-      - SSH_AUTH_SOCK=/ssh-agent
     env_file:
       - ./go/.env
     command: go run main.go
