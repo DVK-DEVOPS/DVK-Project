@@ -139,7 +139,7 @@ write_files:
         - job_name: 'loki'
           static_configs:
             - targets: ['loki:3100']
-      
+
         # App VM services - Prometheus scrapes directly
         - job_name: 'app-node'
           static_configs:
@@ -154,7 +154,7 @@ write_files:
               labels:
                 instance: 'app-vm'
                 environment: 'production'
-      
+
         # App application metrics (if exposed)
         - job_name: 'whoknows-app'
           static_configs:
@@ -200,6 +200,7 @@ write_files:
 
       limits_config:
         retention_period: 744h
+        allow_structured_metadata: false
 
   - path: /opt/monitoring/alloy-config.alloy
     permissions: '0644'
@@ -209,14 +210,18 @@ write_files:
 
       // Collect Docker logs
       loki.source.docker "containers" {
-        host = "unix:///var/run/docker.sock"
-        targets = []
-      
+        host       = "unix:///var/run/docker.sock"
+        targets    = []
+        forward_to = [loki.relabel.docker.receiver]
+      }
+
+      // Relabel Docker container names
+      loki.relabel "docker" {
         forward_to = [loki.write.local.receiver]
-      
-        relabel_rules = rule {
+
+        rule {
           source_labels = ["__meta_docker_container_name"]
-          target_label = "container"
+          target_label  = "container"
         }
       }
 
@@ -225,14 +230,13 @@ write_files:
         targets = [
           {
             __path__ = "/var/log/syslog",
-            job = "syslog",
+            job      = "syslog",
           },
           {
             __path__ = "/var/log/auth.log",
-            job = "auth",
+            job      = "auth",
           },
         ]
-      
         forward_to = [loki.write.local.receiver]
       }
 
@@ -241,9 +245,9 @@ write_files:
         endpoint {
           url = "http://loki:3100/loki/api/v1/push"
         }
-      
+
         external_labels = {
-          source = "monitoring-vm",
+          source      = "monitoring-vm",
           environment = "production",
         }
       }
@@ -253,34 +257,34 @@ write_files:
     content: |
       #!/bin/bash
       set -e
-      
+
       DISK="/dev/sdc"
       MOUNT_POINT="/mnt/monitoring-data"
-      
+
       # Check if disk exists
       if [ ! -b "$DISK" ]; then
         echo "Disk $DISK not found, will use local storage"
         exit 0
       fi
-      
+
       # Check if already formatted
       if ! blkid $DISK; then
         echo "Formatting disk..."
         mkfs.ext4 $DISK
       fi
-      
+
       # Create mount point
       mkdir -p $MOUNT_POINT
-      
+
       # Add to fstab if not already there
       if ! grep -q "$DISK" /etc/fstab; then
         UUID=$(blkid -s UUID -o value $DISK)
         echo "UUID=$UUID $MOUNT_POINT ext4 defaults,nofail 0 2" >> /etc/fstab
       fi
-      
+
       # Mount
       mount -a
-      
+
       # Set permissions
       chown -R 1000:1000 $MOUNT_POINT
 
@@ -318,9 +322,9 @@ final_message: |
   Monitoring VM setup complete!
   Prometheus: http://${monitoring_vm_ip}:9090
   Loki: http://${monitoring_vm_ip}:3100
-  
+
   Configure your existing Grafana to use these datasources:
   - Prometheus: http://${monitoring_vm_ip}:9090
   - Loki: http://${monitoring_vm_ip}:3100
-  
+
   The system has rebooted. Docker and monitoring stack are running.
