@@ -22,6 +22,7 @@ env:
   SENTRY_ENV: ${{secrets.SENTRY_ENV}}
   GF_ADMIN_PASSWORD: ${{secrets.GF_ADMIN_PASSWORD}}
   HEALTHCHECK_URL: "https://${{ secrets.DVK_URL }}/api/health"
+  MONITORING_VM_IP: ${{secrets.MONITORING_VM_PRIVATE_IP}}
 permissions:
   contents: read
   packages: read
@@ -41,10 +42,11 @@ jobs:
           echo "${{ env.VM_KEY }}" > key.pem
           chmod 600 key.pem
           
-          echo "Syncing Prometheus, Loki, Alloy configs..."
-          scp -i key.pem -o StrictHostKeyChecking=no logging/prometheus.yml ${{ env.VM_USERNAME }}@${{ env.VM_HOST }}:~/whoknows/logging/prometheus.yml
-          scp -i key.pem -o StrictHostKeyChecking=no logging/loki-config.yaml ${{ env.VM_USERNAME }}@${{ env.VM_HOST }}:~/whoknows/logging/loki-config.yaml
-          scp -i key.pem -o StrictHostKeyChecking=no logging/alloy-config.yaml ${{ env.VM_USERNAME }}@${{ env.VM_HOST }}:~/whoknows/logging/alloy-config.yaml
+          echo "Preparing Alloy config with monitoring IP..."
+          sed "s/\${MONITORING_VM_IP}/${{ env.MONITORING_VM_IP }}/g" logging/alloy-config.yaml > /tmp/alloy-config.yaml
+          
+          echo "Syncing configs to server..."
+          scp -i key.pem -o StrictHostKeyChecking=no /tmp/alloy-config.yaml ${{ env.VM_USERNAME }}@${{ env.VM_HOST }}:~/whoknows/logging/alloy-config.yaml
           
           echo "Copying docker-compose.prod.yml to VM..."
           scp -i key.pem -o StrictHostKeyChecking=no docker-compose.prod.yml ${{ env.VM_USERNAME }}@${{ env.VM_HOST }}:~/whoknows
