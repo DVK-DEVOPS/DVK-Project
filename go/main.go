@@ -5,6 +5,7 @@ import (
 	"DVK-Project/db"
 	"DVK-Project/handlers"
 	"DVK-Project/metrics"
+	"DVK-Project/scraper"
 	"fmt"
 	"log"
 	"net/http"
@@ -20,6 +21,9 @@ func main() {
 	}
 	userRepo := db.NewUserRepository(dbConn)
 	pageRepo := db.NewPageRepository(dbConn)
+
+	scraper.Run("https://developer.mozilla.org/en-US/docs/Web/CSS/flex", pageRepo)
+	scraper.Run("https://go.dev/doc/effective_go", pageRepo)
 
 	r := mux.NewRouter()
 

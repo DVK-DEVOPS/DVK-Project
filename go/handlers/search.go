@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"DVK-Project/db"
+	"DVK-Project/logging"
 	"encoding/json"
 	"net/http"
 
@@ -37,6 +38,11 @@ func (sc *SearchController) ShowSearchResults(w http.ResponseWriter, r *http.Req
 		http.Error(w, "Database error: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	logging.Log.Info().
+		Str("event", "search_performed").
+		Str("query", searchStr).
+		Msg("")
 
 	renderTemplate(w, r, "search.html", results)
 	//sc.RenderTemplate(w, r, "search.html", results)
