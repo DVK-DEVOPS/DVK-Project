@@ -23,8 +23,8 @@ func main() {
 	pageRepo := db.NewPageRepository(dbConn)
 	repo := db.NewPageRepository(dbConn)
 
-	go scraper.Run("https://developer.mozilla.org/en-US/docs/Web/CSS/flex", repo)
-	go scraper.Run("https://go.dev/doc/effective_go", repo)
+	scraper.Run("https://developer.mozilla.org/en-US/docs/Web/CSS/flex", repo)
+	scraper.Run("https://go.dev/doc/effective_go", repo)
 
 	r := mux.NewRouter()
 
