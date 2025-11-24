@@ -28,7 +28,7 @@ services:
       POSTGRES_DB: app_db
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./go/schema.sql:/docker-entrypoint-initdb.d/init.sql:ro
     ports:
       - "5432:5432"
     networks:
