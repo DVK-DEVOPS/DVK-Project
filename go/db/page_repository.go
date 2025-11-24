@@ -13,6 +13,21 @@ func NewPageRepository(db *sql.DB) *PageRepository {
 	return &PageRepository{DB: db}
 }
 
+// saves a new page or updates it if the URL already exists
+func (r *PageRepository) InsertScrapedPage(title, url, content, language string) error {
+	_, err := r.DB.Exec(`
+		INSERT INTO pages (title, url, content, language, createdAt, updatedAt)
+		VALUES ($1, $2, $3, $4, NOW(), NOW())
+		ON CONFLICT (url)
+		DO UPDATE SET
+			title = EXCLUDED.title,
+			content = EXCLUDED.content,
+			language = EXCLUDED.language,
+			updatedAt = NOW()
+	`, title, url, content, language)
+	return err
+}
+
 // For page templating
 func (r *PageRepository) FindSearchResults(searchStr string, language string) ([]Result, error) {
 	query := `SELECT title, url, content, language, createdat, updatedat
