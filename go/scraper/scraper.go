@@ -24,7 +24,7 @@ func Run(url string, repo *db.PageRepository) error {
 			Str("url", url).
 			Msg("scraped")
 
-		err := repo.UpsertPage(title, url, content, "en")
+		err := repo.InsertScrapedPage(title, url, content, "en")
 		if err != nil {
 			logging.Log.Error().
 				Err(err).

@@ -13,8 +13,9 @@ func NewPageRepository(db *sql.DB) *PageRepository {
 	return &PageRepository{DB: db}
 }
 
-// UpsertPage saves a new page or updates it if the URL already exists
-func (r *PageRepository) UpsertPage(title, url, content, language string) error {
+// InsertScrapedPage
+// saves a new page or updates it if the URL already exists
+func (r *PageRepository) InsertScrapedPage(title, url, content, language string) error {
 	_, err := r.DB.Exec(`
 		INSERT INTO pages (title, url, content, language, createdAt, updatedAt)
 		VALUES ($1, $2, $3, $4, NOW(), NOW())
