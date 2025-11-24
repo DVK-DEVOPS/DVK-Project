@@ -3,6 +3,7 @@ package handlers
 import (
 	"DVK-Project/db"
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/getsentry/sentry-go"
@@ -38,6 +39,7 @@ func (sc *SearchController) ShowSearchResults(w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	log.Println("search_query", searchStr)
 	renderTemplate(w, r, "search.html", results)
 	//sc.RenderTemplate(w, r, "search.html", results)
 }
