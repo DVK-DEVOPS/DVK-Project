@@ -93,6 +93,18 @@ resource "azurerm_network_security_group" "monitoring" {
     source_address_prefix      = "VirtualNetwork"
     destination_address_prefix = "*"
   }
+
+  security_rule {
+    name                       = "Grafana"
+    priority                   = 1025
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "*"
+    source_port_range          = "*"
+    destination_port_range     = "3000"
+    source_address_prefix      = "VirtualNetwork"
+    destination_address_prefix = "*"
+  }
 }
 
 # NIC
@@ -163,6 +175,12 @@ resource "azurerm_linux_virtual_machine" "monitoring" {
   identity {
     type = "SystemAssigned"
   }
+
+  lifecycle {
+    ignore_changes = [
+      custom_data
+    ]
+  }
 }
 
 # VNet peering
@@ -178,6 +196,22 @@ resource "azurerm_virtual_network_peering" "app_to_monitoring" {
   name                      = "peer-app-to-monitoring"
   resource_group_name       = var.app_resource_group_name
   virtual_network_name      = var.app_vnet_name
+  remote_virtual_network_id = azurerm_virtual_network.monitoring.id
+  allow_forwarded_traffic   = true
+}
+
+resource "azurerm_virtual_network_peering" "monitoring_to_grafana" {
+  name                      = "peer-monitoring-to-grafana"
+  resource_group_name       = data.azurerm_resource_group.monitoring.name
+  virtual_network_name      = azurerm_virtual_network.monitoring.name
+  remote_virtual_network_id = var.grafana_vnet_id
+  allow_forwarded_traffic   = true
+}
+
+resource "azurerm_virtual_network_peering" "grafana_to_monitoring" {
+  name                      = "peer-grafana-to-monitoring"
+  resource_group_name       = var.grafana_resource_group_name
+  virtual_network_name      = var.grafana_vnet_name
   remote_virtual_network_id = azurerm_virtual_network.monitoring.id
   allow_forwarded_traffic   = true
 }

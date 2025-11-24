@@ -45,3 +45,15 @@ variable "grafana_vm_private_ip" {
   description = "Private IP of existing Grafana VM"
   type        = string
 }
+
+variable "grafana_vnet_id" {
+  type = string
+}
+
+variable "grafana_vnet_name" {
+  type = string
+}
+
+variable "grafana_resource_group_name" {
+  type = string
+}
