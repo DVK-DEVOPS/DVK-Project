@@ -3,11 +3,17 @@ package handlers
 import (
 	"DVK-Project/db"
 	"encoding/json"
-	"log"
 	"net/http"
+	"os"
 
 	"github.com/getsentry/sentry-go"
+	"github.com/rs/zerolog"
 )
+
+var Log = zerolog.New(os.Stdout).
+	With().
+	Timestamp().
+	Logger()
 
 type SearchController struct {
 	//PageRepository *db.PageRepository
@@ -39,7 +45,11 @@ func (sc *SearchController) ShowSearchResults(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	log.Println("search_query", searchStr)
+	Log.Info().
+		Str("event", "search_performed").
+		Str("query", searchStr).
+		Msg("")
+
 	renderTemplate(w, r, "search.html", results)
 	//sc.RenderTemplate(w, r, "search.html", results)
 }

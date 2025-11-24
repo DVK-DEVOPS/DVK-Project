@@ -108,3 +108,14 @@ prometheus.scrape "whoknows_app" {
   scrape_interval = "15s"
   forward_to      = []
 }
+
+
+loki.process "pipeline" {
+  stage.static_labels {
+    values = {
+      app = "search-service"
+    }
+  }
+
+  stage.json {}
+}
