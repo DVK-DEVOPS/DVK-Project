@@ -13,7 +13,6 @@ func NewPageRepository(db *sql.DB) *PageRepository {
 	return &PageRepository{DB: db}
 }
 
-// InsertScrapedPage
 // saves a new page or updates it if the URL already exists
 func (r *PageRepository) InsertScrapedPage(title, url, content, language string) error {
 	_, err := r.DB.Exec(`
