@@ -23,7 +23,7 @@ write_files:
             - "9090:9090"
           volumes:
             - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
-            - prometheus-data:/prometheus
+            - /opt/monitoring/data/prometheus:/prometheus
           command:
             - '--config.file=/etc/prometheus/prometheus.yml'
             - '--storage.tsdb.path=/prometheus'
@@ -40,7 +40,7 @@ write_files:
           ports:
             - "3100:3100"
           volumes:
-            - loki-data:/loki
+            - /opt/monitoring/data/loki:/loki
             - ./loki-config.yaml:/etc/loki/local-config.yaml:ro
           command: -config.file=/etc/loki/local-config.yaml
           networks:
