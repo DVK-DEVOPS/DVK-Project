@@ -27,8 +27,6 @@ services:
       - /etc/letsencrypt/archive/whoknows-dvk.dk:/etc/letsencrypt/archive/whoknows-dvk.dk:ro
     depends_on:
       - whoknows
-      - loki
-      - prometheus
     networks:
       - webnet
 
@@ -53,9 +51,6 @@ services:
     user: "0:0"
     ports:
       - "12345:12345"
-    depends_on:
-      - loki
-      - prometheus
     volumes:
       - ./logging/alloy-config.yaml:/etc/alloy/config.alloy
       - /var/run/docker.sock:/var/run/docker.sock
