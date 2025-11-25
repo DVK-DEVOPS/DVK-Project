@@ -18,7 +18,7 @@ func captureAndRespond(w http.ResponseWriter, r *http.Request, err error, msg st
 	http.Error(w, msg, code)
 }
 
-func renderTemplate(w http.ResponseWriter, r *http.Request, filename string, data interface{}) {
+func RenderTemplate(w http.ResponseWriter, r *http.Request, filename string, data interface{}) {
 	tmpl, err := template.ParseFS(templatesFS, "templates/"+filename)
 	if err != nil {
 		captureAndRespond(w, r, err, "Template not found", http.StatusNotFound)

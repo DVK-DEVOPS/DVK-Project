@@ -28,7 +28,7 @@ type LoginHandler struct {
 // @Failure 404 {string} string "Error"
 // @Router /login [get]
 func (lh *LoginHandler) ShowLogin(w http.ResponseWriter, r *http.Request) {
-	renderTemplate(w, r, "login.html", nil)
+	RenderTemplate(w, r, "login.html", nil)
 }
 
 func (lh *LoginHandler) ShowPasswordReset(w http.ResponseWriter, r *http.Request) {
@@ -46,7 +46,7 @@ func (lh *LoginHandler) ShowPasswordReset(w http.ResponseWriter, r *http.Request
 		"Success":  "",
 	}
 
-	renderTemplate(w, r, "password-reset.html", data)
+	RenderTemplate(w, r, "password-reset.html", data)
 }
 
 func (lh *LoginHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
@@ -86,7 +86,7 @@ func (lh *LoginHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 
 	if !ok {
 		data["Error"] = "Credentials are incorrect. Please make sure to check your username and previous password."
-		renderTemplate(w, r, "password-reset.html", data)
+		RenderTemplate(w, r, "password-reset.html", data)
 		return
 	}
 	// Update password
@@ -95,17 +95,17 @@ func (lh *LoginHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	rowsAffected, err = lh.UserRepository.UserResetPassword(username, newPassword)
 	if err != nil {
 		data["Error"] = "Failed to update password"
-		renderTemplate(w, r, "password-reset.html", data)
+		RenderTemplate(w, r, "password-reset.html", data)
 		return
 	}
 	if rowsAffected == 0 {
 		data["Error"] = "No user found with that username"
-		renderTemplate(w, r, "password-reset.html", data)
+		RenderTemplate(w, r, "password-reset.html", data)
 		return
 	}
 
 	data["Success"] = "Password updated successfully"
-	renderTemplate(w, r, "password-reset.html", data)
+	RenderTemplate(w, r, "password-reset.html", data)
 }
 
 // Login authenticates a user with username and password.

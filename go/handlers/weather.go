@@ -38,7 +38,7 @@ func (wc *WeatherController) ShowWeatherPage(w http.ResponseWriter, req *http.Re
 	}
 
 	formatted := models.FormatForecastData(forecast)
-	renderTemplate(w, req, "weather.html", formatted)
+	RenderTemplate(w, req, "weather.html", formatted)
 }
 
 func (wc *WeatherController) GetForecastData(ctx context.Context) (*models.Forecast, error) {
