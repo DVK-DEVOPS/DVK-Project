@@ -22,7 +22,10 @@ type LoginHandlerUnit struct {
 func (lh *LoginHandlerUnit) Login(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	r.ParseForm()
+	if err := r.ParseForm(); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 	username := r.Form.Get("username")
 	password := r.Form.Get("password")
 
@@ -38,10 +41,13 @@ func (lh *LoginHandlerUnit) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(models.AuthResponse{
+	if err := json.NewEncoder(w).Encode(models.AuthResponse{
 		StatusCode: 3070,
 		Message:    "User authenticated",
-	})
+	}); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	if err := r.ParseForm(); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
