@@ -22,7 +22,7 @@ func (sc *SearchController) ShowSearchResults(w http.ResponseWriter, r *http.Req
 
 	if searchStr == "" { //trigger 'No results' block in html.
 		//sc.RenderTemplate(w, r, "search.html", nil)
-		renderTemplate(w, r, "search.html", nil)
+		RenderTemplate(w, r, "search.html", nil)
 		return
 	}
 
@@ -44,7 +44,7 @@ func (sc *SearchController) ShowSearchResults(w http.ResponseWriter, r *http.Req
 		Str("query", searchStr).
 		Msg("")
 
-	renderTemplate(w, r, "search.html", results)
+	RenderTemplate(w, r, "search.html", results)
 	//sc.RenderTemplate(w, r, "search.html", results)
 }
 

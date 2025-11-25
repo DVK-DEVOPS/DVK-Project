@@ -2,8 +2,9 @@ loki.source.docker "containers" {
   host = "unix:///var/run/docker.sock"
   targets = []
   forward_to = [loki.write.monitoring.receiver]
+
   relabel_rules = [
-    {
+    rule {
       source_labels = ["__meta_docker_container_name"]
       target_label  = "container"
     }
@@ -20,7 +21,7 @@ loki.source.file "system" {
 
 loki.write "monitoring" {
   endpoint {
-    url = "http://${MONITORING_VM_IP}:3100/loki/api/v1/push"
+    url = "http://10.1.1.4:3100/loki/api/v1/push"
   }
   external_labels = {
     source = "app-vm"

@@ -3,6 +3,7 @@ package db
 import (
 	"DVK-Project/config"
 	"database/sql"
+	"fmt"
 	"log"
 	"os"
 
@@ -27,9 +28,10 @@ func InitDB() (*sql.DB, error) {
 
 	log.Println("[InitDB] Pinging database to verify connection...")
 	if err := db.Ping(); err != nil {
-		log.Printf("[InitDB] Error pinging database: %v\n", err)
-		db.Close()
-		return nil, err
+		if cerr := db.Close(); cerr != nil {
+			log.Printf("[InitDB] Error closing database: %v\n", cerr)
+		}
+		return nil, fmt.Errorf("ping database: %w", err)
 	}
 	log.Println("[InitDB] Database connection established successfully.")
 	return db, nil
