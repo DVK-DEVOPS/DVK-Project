@@ -1,110 +1,26 @@
-// Grafana Alloy Production Config
-// Collects Docker + system logs, forwards to Loki
-// Collects Docker + system metrics, forwards to Prometheus
-
-// ----------------------
-// Loki Write Endpoint
-// ----------------------
-loki.write "default" {
-  endpoint {
-    url = "http://loki:3100/loki/api/v1/push"
-  }
-  external_labels = {}
-}
-
-
-// ----------------------
-// Docker Logs
-// ----------------------
-discovery.docker "dockerlogs" {
-  host = "unix:///var/run/docker.sock"
-}
-
-discovery.relabel "dockerlogs" {
-  targets = []
-  rule {
+  loki.source.docker "containers" {
+    host = "unix:///var/run/docker.sock"
+    targets = []
+    forward_to = [loki.write.monitoring.receiver]
+    relabel_rules = rule {
     source_labels = ["__meta_docker_container_name"]
-    regex = "/(.*)"
-    target_label = "container_name"
+    target_label = "container"
+    }
   }
-}
-
-loki.source.docker "docker" {
-  host = "unix:///var/run/docker.sock"
-  targets = discovery.docker.dockerlogs.targets
-  relabel_rules = discovery.relabel.dockerlogs.rules
-  labels = {platform="docker"}
-  forward_to = [loki.write.default.receiver]
-}
-
-// ----------------------
-// System Logs
-// ----------------------
-local.file_match "system" {
-  path_targets = [{
-    __address__ = "localhost",
-    __path__    = "/var/log/{syslog,messages,*.log}",
-    instance    = constants.hostname,
-    job         = string.format("%s-logs", constants.hostname),
-  }]
-}
-
-loki.source.file "system" {
-  targets    = local.file_match.system.targets
-  forward_to = [loki.write.default.receiver]
-}
-
-// ----------------------
-// Docker Metrics (cAdvisor)
-// ----------------------
-prometheus.exporter.cadvisor "dockermetrics" {
-  docker_host = "unix:///var/run/docker.sock"
-  storage_duration = "5m"
-}
-
-prometheus.relabel "docker_filter" {
-  rule {
-    source_labels = ["__name__"]
-    regex = "container_spec_(cpu_period|cpu_quota|cpu_shares|memory_limit_bytes|memory_swap_limit_bytes|memory_reservation_limit_bytes)"
-    action = "drop"
+    
+  loki.source.file "system" {
+    targets = [
+    { __path__ = "/var/log/syslog", job = "syslog" },
+    { __path__ = "/var/log/auth.log", job = "auth" },
+    ]
+    forward_to = [loki.write.monitoring.receiver]
   }
-  forward_to = []
-}
-
-prometheus.scrape "dockermetrics" {
-  targets    = prometheus.exporter.cadvisor.dockermetrics.targets
-  forward_to = [prometheus.relabel.docker_filter.receiver]
-  scrape_interval = "10s"
-}
-
-// ----------------------
-// Node / System Metrics
-// ----------------------
-prometheus.exporter.unix "system" {
-  disable_collectors = ["ipvs", "btrfs", "infiniband", "zfs", "xfs"]
-  enable_collectors  = ["meminfo", "loadavg", "cpu", "diskstats", "netdev"]
-  rootfs_path        = "/rootfs"
-  filesystem {
-    fs_types_exclude     = "^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|tmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$"
-    mount_points_exclude = "^/(dev|proc|run/credentials/.+|sys|var/lib/docker/.+)($|/)"
-    mount_timeout        = "5s"
+    
+  loki.write "monitoring" {
+    endpoint {
+    url = "http://${MONITORING_VM_IP}:3100/loki/api/v1/push"
+    }
+    external_labels = {
+    source = "app-vm",
+    }
   }
-  netclass { ignored_devices = "^(veth.*|cali.*|[a-f0-9]{15})$" }
-  netdev   { device_exclude = "^(veth.*|cali.*|[a-f0-9]{15})$" }
-}
-
-prometheus.scrape "system" {
-  targets    = prometheus.exporter.unix.system.targets
-  scrape_interval = "15s"
-  forward_to      = []
-}
-
-// App metrics
-prometheus.scrape "whoknows_app" {
-  targets = [
-    { __address__ = "whoknows-prod:8080" },
-  ]
-  job_name = "whoknows"
-  scrape_interval = "15s"
-  forward_to      = []
-}
