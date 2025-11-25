@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"DVK-Project/db"
+	"DVK-Project/logging"
 	"encoding/json"
 	"net/http"
 
@@ -9,7 +10,9 @@ import (
 )
 
 type SearchController struct {
-	PageRepository *db.PageRepository
+	//PageRepository *db.PageRepository
+	PageRepository db.PageRepoInterface
+	//RenderTemplate func(w http.ResponseWriter, r *http.Request, filename string, data interface{})
 }
 
 // ### Page Templating ###
@@ -18,6 +21,7 @@ func (sc *SearchController) ShowSearchResults(w http.ResponseWriter, r *http.Req
 	language := r.FormValue("language")
 
 	if searchStr == "" { //trigger 'No results' block in html.
+		//sc.RenderTemplate(w, r, "search.html", nil)
 		renderTemplate(w, r, "search.html", nil)
 		return
 	}
@@ -35,7 +39,13 @@ func (sc *SearchController) ShowSearchResults(w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	logging.Log.Info().
+		Str("event", "search_performed").
+		Str("query", searchStr).
+		Msg("")
+
 	renderTemplate(w, r, "search.html", results)
+	//sc.RenderTemplate(w, r, "search.html", results)
 }
 
 // SearchAPI godoc

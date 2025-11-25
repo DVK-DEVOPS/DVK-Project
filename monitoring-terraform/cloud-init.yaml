@@ -1,0 +1,330 @@
+#cloud-config
+package_update: true
+package_upgrade: true
+
+packages:
+  - curl
+  - git
+  - htop
+  - vim
+
+write_files:
+  - path: /opt/monitoring/docker-compose.yml
+    permissions: '0644'
+    content: |
+      version: '3.8'
+
+      services:
+        prometheus:
+          image: prom/prometheus:latest
+          container_name: prometheus
+          user: "65534:65534"
+          ports:
+            - "9090:9090"
+          volumes:
+            - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+            - /opt/monitoring/data/prometheus:/prometheus
+          command:
+            - '--config.file=/etc/prometheus/prometheus.yml'
+            - '--storage.tsdb.path=/prometheus'
+            - '--storage.tsdb.retention.time=30d'
+            - '--web.enable-lifecycle'
+          networks:
+            - monitoring
+          restart: unless-stopped
+
+        loki:
+          image: grafana/loki:latest
+          container_name: loki
+          user: "10001:10001"
+          ports:
+            - "3100:3100"
+          volumes:
+            - /opt/monitoring/data/loki:/loki
+            - ./loki-config.yaml:/etc/loki/local-config.yaml:ro
+          command: -config.file=/etc/loki/local-config.yaml
+          networks:
+            - monitoring
+          restart: unless-stopped
+
+        node-exporter:
+          image: prom/node-exporter:latest
+          container_name: node-exporter
+          restart: unless-stopped
+          command:
+            - '--path.procfs=/host/proc'
+            - '--path.sysfs=/host/sys'
+            - '--path.rootfs=/host'
+          volumes:
+            - /proc:/host/proc:ro
+            - /sys:/host/sys:ro
+            - /:/host:ro
+          networks:
+            - monitoring
+
+        alloy:
+          image: grafana/alloy:latest
+          container_name: alloy
+          user: "0:0"
+          ports:
+            - "12345:12345"
+          depends_on:
+            - loki
+            - prometheus
+          volumes:
+            - ./alloy-config.alloy:/etc/alloy/config.alloy:ro
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+            - /var/log:/var/log:ro
+            - alloy-data:/var/lib/alloy
+          command: run --server.http.listen-addr=0.0.0.0:12345 /etc/alloy/config.alloy
+          networks:
+            - monitoring
+          restart: unless-stopped
+
+        cadvisor:
+          image: gcr.io/cadvisor/cadvisor:latest
+          container_name: cadvisor
+          volumes:
+            - /:/rootfs:ro
+            - /var/run:/var/run:rw
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+            - /sys:/sys:ro
+            - /var/lib/docker/:/var/lib/docker:ro
+          ports:
+            - "8081:8080"
+          privileged: true
+          networks:
+            - monitoring
+          restart: unless-stopped
+
+      volumes:
+        prometheus-data:
+        loki-data:
+        alloy-data:
+
+      networks:
+        monitoring:
+          driver: bridge
+
+  - path: /opt/monitoring/prometheus.yml
+    permissions: '0644'
+    content: |
+      global:
+        scrape_interval: 15s
+        evaluation_interval: 15s
+        external_labels:
+          environment: 'production'
+          cluster: 'monitoring'
+
+      scrape_configs:
+        # Local services on monitoring VM
+        - job_name: 'prometheus'
+          static_configs:
+            - targets: ['localhost:9090']
+
+        - job_name: 'monitoring-node'
+          static_configs:
+            - targets: ['node-exporter:9100']
+              labels:
+                instance: 'monitoring-vm'
+                environment: 'production'
+
+        - job_name: 'monitoring-cadvisor'
+          static_configs:
+            - targets: ['cadvisor:8080']
+              labels:
+                instance: 'monitoring-vm'
+                environment: 'production'
+
+        - job_name: 'loki'
+          static_configs:
+            - targets: ['loki:3100']
+
+        # App VM services - Prometheus scrapes directly
+        - job_name: 'app-node'
+          static_configs:
+            - targets: ['${app_vm_ip}:9100']
+              labels:
+                instance: 'app-vm'
+                environment: 'production'
+
+        - job_name: 'app-cadvisor'
+          static_configs:
+            - targets: ['${app_vm_ip}:8081']
+              labels:
+                instance: 'app-vm'
+                environment: 'production'
+
+        # App application metrics (if exposed)
+        - job_name: 'whoknows-app'
+          static_configs:
+            - targets: ['${app_vm_ip}:8080']
+              labels:
+                instance: 'app-vm'
+                environment: 'production'
+          metrics_path: '/metrics'
+
+  - path: /opt/monitoring/loki-config.yaml
+    permissions: '0644'
+    content: |
+      auth_enabled: false
+
+      server:
+        http_listen_port: 3100
+        grpc_listen_port: 9096
+
+      common:
+        path_prefix: /loki
+        storage:
+          filesystem:
+            chunks_directory: /loki/chunks
+            rules_directory: /loki/rules
+        replication_factor: 1
+        ring:
+          instance_addr: 127.0.0.1
+          kvstore:
+            store: inmemory
+
+      schema_config:
+        configs:
+          - from: 2020-10-24
+            store: boltdb-shipper
+            object_store: filesystem
+            schema: v11
+            index:
+              prefix: index_
+              period: 24h
+
+      ruler:
+        alertmanager_url: http://localhost:9093
+
+      limits_config:
+        retention_period: 744h
+        allow_structured_metadata: false
+
+  - path: /opt/monitoring/alloy-config.alloy
+    permissions: '0644'
+    content: |
+      // Alloy configuration for Monitoring VM
+      // Collects local logs only - metrics are scraped by Prometheus
+
+      // Collect Docker logs
+      loki.source.docker "containers" {
+        host       = "unix:///var/run/docker.sock"
+        targets    = []
+        forward_to = [loki.relabel.docker.receiver]
+      }
+
+      // Relabel Docker container names
+      loki.relabel "docker" {
+        forward_to = [loki.write.local.receiver]
+
+        rule {
+          source_labels = ["__meta_docker_container_name"]
+          target_label  = "container"
+        }
+      }
+
+      // Collect system logs
+      loki.source.file "system" {
+        targets = [
+          {
+            __path__ = "/var/log/syslog",
+            job      = "syslog",
+          },
+          {
+            __path__ = "/var/log/auth.log",
+            job      = "auth",
+          },
+        ]
+        forward_to = [loki.write.local.receiver]
+      }
+
+      // Write to local Loki
+      loki.write "local" {
+        endpoint {
+          url = "http://loki:3100/loki/api/v1/push"
+        }
+
+        external_labels = {
+          source      = "monitoring-vm",
+          environment = "production",
+        }
+      }
+
+  - path: /opt/monitoring/setup-disk.sh
+    permissions: '0755'
+    content: |
+      #!/bin/bash
+      set -e
+
+      DISK="/dev/sdc"
+      MOUNT_POINT="/mnt/monitoring-data"
+
+      # Check if disk exists
+      if [ ! -b "$DISK" ]; then
+        echo "Disk $DISK not found, will use local storage"
+        exit 0
+      fi
+
+      # Check if already formatted
+      if ! blkid $DISK; then
+        echo "Formatting disk..."
+        mkfs.ext4 $DISK
+      fi
+
+      # Create mount point
+      mkdir -p $MOUNT_POINT
+
+      # Add to fstab if not already there
+      if ! grep -q "$DISK" /etc/fstab; then
+        UUID=$(blkid -s UUID -o value $DISK)
+        echo "UUID=$UUID $MOUNT_POINT ext4 defaults,nofail 0 2" >> /etc/fstab
+      fi
+
+      # Mount
+      mount -a
+
+      # Set permissions
+      chown -R 1000:1000 $MOUNT_POINT
+
+runcmd:
+  # Install Docker
+  - curl -fsSL https://get.docker.com -o /tmp/get-docker.sh
+  - sh /tmp/get-docker.sh
+  - usermod -aG docker azureuser
+  - systemctl enable docker
+  - systemctl start docker
+
+  # Install Docker Compose
+  - curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+  - chmod +x /usr/local/bin/docker-compose
+  - ln -sf /usr/local/bin/docker-compose /usr/bin/docker-compose
+
+  # Setup data disk (if attached)
+  - /opt/monitoring/setup-disk.sh
+
+  # Create monitoring directories
+  - mkdir -p /opt/monitoring/data/{prometheus,loki,alloy}
+  - chown -R 65534:65534 /opt/monitoring/data/prometheus
+  - chown -R 10001:10001 /opt/monitoring/data/loki
+
+  # Start monitoring stack
+  - cd /opt/monitoring && docker-compose up -d
+
+  # Wait for services to be ready
+  - sleep 30
+
+  # Check status
+  - cd /opt/monitoring && docker-compose ps
+
+final_message: |
+  Monitoring VM setup complete!
+  Prometheus: http://${monitoring_vm_ip}:9090
+  Loki: http://${monitoring_vm_ip}:3100
+
+  Configure your existing Grafana to use these datasources:
+  - Prometheus: http://${monitoring_vm_ip}:9090
+  - Loki: http://${monitoring_vm_ip}:3100
+
+  The system has rebooted. Docker and monitoring stack are running.

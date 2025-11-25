@@ -2,16 +2,15 @@ services:
   whoknows:
     image: ghcr.io/dvk-devops/dvk-project:latest
     environment:
-      - KEYVAULT_NAME=${KEYVAULT_NAME}
-      - SECRET_NAME=${SECRET_NAME}
+      - AZURE_KEYVAULT_NAME=${AZURE_KEYVAULT_NAME}
+      - API_KEY_SECRET_NAME=${API_KEY_SECRET_NAME}
+      - DB_URL_SECRET_NAME=${DB_URL_SECRET_NAME}
       - API_URL=${API_URL}
       - SENTRY_DSN=${SENTRY_DSN}
       - SENTRY_ENV=${SENTRY_ENV}
     container_name: whoknows-prod
     ports:
       - "8080:8080"
-    volumes:
-      - ./go/database.db:/whoknows/go/database.db
     networks:
       - webnet
     restart: unless-stopped
@@ -28,8 +27,90 @@ services:
       - /etc/letsencrypt/archive/whoknows-dvk.dk:/etc/letsencrypt/archive/whoknows-dvk.dk:ro
     depends_on:
       - whoknows
+      - loki
+      - prometheus
     networks:
       - webnet
+
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    user: "10001:10001"
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./logging/loki-data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - webnet
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    user: "65534:65534" 
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./logging/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    networks:
+      - webnet
+    restart: unless-stopped
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    restart: unless-stopped
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/host'
+    volumes:
+        - /proc:/host/proc:ro
+        - /sys:/host/sys:ro
+        - /:/host:ro
+    networks:
+      - webnet
+
+  alloy:
+    image: grafana/alloy:latest
+    container_name: alloy
+    user: "0:0"
+    ports:
+      - "12345:12345"
+    depends_on:
+      - loki
+      - prometheus
+    volumes:
+      - ./logging/alloy-config.yaml:/etc/alloy/config.alloy
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/log:/var/log:ro
+      - alloy-data:/var/lib/alloy
+    command: run --server.http.listen-addr=0.0.0.0:12345 /etc/alloy/config.alloy
+    networks:
+      - webnet
+    restart: unless-stopped
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    ports:
+      - "8081:8080"
+    privileged: true
+    networks:
+      - webnet
+
+volumes:
+  loki-data:      
+  prometheus-data:
+  alloy-data:
 
 networks:
   webnet:

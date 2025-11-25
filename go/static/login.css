@@ -84,6 +84,15 @@ body {
     margin-bottom: 8px;
     font-size: 13px;
 }
+.success {
+    padding: 10px 12px;
+    background: #d4edda;   /* light green background */
+    color: #155724;        /* dark green text */
+    border-radius: var(--radius-sm);
+    margin-bottom: 8px;
+    font-size: 13px;
+    border: 1px solid #c3e6cb;  /* optional border for clarity */
+}
 
 .btn {
     display: inline-flex;

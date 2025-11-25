@@ -21,7 +21,7 @@ type APIClient struct {
 func NewAPIClient() *APIClient {
 	_ = godotenv.Load()
 	url := os.Getenv("API_URL")
-	apiKey := config.GetAPIKey()
+	apiKey := config.GetSecret("API_KEY", os.Getenv("AZURE_KEYVAULT_NAME"), os.Getenv("API_KEY_SECRET_NAME"))
 	if url == "" || apiKey == "" {
 		log.Fatal("API_URL or API_KEY not set")
 	}
@@ -36,7 +36,7 @@ func NewAPIClient() *APIClient {
 func (c *APIClient) FetchForecast(city string) ([]byte, error) {
 	fmt.Println("Fetching forecast")
 	reqURL := fmt.Sprintf("%s?q=%s&appid=%s", c.Url, city, c.ApiKey)
-	fmt.Println(reqURL)
+
 	resp, err := c.Client.Get(reqURL)
 	if err != nil {
 		return nil, fmt.Errorf("fetch error: %w", err)

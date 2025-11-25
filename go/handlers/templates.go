@@ -1,11 +1,15 @@
 package handlers
 
 import (
+	"embed"
 	"html/template"
 	"net/http"
 
 	"github.com/getsentry/sentry-go"
 )
+
+//go:embed templates/*
+var templatesFS embed.FS
 
 func captureAndRespond(w http.ResponseWriter, r *http.Request, err error, msg string, code int) {
 	if hub := sentry.GetHubFromContext(r.Context()); hub != nil {
@@ -15,7 +19,7 @@ func captureAndRespond(w http.ResponseWriter, r *http.Request, err error, msg st
 }
 
 func renderTemplate(w http.ResponseWriter, r *http.Request, filename string, data interface{}) {
-	tmpl, err := template.ParseFiles("templates/" + filename)
+	tmpl, err := template.ParseFS(templatesFS, "templates/"+filename)
 	if err != nil {
 		captureAndRespond(w, r, err, "Template not found", http.StatusNotFound)
 		return

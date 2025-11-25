@@ -1,8 +1,6 @@
 name: Continuous Deployment
 
 on:
-  #push:
-    #branches: [ main ]
   workflow_run:
     workflows: [ Continuous Delivery ]
     types:
@@ -16,12 +14,15 @@ env:
   VM_USERNAME: ${{ secrets.AZURE_USERNAME }}
   VM_KEY: ${{ secrets.AZURE_KEY }}
   GH_PAT: ${{ secrets.GH_PAT}}
-  API_KEY_SECRET_NAME: ${{secrets.API_KEY_SECRET_NAME}}
   AZURE_KEYVAULT_NAME: ${{secrets.AZURE_KEYVAULT_NAME}}
+  API_KEY_SECRET_NAME: ${{secrets.API_KEY_SECRET_NAME}}
+  DB_URL_SECRET_NAME: ${{secrets.DB_URL_SECRET_NAME}}
   API_URL: ${{secrets.API_URL}}
   SENTRY_DSN: ${{secrets.SENTRY_DSN}}
   SENTRY_ENV: ${{secrets.SENTRY_ENV}}
-
+  GF_ADMIN_PASSWORD: ${{secrets.GF_ADMIN_PASSWORD}}
+  HEALTHCHECK_URL: "https://${{ secrets.DVK_URL }}/api/health"
+  MONITORING_VM_IP: ${{secrets.MONITORING_VM_PRIVATE_IP}}
 permissions:
   contents: read
   packages: read
@@ -40,40 +41,49 @@ jobs:
           echo "Preparing SSH key..."
           echo "${{ env.VM_KEY }}" > key.pem
           chmod 600 key.pem
-
+          
+          echo "Preparing Alloy config with monitoring IP..."
+          sed "s/\${MONITORING_VM_IP}/${{ env.MONITORING_VM_IP }}/g" logging/alloy-config.yaml > /tmp/alloy-config.yaml
+          
+          echo "Syncing configs to server..."
+          scp -i key.pem -o StrictHostKeyChecking=no /tmp/alloy-config.yaml ${{ env.VM_USERNAME }}@${{ env.VM_HOST }}:~/whoknows/logging/alloy-config.yaml
+          
           echo "Copying docker-compose.prod.yml to VM..."
           scp -i key.pem -o StrictHostKeyChecking=no docker-compose.prod.yml ${{ env.VM_USERNAME }}@${{ env.VM_HOST }}:~/whoknows
           echo "File copied successfully."
 
       - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.2.0        
+        uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ env.VM_HOST }}
           username: ${{ env.VM_USERNAME }}
           key: ${{ env.VM_KEY }}
           port: 22
           script: |
+            set -e
+
             echo "Logging into GitHub Container Registry..."
             echo "${{ env.GITHUB_TOKEN }}" | sudo docker login ghcr.io -u ${{ env.DOCKER_GITHUB_USERNAME}} --password-stdin
-
+            
             echo "Navigating to deployment directory..."
             cd ~/whoknows
 
             echo "Stopping older containers"
             sudo docker compose -f docker-compose.prod.yml down
-
+            
             echo "Setting environment variables for Compose..."
-            export KEYVAULT_NAME=${{ env.AZURE_KEYVAULT_NAME }}
-            export SECRET_NAME=${{ env.API_KEY_SECRET_NAME }}
+            export AZURE_KEYVAULT_NAME=${{ env.AZURE_KEYVAULT_NAME }}
+            export API_KEY_SECRET_NAME=${{ env.API_KEY_SECRET_NAME }}
+            export DB_URL_SECRET_NAME=${{ env.DB_URL_SECRET_NAME}}
             export API_URL=${{ env.API_URL }}
             export SENTRY_DSN=${{env.SENTRY_DSN}}
             export SENTRY_ENV=${{env.SENTRY_ENV}}
+            export GF_ADMIN_PASSWORD=${{env.GF_ADMIN_PASSWORD}}
             
+
             echo "Pulling latest Docker images..."
             sudo -E docker compose -f docker-compose.prod.yml pull
-
             echo "Starting containers..."
             sudo -E docker compose -f docker-compose.prod.yml up -d
-
-    
+            
             echo "Deployment complete."
