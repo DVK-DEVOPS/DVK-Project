@@ -12,7 +12,7 @@ import (
 type SearchController struct {
 	//PageRepository *db.PageRepository
 	PageRepository db.PageRepoInterface
-	RenderTemplate func(w http.ResponseWriter, r *http.Request, filename string, data interface{})
+	//RenderTemplate func(w http.ResponseWriter, r *http.Request, filename string, data interface{})
 }
 
 // ### Page Templating ###
