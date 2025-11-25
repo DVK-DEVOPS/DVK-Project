@@ -1,7 +1,8 @@
 // search_test.go
-/*
+
 package handlers
 
+/*
 import (
 	"errors"
 	"net/http"
