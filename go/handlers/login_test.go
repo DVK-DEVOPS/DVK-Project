@@ -42,6 +42,11 @@ func (lh *LoginHandlerUnit) Login(w http.ResponseWriter, r *http.Request) {
 		StatusCode: 3070,
 		Message:    "User authenticated",
 	})
+
+	if err := r.ParseForm(); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 }
 
 func TestLoginUnit_Success(t *testing.T) {
@@ -58,7 +63,10 @@ func TestLoginUnit_Success(t *testing.T) {
 	}
 
 	var resp models.AuthResponse
-	json.NewDecoder(w.Body).Decode(&resp)
+	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+		t.Fatalf("decode failed: %v", err)
+	}
+
 	if resp.StatusCode != 3070 {
 		t.Errorf("expected 3070, got %d", resp.StatusCode)
 	}

@@ -15,15 +15,28 @@ import (
 )
 
 func setupTestDB() *db.UserRepository {
-	sqlDB, _ := sql.Open("sqlite", ":memory:")
-	sqlDB.Exec(`CREATE TABLE users (username TEXT, password TEXT);`)
+	sqlDB, err := sql.Open("sqlite", ":memory:")
+	if err != nil {
+		panic(err)
+	}
 
-	hashed, _ := bcrypt.GenerateFromPassword([]byte("pass"), bcrypt.DefaultCost)
-	sqlDB.Exec(`INSERT INTO users (username, password) VALUES (?, ?)`, "test", string(hashed))
+	_, err = sqlDB.Exec(`CREATE TABLE users (username TEXT, password TEXT);`)
+	if err != nil {
+		panic(err)
+	}
+
+	hashed, err := bcrypt.GenerateFromPassword([]byte("pass"), bcrypt.DefaultCost)
+	if err != nil {
+		panic(err)
+	}
+
+	_, err = sqlDB.Exec(`INSERT INTO users (username, password) VALUES (?, ?)`, "test", string(hashed))
+	if err != nil {
+		panic(err)
+	}
 
 	return db.NewUserRepository(sqlDB)
 }
-
 func TestLoginIntegrationSuccess(t *testing.T) {
 	repo := setupTestDB()
 	lh := &LoginHandler{UserRepository: repo}
@@ -43,6 +56,10 @@ func TestLoginIntegrationSuccess(t *testing.T) {
 	_ = json.NewDecoder(w.Body).Decode(&resp)
 	if resp.StatusCode != 3070 {
 		t.Errorf("expected StatusCode 3070, got %d", resp.StatusCode)
+	}
+
+	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+		t.Fatalf("decode failed: %v", err)
 	}
 }
 
