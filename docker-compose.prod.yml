@@ -36,6 +36,8 @@ services:
     ports:
       - "9100:9100"
     restart: unless-stopped
+    ports:
+      - "9100:9100"
     command:
       - '--path.procfs=/host/proc'
       - '--path.sysfs=/host/sys'
