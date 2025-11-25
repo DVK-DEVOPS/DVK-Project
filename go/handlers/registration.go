@@ -22,7 +22,7 @@ type RegistrationController struct {
 // @Failure 404 {string} string "Template not found"
 // @Router /register [get]
 func (rc *RegistrationController) ShowRegistrationPage(w http.ResponseWriter, r *http.Request) {
-	renderTemplate(w, r, "register.html", nil)
+	RenderTemplate(w, r, "register.html", nil)
 }
 
 // @Summary Register new user

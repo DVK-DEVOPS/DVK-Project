@@ -5,9 +5,9 @@ import (
 )
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
-	renderTemplate(w, r, "index.html", nil)
+	RenderTemplate(w, r, "index.html", nil)
 }
 
 func AboutHandler(w http.ResponseWriter, r *http.Request) {
-	renderTemplate(w, r, "about.html", nil)
+	RenderTemplate(w, r, "about.html", nil)
 }
