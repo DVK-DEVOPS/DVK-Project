@@ -46,15 +46,15 @@ jobs:
 
       - name: Install Playwright browsers and deps
         run: npx playwright install --with-deps
-        working-directory: go/tests/e2e
+        working-directory: go/test/e2e
 
       - name: Install E2E dependencies
         run: npm install
-        working-directory: go/tests/e2e
+        working-directory: go/test/e2e
 
       - name: Run Playwright tests
         run: npx playwright test
-        working-directory: go/tests/e2e
+        working-directory: go/test/e2e
 
       - uses: actions/upload-artifact@v4
         if: always()
