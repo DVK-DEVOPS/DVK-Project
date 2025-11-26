@@ -44,10 +44,10 @@ jobs:
           echo "$(date +'%T') Applying schema.sql..."
           PGPASSWORD=password psql -h localhost -U user -d app_db -f go/schema.sql
 
-      - name: Run backend with logging
+      - name: Run backend 
         working-directory: go
         run: |
-          nohup go run main.go
+          nohup go run main.go &
 
       - uses: actions/setup-node@v4
       - name: Install E2E dependencies
