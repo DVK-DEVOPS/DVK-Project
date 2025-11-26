@@ -30,22 +30,13 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build Go dev image
-        run: docker build -t whoknows-dev -f Dockerfile.dev .
+        run: docker build -t whoknows-dev -f Dockerfile.prod .
 
       - name: Start backend
         run: |
           docker run -d \
             --name whoknows \
             -p 8080:8080 \
-            -e DB_URL=postgres://whoknows:whoknows@postgres:5432/whoknows_dev?sslmode=disable \
-            -e API_URL=dev \
-            -e API_KEY=dev \
-            -e APP_ENV=dev \
-            -e AZURE_KEYVAULT_NAME=whoknows \
-            -e API_KEY_SECRET_NAME=weather-api-key \
-            -e DB_URL_SECRET_NAME=whoknows-db-url \
-            -e SENTRY_ENVIRONMENT=dev \
-            -e SENTRY_DSN= \
             whoknows-dev
 
 
@@ -59,6 +50,10 @@ jobs:
             echo "Waiting for backend..."
             sleep 2
           done
+      - name: Show backend logs
+        if: always()
+        run: docker logs whoknows || true
+
 
       - name: Test backend accessibility
         run: docker exec whoknows curl -v http://localhost:8080/
