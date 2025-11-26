@@ -1,6 +1,11 @@
 name: E2E Tests
 
-on: [push, pull_request]
+on: [pull_request]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
   e2e:
@@ -32,7 +37,7 @@ jobs:
           docker run -d \
             --name whoknows \
             -p 8080:8080 \
-            -e POSTGRES_HOST=localhost \
+            -e POSTGRES_HOST=postgres \
             -e POSTGRES_USER=whoknows \
             -e POSTGRES_PASSWORD=whoknows \
             -e POSTGRES_DB=whoknows_dev \
@@ -53,11 +58,25 @@ jobs:
         working-directory: go/test/e2e
 
       - name: Run Playwright tests
+        env:
+          PLAYWRIGHT_BASE_URL: http://localhost:8080
         run: npx playwright test
         working-directory: go/test/e2e
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
         if: always()
         with:
-          name: playwright-report
-          path: go/tests/e2e/playwright-report
+          path: go/test/e2e/playwright-report
+
+  deploy:
+    needs: e2e
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
