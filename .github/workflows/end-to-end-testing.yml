@@ -28,8 +28,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
+      - name: List repository files
+        run: ls -R .
       - name: Copy env.example to .env
+        working-directory: .
         run: cp .env.example .env
 
       - name: Build Go dev image
