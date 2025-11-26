@@ -27,14 +27,8 @@ jobs:
       - name: Set environment variables
         run: |
           cp ./go/.env.example ./go/.env
-          export $(grep -v '^#' ./go/.env | xargs)
-
-      - name: List project files
-        run: ls -R
 
       - uses: actions/setup-go@v5
-        with:
-          go-version: '1.23'
 
       - name: Install PostgreSQL client
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
@@ -50,9 +44,6 @@ jobs:
             sleep 2
           done
 
-      - name: Show Postgres logs
-        run: docker logs ${{ job.services.postgres.id }}
-
       - name: Execute schema.sql
         run: |
           echo "$(date +'%T') Applying schema.sql..."
@@ -61,27 +52,9 @@ jobs:
       - name: Run backend with logging
         working-directory: go
         run: |
-          echo "$(date +'%T') Starting Go backend..."
-          nohup go run main.go > >(tee -a backend.log) 2> >(tee -a backend.log >&2) &
-          echo $! > backend.pid
-          sleep 2
-          tail -n 50 -f backend.log &
-
-      - name: Wait for backend to respond
-        run: |
-          for i in {1..60}; do
-            if curl -s http://localhost:8080/ >/dev/null; then
-              echo "$(date +'%T') Backend ready"
-              break
-            fi
-            echo "$(date +'%T') Waiting for backend..."
-            sleep 2
-          done
+          nohup go run main.go
 
       - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
       - name: Install E2E dependencies
         run: npm install
         working-directory: go/test/e2e
@@ -93,10 +66,24 @@ jobs:
       - name: Run Playwright tests
         run: npx playwright test
         working-directory: go/test/e2e
+  deploy-pages:
+    needs: e2e
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
 
-      - name: Stop backend
-        if: always()
-        run: |
-          if [ -f go/backend.pid ]; then
-            kill $(cat go/backend.pid) || true
-          fi
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: E2E Tests
+          path: ./site
+
+      - uses: actions/configure-pages@v4
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./site
+
+      - id: deploy
+        uses: actions/deploy-pages@v4
