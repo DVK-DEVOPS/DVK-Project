@@ -36,7 +36,6 @@ jobs:
         run: |
           docker run -d \
             --name whoknows \
-            --network github_network_c58707786d76497ebd1eee8814a66f85 \
             -p 8080:8080 \
             -e DB_URL=postgres://whoknows:whoknows@postgres:5432/whoknows_dev?sslmode=disable \
             whoknows-dev
