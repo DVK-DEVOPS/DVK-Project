@@ -38,7 +38,7 @@ jobs:
             --name whoknows \
             -p 8080:8080 \
             -e DB_URL=postgres://whoknows:whoknows@postgres:5432/whoknows_dev?sslmode=disable \
-            whoknows-prod
+            whoknows-dev
 
       - name: Wait for backend
         run: |
