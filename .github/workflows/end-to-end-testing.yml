@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build Go dev image
-        run: docker build -t whoknows-dev -f go/Dockerfile .
+        run: docker build -t whoknows-dev -f Dockerfile.dev .
 
       - name: Start backend
         run: |
