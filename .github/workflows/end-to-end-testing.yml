@@ -19,16 +19,15 @@ jobs:
           --health-cmd="pg_isready -U user"
           --health-interval=5s
           --health-timeout=5s
-          --health-retries=5
+          --health-retries=10
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Copy env
+      - name: Set environment variables
         run: |
           cp ./go/.env.example ./go/.env
           sed -i 's|DB_URL=.*|DB_URL=postgres://user:password@postgres:5432/app_db?sslmode=disable|' ./go/.env
-
 
       - name: List project files
         run: ls -R
@@ -42,7 +41,7 @@ jobs:
 
       - name: Wait for Postgres
         run: |
-          for i in {1..20}; do
+          for i in {1..30}; do
             if pg_isready -h postgres -p 5432 -U user; then
               echo "Postgres ready"
               break
@@ -53,11 +52,13 @@ jobs:
 
       - name: Run backend
         working-directory: go
-        run: go run main.go &
-
-      - name: Wait for backend
         run: |
-          for i in {1..20}; do
+          nohup go run main.go > backend.log 2>&1 &
+          echo $! > backend.pid
+
+      - name: Wait for backend to respond
+        run: |
+          for i in {1..30}; do
             if curl -s http://localhost:8080/ >/dev/null; then
               echo "Backend ready"
               break
@@ -66,8 +67,8 @@ jobs:
             sleep 2
           done
 
-      - name: Print backend process
-        run: ps aux | grep main
+      - name: Show backend logs
+        run: tail -n 50 go/backend.log || true
 
       - uses: actions/setup-node@v4
         with:
@@ -84,3 +85,10 @@ jobs:
       - name: Run Playwright tests
         run: npx playwright test
         working-directory: go/test/e2e
+
+      - name: Stop backend
+        if: always()
+        run: |
+          if [ -f go/backend.pid ]; then
+            kill $(cat go/backend.pid) || true
+          fi
