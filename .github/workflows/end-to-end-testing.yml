@@ -27,13 +27,16 @@ jobs:
       - name: Copy env
         run: cp ./go/.env.example ./go/.env
 
+      - name: List project files
+        run: ls -R
+
       - uses: actions/setup-go@v5
         with:
           go-version: '1.23'
 
       - name: Run backend
         working-directory: go
-        run: go run main.go &
+        run: go run main.go
 
       - name: Wait for backend
         run: |
@@ -45,6 +48,9 @@ jobs:
             echo "Waiting for backend..."
             sleep 2
           done
+
+      - name: Print backend logs
+        run: ps aux | grep main
 
       - uses: actions/setup-node@v4
         with:
