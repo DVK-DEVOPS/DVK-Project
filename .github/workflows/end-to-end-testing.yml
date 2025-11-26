@@ -36,6 +36,7 @@ jobs:
         run: |
           docker run -d \
             --name whoknows \
+            --network github_network_c58707786d76497ebd1eee8814a66f85 \
             -p 8080:8080 \
             -e DB_URL=postgres://whoknows:whoknows@postgres:5432/whoknows_dev?sslmode=disable \
             whoknows-dev
@@ -43,13 +44,17 @@ jobs:
       - name: Wait for backend
         run: |
           for i in {1..15}; do
-            if curl -s http://localhost:8080/ >/dev/null; then
+            if docker exec whoknows curl -s http://localhost:8080/ >/dev/null; then
               echo "Backend is up!"
               break
             fi
             echo "Waiting for backend..."
             sleep 2
           done
+
+      - name: Test backend accessibility
+        run: docker exec whoknows curl -v http://localhost:8080/
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -65,7 +70,7 @@ jobs:
       - name: Test backend accessibility
         run: |
           echo "Testing if backend responds..."
-          curl -v http://127.0.0.1:8080/
+          curl -v http://localhost:8080/
 
       - name: Run Playwright tests
         run: npx playwright test
