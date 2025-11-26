@@ -27,8 +27,6 @@ jobs:
       - name: Set environment variables
         run: |
           cp ./go/.env.example ./go/.env
-          sed -i 's|DB_URL=.*|DB_URL=postgres://user:password@postgres:5432/app_db?sslmode=disable|' ./go/.env
-
       - name: List project files
         run: ls -R
 
