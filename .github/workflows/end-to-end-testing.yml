@@ -27,6 +27,8 @@ jobs:
       - name: Set environment variables
         run: |
           cp ./go/.env.example ./go/.env
+          export $(grep -v '^#' ./go/.env | xargs)
+
       - name: List project files
         run: ls -R
 
@@ -37,37 +39,42 @@ jobs:
       - name: Install PostgreSQL client
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
 
-      - name: Wait for Postgres
+      - name: Wait for Postgres to be ready
         run: |
           for i in {1..60}; do
             if pg_isready -h localhost -p 5432 -U user; then
               echo "Postgres ready"
               break
             fi
-            echo "Waiting for Postgres..."
+            echo "$(date +'%T') Waiting for Postgres..."
             sleep 2
           done
 
       - name: Show Postgres logs
         run: docker logs ${{ job.services.postgres.id }}
 
-      - name: Run backend
+      - name: Execute schema.sql
+        run: |
+          echo "$(date +'%T') Applying schema.sql..."
+          PGPASSWORD=password psql -h localhost -U user -d app_db -f go/schema.sql
+
+      - name: Run backend with logging
         working-directory: go
         run: |
-          nohup go run main.go > backend.log 2>&1 &
+          echo "$(date +'%T') Starting Go backend..."
+          nohup go run main.go > >(tee -a backend.log) 2> >(tee -a backend.log >&2) &
           echo $! > backend.pid
-          echo "Streaming backend logs..."
-          tail -f backend.log &
-          TAIL_PID=$!
+          sleep 2
+          tail -n 50 -f backend.log &
 
       - name: Wait for backend to respond
         run: |
-          for i in {1..30}; do
+          for i in {1..60}; do
             if curl -s http://localhost:8080/ >/dev/null; then
-              echo "Backend ready"
+              echo "$(date +'%T') Backend ready"
               break
             fi
-            echo "Waiting for backend..."
+            echo "$(date +'%T') Waiting for backend..."
             sleep 2
           done
 
