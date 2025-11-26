@@ -29,17 +29,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Copy env.example to .env
-        run: cp ./go/.env.example .env
+        run: cp ./go/.env.example ./go/.env
 
       - name: Build Go dev image
         run: docker build -t whoknows-dev -f Dockerfile.dev .
 
       - name: Start backend
-        run: |
-          docker run -d \
-            --name whoknows \
-            -p 8080:8080 \
-            whoknows-dev
+        run: docker compose -f docker-compose.dev.yml up -d whoknows
+
 
 
       - name: Wait for backend
