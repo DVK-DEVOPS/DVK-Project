@@ -43,7 +43,22 @@ jobs:
             -e POSTGRES_DB=whoknows_dev \
             whoknows-dev
 
-          sleep 5
+          echo "Waiting for backend to be ready..."
+          for i in {1..30}; do
+            echo "Attempt $i: checking container logs..."
+            docker logs whoknows || true
+
+            echo "Checking if port 8080 is responding..."
+            if curl -s http://127.0.0.1:8080/ >/dev/null; then
+              echo "Backend is up!"
+              break
+            fi
+            echo "Backend not ready yet, waiting 2s..."
+            sleep 2
+          done
+
+          echo "Final container status:"
+          docker ps -a
 
       - uses: actions/setup-node@v4
         with:
@@ -57,9 +72,18 @@ jobs:
         run: npm install
         working-directory: go/test/e2e
 
+      - name: Test backend accessibility
+        run: |
+          echo "Testing if backend responds..."
+          curl -v http://127.0.0.1:8080/
+
       - name: Run Playwright tests
         run: npx playwright test
         working-directory: go/test/e2e
+
+      - name: Stop backend container
+        if: always()
+        run: docker rm -f whoknows
 
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
