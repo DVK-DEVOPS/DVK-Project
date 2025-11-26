@@ -42,25 +42,11 @@ write_files:
           volumes:
             - /opt/monitoring/data/loki:/loki
             - ./loki-config.yaml:/etc/loki/local-config.yaml:ro
-          command: -config.file=/etc/loki/local-config.yaml
+          command: 
+            - -config.file=/etc/loki/local-config.yaml
           networks:
             - monitoring
           restart: unless-stopped
-
-        node-exporter:
-          image: prom/node-exporter:latest
-          container_name: node-exporter
-          restart: unless-stopped
-          command:
-            - '--path.procfs=/host/proc'
-            - '--path.sysfs=/host/sys'
-            - '--path.rootfs=/host'
-          volumes:
-            - /proc:/host/proc:ro
-            - /sys:/host/sys:ro
-            - /:/host:ro
-          networks:
-            - monitoring
 
         alloy:
           image: grafana/alloy:latest
@@ -81,25 +67,7 @@ write_files:
             - monitoring
           restart: unless-stopped
 
-        cadvisor:
-          image: gcr.io/cadvisor/cadvisor:latest
-          container_name: cadvisor
-          volumes:
-            - /:/rootfs:ro
-            - /var/run:/var/run:rw
-            - /var/run/docker.sock:/var/run/docker.sock:ro
-            - /sys:/sys:ro
-            - /var/lib/docker/:/var/lib/docker:ro
-          ports:
-            - "8081:8080"
-          privileged: true
-          networks:
-            - monitoring
-          restart: unless-stopped
-
       volumes:
-        prometheus-data:
-        loki-data:
         alloy-data:
 
       networks:
@@ -121,20 +89,6 @@ write_files:
         - job_name: 'prometheus'
           static_configs:
             - targets: ['localhost:9090']
-
-        - job_name: 'monitoring-node'
-          static_configs:
-            - targets: ['node-exporter:9100']
-              labels:
-                instance: 'monitoring-vm'
-                environment: 'production'
-
-        - job_name: 'monitoring-cadvisor'
-          static_configs:
-            - targets: ['cadvisor:8080']
-              labels:
-                instance: 'monitoring-vm'
-                environment: 'production'
 
         - job_name: 'loki'
           static_configs:
@@ -205,25 +159,6 @@ write_files:
   - path: /opt/monitoring/alloy-config.alloy
     permissions: '0644'
     content: |
-      // Alloy configuration for Monitoring VM
-      // Collects local logs only - metrics are scraped by Prometheus
-
-      // Collect Docker logs
-      loki.source.docker "containers" {
-        host       = "unix:///var/run/docker.sock"
-        targets    = []
-        forward_to = [loki.relabel.docker.receiver]
-      }
-
-      // Relabel Docker container names
-      loki.relabel "docker" {
-        forward_to = [loki.write.local.receiver]
-
-        rule {
-          source_labels = ["__meta_docker_container_name"]
-          target_label  = "container"
-        }
-      }
 
       // Collect system logs
       loki.source.file "system" {
@@ -252,41 +187,6 @@ write_files:
         }
       }
 
-  - path: /opt/monitoring/setup-disk.sh
-    permissions: '0755'
-    content: |
-      #!/bin/bash
-      set -e
-
-      DISK="/dev/sdc"
-      MOUNT_POINT="/mnt/monitoring-data"
-
-      # Check if disk exists
-      if [ ! -b "$DISK" ]; then
-        echo "Disk $DISK not found, will use local storage"
-        exit 0
-      fi
-
-      # Check if already formatted
-      if ! blkid $DISK; then
-        echo "Formatting disk..."
-        mkfs.ext4 $DISK
-      fi
-
-      # Create mount point
-      mkdir -p $MOUNT_POINT
-
-      # Add to fstab if not already there
-      if ! grep -q "$DISK" /etc/fstab; then
-        UUID=$(blkid -s UUID -o value $DISK)
-        echo "UUID=$UUID $MOUNT_POINT ext4 defaults,nofail 0 2" >> /etc/fstab
-      fi
-
-      # Mount
-      mount -a
-
-      # Set permissions
-      chown -R 1000:1000 $MOUNT_POINT
 
 runcmd:
   # Install Docker
@@ -301,8 +201,6 @@ runcmd:
   - chmod +x /usr/local/bin/docker-compose
   - ln -sf /usr/local/bin/docker-compose /usr/bin/docker-compose
 
-  # Setup data disk (if attached)
-  - /opt/monitoring/setup-disk.sh
 
   # Create monitoring directories
   - mkdir -p /opt/monitoring/data/{prometheus,loki,alloy}
