@@ -36,10 +36,18 @@ jobs:
         run: |
           docker run -d \
             --name whoknows \
-            --network host \
             -p 8080:8080 \
             -e DB_URL=postgres://whoknows:whoknows@postgres:5432/whoknows_dev?sslmode=disable \
+            -e API_URL=dev \
+            -e API_KEY=dev \
+            -e APP_ENV=dev \
+            -e AZURE_KEYVAULT_NAME=whoknows \
+            -e API_KEY_SECRET_NAME=weather-api-key \
+            -e DB_URL_SECRET_NAME=whoknows-db-url \
+            -e SENTRY_ENVIRONMENT=dev \
+            -e SENTRY_DSN= \
             whoknows-dev
+
 
       - name: Wait for backend
         run: |
