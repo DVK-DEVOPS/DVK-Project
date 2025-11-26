@@ -41,7 +41,7 @@ jobs:
 
       - name: Wait for Postgres
         run: |
-          for i in {1..30}; do
+          for i in {1..60}; do
             if pg_isready -h postgres -p 5432 -U user; then
               echo "Postgres ready"
               break
@@ -50,11 +50,17 @@ jobs:
             sleep 2
           done
 
+      - name: Show Postgres logs
+        run: docker logs ${{ job.services.postgres.id }}
+
       - name: Run backend
         working-directory: go
         run: |
           nohup go run main.go > backend.log 2>&1 &
           echo $! > backend.pid
+          echo "Streaming backend logs..."
+          tail -f backend.log &
+          TAIL_PID=$!
 
       - name: Wait for backend to respond
         run: |
@@ -66,9 +72,6 @@ jobs:
             echo "Waiting for backend..."
             sleep 2
           done
-
-      - name: Show backend logs
-        run: tail -n 50 go/backend.log || true
 
       - uses: actions/setup-node@v4
         with:
