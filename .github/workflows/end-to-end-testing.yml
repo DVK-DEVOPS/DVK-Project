@@ -58,8 +58,6 @@ jobs:
         working-directory: go/test/e2e
 
       - name: Run Playwright tests
-        env:
-          PLAYWRIGHT_BASE_URL: http://localhost:8080
         run: npx playwright test
         working-directory: go/test/e2e
 
