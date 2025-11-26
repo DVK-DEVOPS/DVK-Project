@@ -29,7 +29,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: List repository files
-        run: ls -R .
+        run: ls -Ra .
+      - name: Find .env.example
+        run: find . -name ".env.example" -type f -print
       - name: Copy env.example to .env
         working-directory: .
         run: cp ./.env.example .env
