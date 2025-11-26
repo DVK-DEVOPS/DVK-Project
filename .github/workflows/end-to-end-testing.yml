@@ -10,13 +10,13 @@ jobs:
       postgres:
         image: postgres:16
         env:
-          POSTGRES_USER: whoknows
-          POSTGRES_PASSWORD: whoknows
-          POSTGRES_DB: whoknows_dev
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: app_db
         ports:
           - 5432:5432
         options: >-
-          --health-cmd="pg_isready -U whoknows"
+          --health-cmd="pg_isready -U user"
           --health-interval=5s
           --health-timeout=5s
           --health-retries=5
@@ -34,9 +34,23 @@ jobs:
         with:
           go-version: '1.23'
 
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Wait for Postgres
+        run: |
+          for i in {1..20}; do
+            if pg_isready -h postgres -p 5432 -U user; then
+              echo "Postgres ready"
+              break
+            fi
+            echo "Waiting for Postgres..."
+            sleep 2
+          done
+
       - name: Run backend
         working-directory: go
-        run: go run main.go
+        run: go run main.go &
 
       - name: Wait for backend
         run: |
@@ -49,7 +63,7 @@ jobs:
             sleep 2
           done
 
-      - name: Print backend logs
+      - name: Print backend process
         run: ps aux | grep main
 
       - uses: actions/setup-node@v4
