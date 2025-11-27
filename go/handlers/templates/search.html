@@ -1,15 +1,19 @@
+{{define "search"}}
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <title>Search Results</title>
     <link rel="stylesheet" href="../static/search.css" />
+    <link rel="stylesheet" href="../static/nav.css" />
     <script
       src="https://js-de.sentry-cdn.com/34adec4d1e1b1f74bb4be01266185d4e.min.js"
       crossorigin="anonymous"
     ></script>
   </head>
   <body>
+    {{template "nav" .}}
+
     <h1>Search Results</h1>
 
     <a href="/" class="home-link">Go Home</a>
@@ -24,19 +28,21 @@
       <br />
       <button type="submit">Search</button>
     </form>
+
     <div id="results">
-      {{if .}}
-      <ul class="results">
-        {{range .}}
-        <li>
-          <strong>{{.Title}}</strong>
-          <a href="{{.Url}}" target="_blank">{{.Url}}</a>
-        </li>
-        {{end}}
-      </ul>
+      {{if .Results}}
+        <ul class="results">
+          {{range .Results}}
+            <li>
+              <strong>{{.Title}}</strong>
+              <a href="{{.Url}}" target="_blank">{{.Url}}</a>
+            </li>
+          {{end}}
+        </ul>
       {{else}}
-      <p class="no-results">No results found.</p>
+        <p class="no-results">No results found.</p>
       {{end}}
     </div>
   </body>
 </html>
+{{end}}

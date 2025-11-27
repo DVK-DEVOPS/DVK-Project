@@ -4,6 +4,7 @@ import (
 	"embed"
 	"html/template"
 	"net/http"
+	"path/filepath"
 
 	"github.com/getsentry/sentry-go"
 )
@@ -19,26 +20,32 @@ func captureAndRespond(w http.ResponseWriter, r *http.Request, err error, msg st
 }
 
 func RenderTemplate(w http.ResponseWriter, r *http.Request, filename string, data interface{}) {
-	// ensure data is always a map for template injection
+	// Ensure data is always a map for template injection
 	renderData, ok := data.(map[string]interface{})
 	if !ok || data == nil {
 		renderData = map[string]interface{}{}
 	}
 
-	// auto-inject session info
+	// Inject session info
 	user, logged := GetUserFromSession(r)
 	renderData["LoggedIn"] = logged
 	if logged {
 		renderData["User"] = user
 	}
 
-	tmpl, err := template.ParseFS(templatesFS, "templates/"+filename)
+	// Parse nav partial + the requested page
+	tmpl, err := template.ParseFS(templatesFS, "templates/nav.html", "templates/"+filename)
 	if err != nil {
-		captureAndRespond(w, r, err, "Template not found", http.StatusNotFound)
+		captureAndRespond(w, r, err, "Template parsing failed", http.StatusInternalServerError)
 		return
 	}
 
-	if err := tmpl.Execute(w, renderData); err != nil {
+	// Detect root template name from filename
+	rootName := filepath.Base(filename)
+	rootName = rootName[:len(rootName)-len(filepath.Ext(rootName))] // e.g., "search.html" → "search"
+
+	// Execute the root template
+	if err := tmpl.ExecuteTemplate(w, rootName, renderData); err != nil {
 		captureAndRespond(w, r, err, "Template rendering failed", http.StatusInternalServerError)
 	}
 }

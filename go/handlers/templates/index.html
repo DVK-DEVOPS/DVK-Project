@@ -1,27 +1,19 @@
+{{define "index"}}
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <title>DVK</title>
     <link rel="stylesheet" href="../static/index.css" />
+    <link rel="stylesheet" href="../static/nav.css" />
     <script
       src="https://js-de.sentry-cdn.com/34adec4d1e1b1f74bb4be01266185d4e.min.js"
       crossorigin="anonymous"
     ></script>
   </head>
   <body>
-    <div class="navigation">
-      <nav>
-        {{if .LoggedIn}}
-          <h1><a id="nav-logo" href="/">¿Who Knows?</a></h1>
-          <a id="nav-weather" href="/weather"> Check weather in Copenhagen</a>
-          <a id="nav-logout" href="/logout">Log out</a>
-        {{else}}
-          <h1><a id="nav-logo" href="/">¿Who Knows?</a></h1>
-          <a id="nav-login" href="/login">Log in</a>
-          <a id="nav-register" href="/register">Register</a>
-        {{end}}
-      </nav>
+      {{template "nav" .}}
+    <div class="area">
       <h1>DVK-Project</h1>
       <p>Search for java or 'c'</p>
       <form action="/search" method="get">
@@ -43,3 +35,4 @@
     </div>
   </body>
 </html>
+{{end}}

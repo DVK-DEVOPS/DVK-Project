@@ -1,0 +1,15 @@
+{{define "nav"}}
+<div class="navigation">
+  <nav>
+    {{if .LoggedIn}}
+      <h1><a id="nav-logo" href="/">¿Who Knows?</a></h1>
+      <a id="nav-weather" href="/weather">Check weather in Copenhagen</a>
+      <a id="nav-logout" href="/logout">Log out</a>
+    {{else}}
+      <h1><a id="nav-logo" href="/">¿Who Knows?</a></h1>
+      <a id="nav-login" href="/login">Log in</a>
+      <a id="nav-register" href="/register">Register</a>
+    {{end}}
+  </nav>
+</div>
+{{end}}

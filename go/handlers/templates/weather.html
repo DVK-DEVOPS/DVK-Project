@@ -1,15 +1,19 @@
+{{define "weather"}}
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <title>Weather Forecast</title>
     <link rel="stylesheet" href="/weather.css" />
+    <link rel="stylesheet" href="/nav.css" />
     <script
-      src="https://js-de.sentry-cdn.com/34adec4d1e1b1f74bb4be01266185d4e.min.js"
+      src="https://js-de.sentry-cdn.com/34adec4d1e1b1f74bbw4be01266185d4e.min.js"
       crossorigin="anonymous"
     ></script>
   </head>
   <body>
+    {{template "nav" .}}
     <h1>Weather conditions for the next 5 days in Copenhagen, Denmark</h1>
     <table>
       <thead>
@@ -31,3 +35,4 @@
     </table>
   </body>
 </html>
+{{end}}
