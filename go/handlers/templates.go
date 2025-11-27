@@ -19,13 +19,26 @@ func captureAndRespond(w http.ResponseWriter, r *http.Request, err error, msg st
 }
 
 func RenderTemplate(w http.ResponseWriter, r *http.Request, filename string, data interface{}) {
+	// ensure data is always a map for template injection
+	renderData, ok := data.(map[string]interface{})
+	if !ok || data == nil {
+		renderData = map[string]interface{}{}
+	}
+
+	// auto-inject session info
+	user, logged := GetUserFromSession(r)
+	renderData["LoggedIn"] = logged
+	if logged {
+		renderData["User"] = user
+	}
+
 	tmpl, err := template.ParseFS(templatesFS, "templates/"+filename)
 	if err != nil {
 		captureAndRespond(w, r, err, "Template not found", http.StatusNotFound)
 		return
 	}
 
-	if err := tmpl.Execute(w, data); err != nil {
+	if err := tmpl.Execute(w, renderData); err != nil {
 		captureAndRespond(w, r, err, "Template rendering failed", http.StatusInternalServerError)
 	}
 }
