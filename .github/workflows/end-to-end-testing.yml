@@ -1,0 +1,100 @@
+name: E2E Tests
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: app_db
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set environment variables
+        run: |
+          cp ./go/.env.example ./go/.env
+
+      - uses: actions/setup-go@v5
+
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Wait for Postgres to be ready
+        run: |
+          for i in {1..60}; do
+            if pg_isready -h localhost -p 5432 -U user; then
+              echo "Postgres ready"
+              break
+            fi
+            echo "$(date +'%T') Waiting for Postgres..."
+            sleep 2
+          done
+
+      - name: Execute schema.sql
+        run: |
+          echo "$(date +'%T') Applying schema.sql..."
+          PGPASSWORD=password psql -h localhost -U user -d app_db -f go/schema.sql
+
+      - name: Run backend 
+        working-directory: go
+        run: |
+          nohup go run main.go &
+
+      - uses: actions/setup-node@v4
+      - name: Install E2E dependencies
+        run: npm install
+        working-directory: go/test/e2e
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+        working-directory: go/test/e2e
+
+      - name: Run Playwright tests
+        run: npx playwright test
+        working-directory: go/test/e2e
+
+      - name: Upload E2E artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: E2E Tests
+          path: go/test/e2e/playwright-report/ 
+
+  deploy-pages:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: e2e
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: E2E Tests
+          path: ./site
+
+      - uses: actions/configure-pages@v4
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./site
+
+      - id: deploy
+        uses: actions/deploy-pages@v4
