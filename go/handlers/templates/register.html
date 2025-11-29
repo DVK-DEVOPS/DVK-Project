@@ -1,3 +1,5 @@
+{{define "register"}}
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -5,12 +7,15 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Sign up</title>
     <link rel="stylesheet" href="../static/register.css" />
+    <link rel="stylesheet" href="../static/nav.css" />
     <script
       src="https://js-de.sentry-cdn.com/34adec4d1e1b1f74bb4be01266185d4e.min.js"
       crossorigin="anonymous"
     ></script>
   </head>
   <body>
+      {{template "nav" .}}
+
     <h2 class="title">Sign up</h2>
     {{if .Error}}
     <div class="error"><strong>Error:</strong>{{.Error}}</div>
@@ -56,3 +61,4 @@
     </form>
   </body>
 </html>
+{{end}}

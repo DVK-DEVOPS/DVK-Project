@@ -1,0 +1,35 @@
+.navigation {
+  background: #fff;
+}
+
+nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+nav a,
+#nav-logo {
+  text-decoration: none;
+  font-size: 16px;
+  color: #333;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+}
+
+#nav-logo {
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.footer {
+  margin-top: 40px;
+  padding: 20px;
+  text-align: center;
+  font-size: 14px;
+  background: #fff;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
+}

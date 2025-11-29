@@ -1,3 +1,5 @@
+{{define "about"}}
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -6,15 +8,18 @@
     <title>About</title>
     <link rel="stylesheet" href="../static/btns.css" />
     <link rel="stylesheet" href="../static/about.css" />
+    <link rel="stylesheet" href="../static/nav.css" />
     <script
       src="https://js-de.sentry-cdn.com/34adec4d1e1b1f74bb4be01266185d4e.min.js"
       crossorigin="anonymous"
     ></script>
   </head>
   <body>
+      {{template "nav" .}}
     <main class="wrap">
       <h1>Our Team</h1>
       <img src="../static/monkgroup.png" alt="monk group our team" />
     </main>
   </body>
 </html>
+{{end}}
