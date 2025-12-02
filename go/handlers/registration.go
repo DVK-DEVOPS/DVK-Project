@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/getsentry/sentry-go"
 )
@@ -37,7 +38,10 @@ func (rc *RegistrationController) ShowRegistrationPage(w http.ResponseWriter, r 
 // @Failure 422 {object} models.HTTPValidationError "Validation error"
 // @Router /api/register [post]
 func (rc *RegistrationController) Register(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	isBrowser := strings.Contains(r.Header.Get("Accept"), "text/html")
+	if !isBrowser {
+		w.Header().Set("Content-Type", "application/json")
+	}
 
 	if err := r.ParseForm(); err != nil {
 		if hub := sentry.GetHubFromContext(r.Context()); hub != nil {
@@ -154,6 +158,13 @@ func (rc *RegistrationController) Register(w http.ResponseWriter, r *http.Reques
 	}
 
 	w.WriteHeader(http.StatusOK)
+	if isBrowser {
+		// Browser clients: redirect to home after successful registration.
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
+	// API clients: respond with JSON as defined in the OpenAPI spec.
 	if err := json.NewEncoder(w).Encode(models.AuthResponse{
 		StatusCode: http.StatusOK,
 		Message:    fmt.Sprintf("User created with ID %d", id),
