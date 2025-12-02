@@ -39,7 +39,7 @@ func (rc *RegistrationController) ShowRegistrationPage(w http.ResponseWriter, r 
 // @Router /api/register [post]
 func (rc *RegistrationController) Register(w http.ResponseWriter, r *http.Request) {
 	accept := r.Header.Get("Accept")
-	isBrowser := !strings.Contains(accept, "application/json")
+	isBrowser := strings.Contains(accept, "text/html")
 	if !isBrowser {
 		w.Header().Set("Content-Type", "application/json")
 	}
