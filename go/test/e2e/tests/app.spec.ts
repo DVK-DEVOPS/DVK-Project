@@ -23,12 +23,14 @@ test("navigation works", async ({ page }) => {
 });
 
 test("register validation", async ({ page }) => {
+  const uid = Date.now().toString()
+
   await page.goto("/register");
   await page.getByRole('link', { name: 'Register' }).click();
   await page.locator('input[name="username"]').click();
-  await page.locator('input[name="username"]').fill('test23343');
+  await page.locator('input[name="username"]').fill('test_${uid}');
   await page.locator('input[name="email"]').click();
-  await page.locator('input[name="email"]').fill('test23323@test.com');
+  await page.locator('input[name="email"]').fill('test_${uid}@test.com');
   await page.locator('input[name="password"]').click();
   await page.locator('input[name="password"]').fill('test33');
   await page.locator('input[name="password2"]').click();
