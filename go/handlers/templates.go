@@ -20,10 +20,17 @@ func captureAndRespond(w http.ResponseWriter, r *http.Request, err error, msg st
 }
 
 func RenderTemplate(w http.ResponseWriter, r *http.Request, filename string, data interface{}) {
-	// Ensure data is always a map for template injection
-	renderData, ok := data.(map[string]interface{})
-	if !ok || data == nil {
-		renderData = map[string]interface{}{}
+	// Always build a map for template injection
+	renderData := map[string]interface{}{}
+
+	// If caller already passed a map, copy it in
+	if dataMap, ok := data.(map[string]interface{}); ok && dataMap != nil {
+		for k, v := range dataMap {
+			renderData[k] = v
+		}
+	} else if data != nil {
+		// Otherwise, wrap the data under a generic key
+		renderData["Data"] = data
 	}
 
 	// Inject session info
