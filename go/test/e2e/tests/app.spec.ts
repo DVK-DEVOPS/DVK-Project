@@ -24,27 +24,30 @@ test("navigation works", async ({ page }) => {
 
 test("register validation", async ({ page }) => {
   const uid = Date.now().toString();
-
   await page.goto("/register");
-  await page.locator('input[name="username"]').click();
   await page.locator('input[name="username"]').fill(`test_${uid}`);
-  await page.locator('input[name="email"]').click();
   await page.locator('input[name="email"]').fill(`test_${uid}@test.com`);
-  await page.locator('input[name="password"]').click();
   await page.locator('input[name="password"]').fill("test33");
-  await page.locator('input[name="password2"]').click();
   await page.locator('input[name="password2"]').fill("test33");
   await page.getByRole("button", { name: "Sign up" }).click();
-  await page.waitForSelector('input[placeholder="Search..."]', {
-    state: "visible",
-  });
+  await page.waitForURL("/");
   await expect(page.getByRole("textbox", { name: "Search..." })).toBeVisible();
 });
 
 test("login flow", async ({ page }) => {
+  const uid = Date.now().toString();
+  await page.goto("/register");
+  await page.locator('input[name="username"]').fill(`u${uid}`);
+  await page.locator('input[name="email"]').fill(`u${uid}@t.com`);
+  await page.locator('input[name="password"]').fill("test33");
+  await page.locator('input[name="password2"]').fill("test33");
+  await page.getByRole("button", { name: "Sign up" }).click();
+  await page.waitForURL("/");
+
   await page.goto("/login");
-  await page.locator('input[name="username"]').fill("test");
-  await page.locator('input[name="password"]').fill("test");
+  await page.locator('input[name="username"]').fill(`u${uid}`);
+  await page.locator('input[name="password"]').fill("test33");
   await page.getByRole("button", { name: "Log in" }).click();
+
   await expect(page.getByRole("textbox", { name: "Search..." })).toBeVisible();
 });
