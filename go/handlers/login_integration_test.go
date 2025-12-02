@@ -56,6 +56,7 @@ func TestLoginIntegrationSuccess(t *testing.T) {
 		t.Fatalf("decode failed: %v", err)
 	}
 	if resp.StatusCode != 3070 {
+		t.Errorf("expected StatusCode 3070, got %d", resp.StatusCode)
 	}
 }
 
