@@ -122,6 +122,7 @@ func (lh *LoginHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 // @Router /api/login [post]
 func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 	isBrowser := strings.Contains(r.Header.Get("Accept"), "text/html")
+	w.Header().Set("Content-Type", "application/json")
 
 	var username, password string
 
@@ -148,22 +149,9 @@ func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 	username = strings.TrimSpace(username)
 	password = strings.TrimSpace(password)
 
-	if lh.UserRepository.CheckIfUseris_inactive(username) { //Is user inactive by security breach?
+	if lh.UserRepository.CheckIfUseris_inactive(username) {
 		fmt.Println("(Login.go)Checking if user is inactive by security breach.")
-		if isBrowser {
-			fmt.Println("(Login.go) !INACTIVE! User is accessing through browser. Trying redirect.")
-			http.SetCookie(w, &http.Cookie{
-				Name:     "password_reset_user",
-				Value:    username,
-				Path:     "/",
-				HttpOnly: true,
-				Secure:   true, //Not able to test on http localhost
-				MaxAge:   600,
-			})
-			http.Redirect(w, r, "/password-reset", http.StatusFound)
-			return
-		}
-		fmt.Println("(Login.go) !INACTIVE! User is accessing via api and json")
+		fmt.Println("(Login.go) !INACTIVE! User is inactive, requiring password reset")
 		w.WriteHeader(http.StatusForbidden)
 		_ = json.NewEncoder(w).Encode(map[string]any{
 			"error": "Password reset required",
@@ -209,13 +197,11 @@ func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	if !ok {
 		w.WriteHeader(http.StatusUnprocessableEntity)
-		if !isBrowser {
-			_ = json.NewEncoder(w).Encode(models.HTTPValidationError{
-				Detail: []models.ValidationErrorDetail{
-					{Loc: []interface{}{"body", "credentials"}, Msg: "Invalid credentials", Type: "validation_error"},
-				},
-			})
-		}
+		_ = json.NewEncoder(w).Encode(models.HTTPValidationError{
+			Detail: []models.ValidationErrorDetail{
+				{Loc: []interface{}{"body", "credentials"}, Msg: "Invalid credentials", Type: "validation_error"},
+			},
+		})
 		return
 	}
 
@@ -233,7 +219,6 @@ func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	_ = json.NewEncoder(w).Encode(models.AuthResponse{
 		StatusCode: 3070,
