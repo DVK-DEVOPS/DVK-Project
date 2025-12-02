@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"net/http"
 	"path/filepath"
+	"time"
 
 	"github.com/getsentry/sentry-go"
 )
@@ -39,9 +40,10 @@ func RenderTemplate(w http.ResponseWriter, r *http.Request, filename string, dat
 	if logged {
 		renderData["User"] = user
 	}
+	renderData["CurrentYear"] = time.Now().Year()
 
 	// Parse nav partial + the requested page
-	tmpl, err := template.ParseFS(templatesFS, "templates/nav.html", "templates/"+filename)
+	tmpl, err := template.ParseFS(templatesFS, "templates/nav.html", "templates/footer.html", "templates/"+filename)
 	if err != nil {
 		captureAndRespond(w, r, err, "Template parsing failed", http.StatusInternalServerError)
 		return
