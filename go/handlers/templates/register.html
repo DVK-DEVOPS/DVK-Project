@@ -14,51 +14,59 @@
     ></script>
   </head>
   <body>
-      {{template "nav" .}}
+    {{template "nav" .}}
+    <main class="wrap">
+      <section class="card">
+        <h2 class="title">Sign up</h2>
+        {{if .Error}}
+        <div class="error"><strong>Error:</strong> {{.Error}}</div>
+        {{end}}
+        <form method="post" action="/api/register" class="form">
+          <dl>
+            <dt>Username:</dt>
+            <dd>
+              <input
+                class="input"
+                type="text"
+                name="username"
+                size="30"
+                value="{{ .Username }}"
+              />
+            </dd>
 
-    <h2 class="title">Sign up</h2>
-    {{if .Error}}
-    <div class="error"><strong>Error:</strong>{{.Error}}</div>
-    {{end}}
-    <form method="post" action="/api/register" class="form">
-      <dl>
-        <dt>Username:</dt>
-        <dd>
-          <input
-            class="input"
-            type="text"
-            name="username"
-            size="30"
-            value="{{ .Username }}"
-          />
-        </dd>
+            <dt>Email:</dt>
+            <dd>
+              <input
+                class="input"
+                type="email"
+                name="email"
+                size="30"
+                value="{{ .Email }}"
+              />
+            </dd>
 
-        <dt>Email:</dt>
-        <dd>
-          <input
-            class="input"
-            type="email"
-            name="email"
-            size="30"
-            value="{{ .Email }}"
-          />
-        </dd>
+            <dt>Password:</dt>
+            <dd>
+              <input class="input" type="password" name="password" size="30" />
+            </dd>
 
-        <dt>Password:</dt>
-        <dd>
-          <input class="input" type="password" name="password" size="30" />
-        </dd>
-
-        <dt>Confirm Password:</dt>
-        <dd>
-          <input class="input" type="password" name="password2" size="30" />
-        </dd>
-      </dl>
-      <div class="actions">
-        <button class="btn primary" type="submit">Sign up</button>
-        <a class="btn ghost" href="/login">Already have an account?</a>
-      </div>
-    </form>
+            <dt>Confirm Password:</dt>
+            <dd>
+              <input
+                class="input"
+                type="password"
+                name="password2"
+                size="30"
+              />
+            </dd>
+          </dl>
+          <div class="actions">
+            <button class="btn primary" type="submit">Sign up</button>
+            <a class="btn ghost" href="/login">Already have an account?</a>
+          </div>
+        </form>
+      </section>
+    </main>
     <footer class="footer">
       <span>¿Who Knows? &copy; {{.CurrentYear}}</span>
       <a href="/about">About</a>
