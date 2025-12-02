@@ -229,12 +229,10 @@ func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if isBrowser {
-		// Browser clients: redirect to home after successful login.
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 
-	// API clients: respond with JSON as defined in the OpenAPI spec.
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	_ = json.NewEncoder(w).Encode(models.AuthResponse{

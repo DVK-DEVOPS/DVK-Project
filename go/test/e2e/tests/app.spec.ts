@@ -24,9 +24,20 @@ test("navigation works", async ({ page }) => {
 
 test("register validation", async ({ page }) => {
   await page.goto("/register");
-  await page.getByRole("button", { name: "Sign up" }).click();
+  await page.getByRole('link', { name: 'Register' }).click();
+  await page.locator('input[name="username"]').click();
+  await page.locator('input[name="username"]').fill('test23343');
+  await page.locator('input[name="email"]').click();
+  await page.locator('input[name="email"]').fill('test23323@test.com');
+  await page.locator('input[name="password"]').click();
+  await page.locator('input[name="password"]').fill('test33');
+  await page.locator('input[name="password2"]').click();
+  await page.locator('input[name="password2"]').fill('test33');
+  await page.getByRole('button', { name: 'Sign up' }).click();
   await expect(page.getByRole("textbox", { name: "Search..." })).toBeVisible();
+
 });
+
 
 test("login flow", async ({ page }) => {
   await page.goto("/login");
