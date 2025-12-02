@@ -23,6 +23,7 @@ env:
   GF_ADMIN_PASSWORD: ${{secrets.GF_ADMIN_PASSWORD}}
   HEALTHCHECK_URL: "https://${{ secrets.DVK_URL }}/api/health"
   MONITORING_VM_IP: ${{secrets.MONITORING_VM_PRIVATE_IP}}
+  SESSION_KEY: ${{secrets.SESSION_KEY}}
 permissions:
   contents: read
   packages: read
@@ -79,7 +80,7 @@ jobs:
             export SENTRY_DSN=${{env.SENTRY_DSN}}
             export SENTRY_ENV=${{env.SENTRY_ENV}}
             export GF_ADMIN_PASSWORD=${{env.GF_ADMIN_PASSWORD}}
-            
+            export SESSION_KEY=${{env.SESSION_KEY}}
 
             echo "Pulling latest Docker images..."
             sudo -E docker compose -f docker-compose.prod.yml pull

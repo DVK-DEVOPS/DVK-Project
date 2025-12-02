@@ -6,13 +6,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/getsentry/sentry-go"
 	"github.com/gorilla/securecookie"
 )
 
-var hashKey = []byte("secure-key")
+var hashKey = []byte(os.Getenv("SESSION_KEY"))
 var s = securecookie.New(hashKey, nil)
 
 type LoginHandler struct {
