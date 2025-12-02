@@ -25,7 +25,7 @@ test("navigation works", async ({ page }) => {
 test("register validation", async ({ page }) => {
   await page.goto("/register");
   await page.getByRole("button", { name: "Sign up" }).click();
-  await expect(page.getByText('{"detail":[{"loc":["body","')).toBeVisible();
+  await expect(page.getByRole("textbox", { name: "Search..." })).toBeVisible();
 });
 
 test("login flow", async ({ page }) => {
@@ -33,5 +33,5 @@ test("login flow", async ({ page }) => {
   await page.locator('input[name="username"]').fill("test");
   await page.locator('input[name="password"]').fill("test");
   await page.getByRole("button", { name: "Log in" }).click();
-  await expect(page.getByText('{"detail":[{"loc":["body","')).toBeVisible();
+  await expect(page.getByRole("textbox", { name: "Search..." })).toBeVisible();
 });
