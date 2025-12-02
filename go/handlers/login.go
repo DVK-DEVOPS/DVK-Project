@@ -6,13 +6,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/getsentry/sentry-go"
 	"github.com/gorilla/securecookie"
 )
 
-var hashKey = []byte("secure-key")
+var hashKey = []byte(os.Getenv("SESSION_KEY"))
 var s = securecookie.New(hashKey, nil)
 
 type LoginHandler struct {
@@ -122,8 +123,6 @@ func (lh *LoginHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 	isBrowser := strings.Contains(r.Header.Get("Accept"), "text/html")
 
-	w.Header().Set("Content-Type", "application/json")
-
 	var username, password string
 
 	_ = r.ParseForm()
@@ -210,11 +209,13 @@ func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	if !ok {
 		w.WriteHeader(http.StatusUnprocessableEntity)
-		_ = json.NewEncoder(w).Encode(models.HTTPValidationError{
-			Detail: []models.ValidationErrorDetail{
-				{Loc: []interface{}{"body", "credentials"}, Msg: "Invalid credentials", Type: "validation_error"},
-			},
-		})
+		if !isBrowser {
+			_ = json.NewEncoder(w).Encode(models.HTTPValidationError{
+				Detail: []models.ValidationErrorDetail{
+					{Loc: []interface{}{"body", "credentials"}, Msg: "Invalid credentials", Type: "validation_error"},
+				},
+			})
+		}
 		return
 	}
 
@@ -227,6 +228,12 @@ func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 	})
 
+	if isBrowser {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	_ = json.NewEncoder(w).Encode(models.AuthResponse{
 		StatusCode: 3070,

@@ -14,35 +14,42 @@
   <body>
     {{template "nav" .}}
 
-    <h1>Search Results</h1>
+    <main class="wrap">
+      <h1>Search Results</h1>
 
-    <a href="/" class="home-link">Go Home</a>
+      <a href="/" class="home-link">Go Home</a>
 
-    <form action="/search" method="get" class="search-form">
-      <input type="text" name="q" placeholder="Search..." id="search-input" />
-      <label for="language">Choose a language</label>
-      <select name="language" id="language" class="search-select">
-        <option value="en">English</option>
-        <option value="ro">Romanian</option>
-      </select>
-      <br />
-      <button type="submit">Search</button>
-    </form>
+      <form action="/search" method="get" class="search-form">
+        <input type="text" name="q" placeholder="Search..." id="search-input" />
+        <div class="search-row">
+          <label for="language">Choose a language</label>
+          <select name="language" id="language" class="search-select">
+            <option value="en">English</option>
+            <option value="ro">Romanian</option>
+          </select>
+          <button type="submit" class="search-btn" id="search-button">Search</button>
+        </div>
+      </form>
 
-    <div id="results">
-      {{if .Results}}
-        <ul class="results">
-          {{range .Results}}
-            <li>
-              <strong>{{.Title}}</strong>
-              <a href="{{.Url}}" target="_blank">{{.Url}}</a>
-            </li>
-          {{end}}
-        </ul>
-      {{else}}
-        <p class="no-results">No results found.</p>
-      {{end}}
-    </div>
+      <div id="results">
+        {{if .Results}}
+          <ul class="results">
+            {{range .Results}}
+              <li>
+                <strong>{{.Title}}</strong>
+                <a href="{{.Url}}" target="_blank">{{.Url}}</a>
+              </li>
+            {{end}}
+          </ul>
+        {{else}}
+          <p class="no-results">No results found.</p>
+        {{end}}
+      </div>
+    </main>
+    <footer class="footer">
+      <span>¿Who Knows? &copy; {{.CurrentYear}}</span>
+      <a href="/about">About</a>
+    </footer>
   </body>
 </html>
 {{end}}

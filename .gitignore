@@ -203,3 +203,5 @@ override.tf.json
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
+combined_course_markdown.md
+documentation/devops_course_code_review.md

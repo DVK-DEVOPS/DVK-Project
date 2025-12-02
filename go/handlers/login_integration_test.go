@@ -51,15 +51,12 @@ func TestLoginIntegrationSuccess(t *testing.T) {
 	if w.Code != http.StatusOK {
 		t.Errorf("expected 200, got %d", w.Code)
 	}
-
 	var resp models.AuthResponse
-	_ = json.NewDecoder(w.Body).Decode(&resp)
-	if resp.StatusCode != 3070 {
-		t.Errorf("expected StatusCode 3070, got %d", resp.StatusCode)
-	}
-
 	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
 		t.Fatalf("decode failed: %v", err)
+	}
+	if resp.StatusCode != 3070 {
+		t.Errorf("expected StatusCode 3070, got %d", resp.StatusCode)
 	}
 }
 

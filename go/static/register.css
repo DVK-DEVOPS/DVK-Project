@@ -1,32 +1,37 @@
-body {
-  font-family: Arial, sans-serif;
-  background: #fafafa;
-  text-align: center;
+.wrap {
+  max-width: 420px;
+  margin: 100px auto;
 }
 
-.title {
-  font-size: 28px;
-  margin-bottom: 20px;
-}
-
-.wrap,
-.form {
-  max-width: 440px;
-  margin: 0 auto;
+.card {
   background: #fff;
-  padding: 35px 40px;
+  padding: 40px;
   border-radius: 14px;
   box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
 }
 
+.title {
+  font-size: 26px;
+  margin-bottom: 20px;
+}
+
+dl {
+  margin-bottom: 20px;
+}
+
+dt {
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
 .input,
 input[type="text"],
-input[type="password"] {
+input[type="password"],
+input[type="email"] {
   width: 100%;
   padding: 12px;
   border-radius: 8px;
   border: 1px solid #ccc;
-  margin-bottom: 15px;
   box-sizing: border-box;
 }
 
@@ -40,9 +45,10 @@ input[type="password"] {
 .btn.primary {
   background: #333;
   color: #fff;
-  padding: 12px;
+  padding: 12px 20px;
   border-radius: 8px;
   border: none;
+  width: 100%;
   cursor: pointer;
 }
 
@@ -51,6 +57,7 @@ input[type="password"] {
   border-radius: 8px;
   border: 1px solid #333;
   background: transparent;
+  text-align: center;
   cursor: pointer;
 }
 

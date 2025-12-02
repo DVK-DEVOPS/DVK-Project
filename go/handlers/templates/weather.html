@@ -24,7 +24,7 @@
         </tr>
       </thead>
       <tbody>
-        {{range .}}
+        {{range .Data}}
         <tr>
           <td>{{.Date}}</td>
           <td>{{printf "%.1f" .Temperature}}</td>
@@ -33,6 +33,10 @@
         {{end}}
       </tbody>
     </table>
+    <footer class="footer">
+      <span>¿Who Knows? &copy; {{.CurrentYear}}</span>
+      <a href="/about">About</a>
+    </footer>
   </body>
 </html>
 {{end}}
