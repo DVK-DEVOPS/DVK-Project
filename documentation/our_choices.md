@@ -64,12 +64,4 @@ One of the advantages we experienced is that the workflow is familiar and simple
 
 The disadvantage we encountered was that even small fixes must go through a pull request, which slows down the process. Also, the pull request templates can feel a bit annoying to fill in for quick changes.
 
-After you have setup a these code quality tools and gone through the issues, your group should create a brief document that answers the following questions:
 
-# Do you agree with the findings?
-
-# Which ones did you fix?
-
-# Which ones did you ignore?
-
-# Why?
