@@ -15,9 +15,9 @@
 
 ### 2. How well it should run
 
-- **Uptime**: We aim for about **99.5%** uptime each month.
-- **Speed**: Under normal internet, our site should load fast.
-- **Backups**: We back up data at least **once a day** and keep backups for about **7 days**.
+- **Uptime**: We aim for about **95.5%** uptime.
+- **Speed**: Under normal internet, our site should load fast within **1 second**.
+- **Backups**: We utilize Azure Backup Services for our database.
 
 ---
 
@@ -36,10 +36,12 @@
 
 - We use logins and secure cookie sessions so only the right people can access their accounts.
 - We use **HTTPS** so data between the user and the app is encrypted.
+- We use Dependabot, Code Scannning in our repository to ensure dependencies are updated regularly.
+- We use fail2ban and SSH to securly login to the servers.
 
 ---
 
 ### 5. Rules and privacy
 
 - We try to follow relevant privacy and data protection rules.
-- If the project ever ends, we aim to delete or anonymize user data within a reasonable time, unless we legally have to keep it.
+- If the project ever ends, we aim to delete or anonymize user data after 10th of January 2026.
