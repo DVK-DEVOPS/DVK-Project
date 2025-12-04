@@ -151,7 +151,22 @@ func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	if lh.UserRepository.CheckIfUseris_inactive(username) {
 		fmt.Println("(Login.go)Checking if user is inactive by security breach.")
+		if isBrowser {
+			fmt.Println("(Login.go) !INACTIVE! User is accessing through browser. Trying redirect.")
+			http.SetCookie(w, &http.Cookie{
+				Name:     "password_reset_user",
+				Value:    username,
+				Path:     "/",
+				HttpOnly: true,
+				Secure:   true, //Not able to test on http localhost
+				MaxAge:   600,
+			})
+			http.Redirect(w, r, "/password-reset", http.StatusFound)
+			return
+		}
+		
 		fmt.Println("(Login.go) !INACTIVE! User is inactive, requiring password reset")
+		
 		w.WriteHeader(http.StatusForbidden)
 		_ = json.NewEncoder(w).Encode(map[string]any{
 			"error": "Password reset required",
