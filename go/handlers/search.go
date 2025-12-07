@@ -81,7 +81,7 @@ func (sc *SearchController) SearchAPI(w http.ResponseWriter, req *http.Request) 
 	}
 
 	logging.Log.Info().
-		Str("event", "search_performed").
+		Str("event", "search_api_performed").
 		Str("query", searchStr).
 		Msg("")
 
