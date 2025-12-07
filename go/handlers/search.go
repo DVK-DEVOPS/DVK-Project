@@ -80,6 +80,11 @@ func (sc *SearchController) SearchAPI(w http.ResponseWriter, req *http.Request) 
 		return
 	}
 
+	logging.Log.Info().
+		Str("event", "search_performed").
+		Str("query", searchStr).
+		Msg("")
+
 	span := sentry.StartSpan(req.Context(), "db.query",
 		sentry.WithDescription("FindSearchResults"))
 	results, err := sc.PageRepository.FindSearchResults(searchStr, language)
