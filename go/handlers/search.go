@@ -80,11 +80,6 @@ func (sc *SearchController) SearchAPI(w http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	logging.Log.Info().
-		Str("event", "search_api_performed").
-		Str("query", searchStr).
-		Msg("")
-
 	span := sentry.StartSpan(req.Context(), "db.query",
 		sentry.WithDescription("FindSearchResults"))
 	results, err := sc.PageRepository.FindSearchResults(searchStr, language)
@@ -100,6 +95,11 @@ func (sc *SearchController) SearchAPI(w http.ResponseWriter, req *http.Request) 
 	response := map[string]interface{}{
 		"data": results,
 	}
+
+	logging.Log.Info().
+		Str("event", "search_api_performed").
+		Str("query", searchStr).
+		Msg("")
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(response); err != nil {
