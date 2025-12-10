@@ -20,8 +20,10 @@ The requirements to run this project will be reflected in the [requirements.txt]
 
 ## Github Actions
 
-[![Deploy to Azure VM](https://github.com/DVK-DEVOPS/DVK-Project/actions/workflows/azure.yml/badge.svg)](https://github.com/DVK-DEVOPS/DVK-Project/actions/workflows/azure.yml)
+[![Continuous Delivery](https://github.com/DVK-DEVOPS/DVK-Project/actions/workflows/continuous_delivery.yml/badge.svg)](https://github.com/DVK-DEVOPS/DVK-Project/actions/workflows/continuous_delivery.yml)
+[![Continuous Deployment](https://github.com/DVK-DEVOPS/DVK-Project/actions/workflows/continuous_deployment.yml/badge.svg)](https://github.com/DVK-DEVOPS/DVK-Project/actions/workflows/continuous_deployment.yml)
 [![Scheduled Health Check](https://github.com/DVK-DEVOPS/DVK-Project/actions/workflows/health.yml/badge.svg)](https://github.com/DVK-DEVOPS/DVK-Project/actions/workflows/health.yml)
+[![Tests](https://github.com/DVK-DEVOPS/DVK-Project/actions/workflows/tests.yml/badge.svg)](https://github.com/DVK-DEVOPS/DVK-Project/actions/workflows/tests.yml)
 [![Golangci Lint](https://github.com/DVK-DEVOPS/DVK-Project/actions/workflows/golangci_lint.yml/badge.svg)](https://github.com/DVK-DEVOPS/DVK-Project/actions/workflows/golangci_lint.yml)
 [![Hadolint Dockerfile](https://github.com/DVK-DEVOPS/DVK-Project/actions/workflows/hadolint.yml/badge.svg)](https://github.com/DVK-DEVOPS/DVK-Project/actions/workflows/hadolint.yml)
 
