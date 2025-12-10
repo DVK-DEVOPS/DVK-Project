@@ -1,5 +1,5 @@
 discovery.docker "containers" {
-h ost = "unix:///var/run/docker.sock"
+host = "unix:///var/run/docker.sock"
 }
 
 discovery.relabel "containers" {
