@@ -4,7 +4,12 @@ The DVK Project is a mirror repository of Whoknows Variations for use during the
 
 The goal is to rewrite a legacy project using traditional DevOps tools and adhering to DevOps principles.
 
-The requirements to run this project will be reflected in the [requirements.txt](path/to/requirements.txt) which will be authored later.
+## Requirements
+
+* Go 1.25
+* Gorilla Mux 1.8.1
+* Postgres driver: lib/pq 1.10.9
+
 
 ## Notable Content
 
