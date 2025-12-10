@@ -68,11 +68,13 @@ func Middleware(next http.Handler) http.Handler {
 }
 
 // Handler returns the /metrics http.Handler
-// @Summary Metrics
-// @Description retunrs metrics from promhttp
-// @Produce text/html
-// @Success 200 {object} models.AuthResponse "Successful"
-// @Router /metrics [get]
+//
+//		@Summary		Metrics
+//		@Description	retunrs metrics from promhttp
+//		@Produce		text/html
+//	 @Tags 			metrics
+//		@Success		200	{object}	models.AuthResponse	"Successful"
+//		@Router			/metrics [get]
 func Handler() http.Handler {
 	return promhttp.Handler()
 }

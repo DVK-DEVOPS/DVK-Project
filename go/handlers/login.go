@@ -21,13 +21,14 @@ type LoginHandler struct {
 }
 
 // ShowLogin
-// @Summary Show login page
-// @Description Displays the login page
-// @Tags users
-// @Produce text/html
-// @Success 200 {string} string "Successful"
-// @Failure 404 {string} string "Error"
-// @Router /login [get]
+//
+//	@Summary		Show login page
+//	@Description	Displays the login page
+//	@Tags			users
+//	@Produce		text/html
+//	@Success		200	{string}	string	"Successful"
+//	@Failure		404	{string}	string	"Error"
+//	@Router			/login [get]
 func (lh *LoginHandler) ShowLogin(w http.ResponseWriter, r *http.Request) {
 	RenderTemplate(w, r, "login.html", nil)
 }
@@ -110,16 +111,17 @@ func (lh *LoginHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 }
 
 // Login authenticates a user with username and password.
-// @Summary Login
-// @Description Authenticates a user using username and password
-// @Tags users
-// @Accept application/x-www-form-urlencoded
-// @Produce application/json
-// @Param username formData string true "username"
-// @Param password formData string true "password"
-// @Success 200 {object} models.AuthResponse "Successful registration"
-// @Failure 422 {object} models.HTTPValidationError "Validation error"
-// @Router /api/login [post]
+//
+//	@Summary		Login
+//	@Description	Authenticates a user using username and password
+//	@Tags			users
+//	@Accept			application/x-www-form-urlencoded
+//	@Produce		application/json
+//	@Param			username	formData	string						true	"username"
+//	@Param			password	formData	string						true	"password"
+//	@Success		200			{object}	models.AuthResponse			"Successful registration"
+//	@Failure		422			{object}	models.HTTPValidationError	"Validation error"
+//	@Router			/api/login [post]
 func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 	isBrowser := strings.Contains(r.Header.Get("Accept"), "text/html")
 	w.Header().Set("Content-Type", "application/json")
@@ -164,9 +166,9 @@ func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/password-reset", http.StatusFound)
 			return
 		}
-		
+
 		fmt.Println("(Login.go) !INACTIVE! User is inactive, requiring password reset")
-		
+
 		w.WriteHeader(http.StatusForbidden)
 		_ = json.NewEncoder(w).Encode(map[string]any{
 			"error": "Password reset required",
@@ -242,12 +244,13 @@ func (lh *LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 // Logout logs the user out by clearing the session cookie.
-// @Summary Logout
-// @Description Logs the user out by deleting the session cookie and redirects to login page
-// @Tags users
-// @Produce text/html
-// @Success 200 {object} models.AuthResponse "Successful logout"
-// @Router /logout [get]
+//
+//	@Summary		Logout
+//	@Description	Logs the user out by deleting the session cookie and redirects to login page
+//	@Tags			users
+//	@Produce		text/html
+//	@Success		200	{object}	models.AuthResponse	"Successful logout"
+//	@Router			/logout [get]
 func (lh *LoginHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "session",

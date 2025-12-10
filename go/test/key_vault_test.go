@@ -2,39 +2,62 @@ package test
 
 import (
 	"DVK-Project/config"
-	"log"
 	"os"
+	"path/filepath"
 	"testing"
+
+	"github.com/joho/godotenv"
 )
 
-// TestGetSecret ensures secrets are fetched either from env or Azure Key Vault.
-func TestGetSecret(t *testing.T) {
-	// Expected environment variable names
-	vaultEnv := "AZURE_KEYVAULT_NAME"
-	apiSecretEnv := "API_KEY_SECRET_NAME"
-	dbSecretEnv := "DB_URL_SECRET_NAME"
+func TestGetSecret_ReturnsEnvVar(t *testing.T) {
+	os.Setenv("TEST_SECRET_ENV", "xyz123")
+	defer os.Unsetenv("TEST_SECRET_ENV")
 
-	vaultName := os.Getenv(vaultEnv)
-	apiSecretName := os.Getenv(apiSecretEnv)
-	dbSecretName := os.Getenv(dbSecretEnv)
+	val := config.GetSecret("TEST_SECRET_ENV", "", "")
+	if val != "xyz123" {
+		t.Fatalf("expected xyz123, got %q", val)
+	}
+}
 
-	// If vault info missing, skip (e.g., in CI without Azure creds)
-	if vaultName == "" || apiSecretName == "" || dbSecretName == "" {
-		t.Skipf("Skipping test: missing required env vars (%s, %s, %s)",
-			vaultEnv, apiSecretEnv, dbSecretEnv)
+func TestGetSecret_CachesEnvVar(t *testing.T) {
+	// Use a unique env var name so sync.Once does not conflict with other tests.
+	os.Setenv("TEST_SECRET_CACHE", "first")
+	defer os.Unsetenv("TEST_SECRET_CACHE")
+
+	first := config.GetSecret("TEST_SECRET_CACHE", "", "")
+	if first != "first" {
+		t.Fatalf("unexpected first value: %q", first)
 	}
 
-	// --- Test API Key Secret ---
-	apiKey := config.GetSecret("API_KEY", vaultName, apiSecretName)
-	if apiKey == "" {
-		t.Fatalf("Expected non-empty API key for %s", apiSecretEnv)
-	}
-	log.Printf("✅ Successfully fetched API key secret (%d chars)", len(apiKey))
+	// overwrite env var – should NOT change result due to caching
+	os.Setenv("TEST_SECRET_CACHE", "second")
 
-	// --- Test DB URL Secret ---
-	dbURL := config.GetSecret("DB_URL", vaultName, dbSecretName)
-	if dbURL == "" {
-		t.Fatalf("Expected non-empty DB URL for %s", dbSecretEnv)
+	second := config.GetSecret("TEST_SECRET_CACHE", "", "")
+	if second != "first" {
+		t.Fatalf("expected cached 'first', got %q", second)
 	}
-	log.Printf("✅ Successfully fetched DB URL secret (%d chars)", len(dbURL))
+}
+
+func TestGetSecret_Integration_KeyVault(t *testing.T) {
+	envPath := filepath.Join("..", ".env")
+	if err := godotenv.Load(envPath); err != nil {
+		t.Logf("Warning: .env not loaded from %s, relying on actual environment", envPath)
+	}
+
+	vault := os.Getenv("AZURE_KEYVAULT_NAME")
+	secretName := os.Getenv("API_KEY_SECRET_NAME")
+	expected := os.Getenv("API_KEY")
+
+	if vault == "" || secretName == "" || expected == "" {
+		t.Skip("Skipping Key Vault test — missing AZURE_KEYVAULT_NAME, API_KEY_SECRET_NAME, API_KEY")
+	}
+
+	// Ensure no env override exists
+	os.Unsetenv(secretName)
+
+	val := config.GetSecret(secretName, vault, secretName)
+
+	if val != expected {
+		t.Fatalf("expected KeyVault value %q, got %q", expected, val)
+	}
 }

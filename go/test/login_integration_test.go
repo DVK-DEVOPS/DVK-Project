@@ -1,7 +1,8 @@
-package handlers
+package test
 
 import (
 	"DVK-Project/db"
+	"DVK-Project/handlers"
 	"DVK-Project/models"
 	"bytes"
 	"database/sql"
@@ -39,7 +40,7 @@ func setupTestDB() *db.UserRepository {
 }
 func TestLoginIntegrationSuccess(t *testing.T) {
 	repo := setupTestDB()
-	lh := &LoginHandler{UserRepository: repo}
+	lh := &handlers.LoginHandler{UserRepository: repo}
 
 	data := "username=test&password=pass"
 	req := httptest.NewRequest("POST", "/api/login", bytes.NewBufferString(data))
@@ -62,7 +63,7 @@ func TestLoginIntegrationSuccess(t *testing.T) {
 
 func TestLoginIntegrationFail(t *testing.T) {
 	repo := setupTestDB()
-	lh := &LoginHandler{UserRepository: repo}
+	lh := &handlers.LoginHandler{UserRepository: repo}
 
 	data := "username=test&password=wrong"
 	req := httptest.NewRequest("POST", "/api/login", bytes.NewBufferString(data))
