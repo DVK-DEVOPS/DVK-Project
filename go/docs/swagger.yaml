@@ -232,6 +232,19 @@ paths:
       summary: Logout
       tags:
       - users
+  /metrics:
+    get:
+      description: retunrs metrics from promhttp
+      produces:
+      - text/html
+      responses:
+        "200":
+          description: Successful
+          schema:
+            $ref: '#/definitions/models.AuthResponse'
+      summary: Metrics
+      tags:
+      - metrics
   /register:
     get:
       description: Show the registration page.
