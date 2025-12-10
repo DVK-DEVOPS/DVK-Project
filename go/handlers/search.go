@@ -96,6 +96,11 @@ func (sc *SearchController) SearchAPI(w http.ResponseWriter, req *http.Request) 
 		"data": results,
 	}
 
+	logging.Log.Info().
+		Str("event", "search_api_performed").
+		Str("query", searchStr).
+		Msg("")
+
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		if hub := sentry.GetHubFromContext(req.Context()); hub != nil {
