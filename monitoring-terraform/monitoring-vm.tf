@@ -32,12 +32,9 @@ resource "azurerm_subnet" "monitoring" {
   address_prefixes     = ["10.1.1.0/24"]
 }
 
-resource "azurerm_public_ip" "monitoring" {
+data "azurerm_public_ip" "monitoring" {
   name                = "pip-monitoring"
-  location            = data.azurerm_resource_group.monitoring.location
   resource_group_name = data.azurerm_resource_group.monitoring.name
-  allocation_method   = "Static"
-  sku                 = "Standard"
 }
 
 # Network Security Group
@@ -116,8 +113,8 @@ resource "azurerm_network_interface" "monitoring" {
   ip_configuration {
     name                          = "internal"
     subnet_id                     = azurerm_subnet.monitoring.id
-    private_ip_address_allocation = "Static"
-    public_ip_address_id          = azurerm_public_ip.monitoring.id
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = data.azurerm_public_ip.monitoring.id
   }
 }
 
@@ -217,7 +214,7 @@ resource "azurerm_virtual_network_peering" "grafana_to_monitoring" {
 }
 
 output "monitoring_vm_public_ip" {
-  value = azurerm_public_ip.monitoring.ip_address
+  value = data.azurerm_public_ip.monitoring.id
 }
 
 output "monitoring_vm_private_ip" {
@@ -225,7 +222,7 @@ output "monitoring_vm_private_ip" {
 }
 
 output "ssh_command" {
-  value = "ssh ${var.admin_username}@${azurerm_public_ip.monitoring.ip_address}"
+  value = "ssh ${var.admin_username}@${data.azurerm_public_ip.monitoring.id}"
 }
 
 output "prometheus_url" {
