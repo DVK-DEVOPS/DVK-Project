@@ -7,13 +7,16 @@ packages:
   - git
   - htop
   - vim
+  - ca-certificates
+  - gnupg
+  - lsb-release
+  - software-properties-common
 
 write_files:
+  # Docker Compose stack
   - path: /opt/monitoring/docker-compose.yml
     permissions: '0644'
     content: |
-      version: '3.8'
-
       services:
         prometheus:
           image: prom/prometheus:latest
@@ -42,8 +45,8 @@ write_files:
           volumes:
             - /opt/monitoring/data/loki:/loki
             - ./loki-config.yaml:/etc/loki/local-config.yaml:ro
-          command: 
-            - -config.file=/etc/loki/local-config.yaml
+          command:
+            - "-config.file=/etc/loki/local-config.yaml"
           networks:
             - monitoring
           restart: unless-stopped
@@ -62,7 +65,7 @@ write_files:
             - /var/run/docker.sock:/var/run/docker.sock:ro
             - /var/log:/var/log:ro
             - alloy-data:/var/lib/alloy
-          command: run --server.http.listen-addr=0.0.0.0:12345 /etc/alloy/config.alloy
+          command: ["run", "--server.http.listen-addr=0.0.0.0:12345", "/etc/alloy/config.alloy"]
           networks:
             - monitoring
           restart: unless-stopped
@@ -74,6 +77,7 @@ write_files:
         monitoring:
           driver: bridge
 
+  # Prometheus config
   - path: /opt/monitoring/prometheus.yml
     permissions: '0644'
     content: |
@@ -83,50 +87,41 @@ write_files:
         external_labels:
           environment: 'production'
           cluster: 'monitoring'
-
       scrape_configs:
-        # Local services on monitoring VM
         - job_name: 'prometheus'
           static_configs:
             - targets: ['localhost:9090']
-
         - job_name: 'loki'
           static_configs:
             - targets: ['loki:3100']
-
-        # App VM services - Prometheus scrapes directly
         - job_name: 'app-node'
           static_configs:
-            - targets: ['${app_vm_ip}:9100']
+            - targets: ['$${app_vm_ip}:9100']
               labels:
                 instance: 'app-vm'
                 environment: 'production'
-
         - job_name: 'app-cadvisor'
           static_configs:
-            - targets: ['${app_vm_ip}:8081']
+            - targets: ['$${app_vm_ip}:8081']
               labels:
                 instance: 'app-vm'
                 environment: 'production'
-
-        # App application metrics (if exposed)
         - job_name: 'whoknows-app'
           static_configs:
-            - targets: ['${app_vm_ip}:8080']
+            - targets: ['$${app_vm_ip}:8080']
               labels:
                 instance: 'app-vm'
                 environment: 'production'
           metrics_path: '/metrics'
 
+  # Loki config
   - path: /opt/monitoring/loki-config.yaml
     permissions: '0644'
     content: |
       auth_enabled: false
-
       server:
         http_listen_port: 3100
         grpc_listen_port: 9096
-
       common:
         path_prefix: /loki
         storage:
@@ -138,7 +133,6 @@ write_files:
           instance_addr: 127.0.0.1
           kvstore:
             store: inmemory
-
       schema_config:
         configs:
           - from: 2020-10-24
@@ -148,81 +142,60 @@ write_files:
             index:
               prefix: index_
               period: 24h
-
       ruler:
         alertmanager_url: http://localhost:9093
-
       limits_config:
         retention_period: 744h
         allow_structured_metadata: false
 
+  # Alloy config
   - path: /opt/monitoring/alloy-config.alloy
     permissions: '0644'
     content: |
-
-      // Collect system logs
       loki.source.file "system" {
         targets = [
-          {
-            __path__ = "/var/log/syslog",
-            job      = "syslog",
-          },
-          {
-            __path__ = "/var/log/auth.log",
-            job      = "auth",
-          },
+          { __path__ = "/var/log/syslog", job = "syslog" },
+          { __path__ = "/var/log/auth.log", job = "auth" },
         ]
         forward_to = [loki.write.local.receiver]
       }
-
-      // Write to local Loki
       loki.write "local" {
-        endpoint {
-          url = "http://loki:3100/loki/api/v1/push"
-        }
-
+        endpoint { url = "http://loki:3100/loki/api/v1/push" }
         external_labels = {
           source      = "monitoring-vm",
           environment = "production",
         }
       }
 
-
 runcmd:
-  # Install Docker
-  - curl -fsSL https://get.docker.com -o /tmp/get-docker.sh
-  - sh /tmp/get-docker.sh
+  # Docker repo & install
+  - mkdir -p /etc/apt/keyrings
+  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+  - chmod a+r /etc/apt/keyrings/docker.gpg
+  - echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable" | tee /etc/apt/sources.list.d/docker.list
+  - apt-get update
+  - apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
   - usermod -aG docker azureuser
   - systemctl enable docker
   - systemctl start docker
 
-  # Install Docker Compose
-  - curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-  - chmod +x /usr/local/bin/docker-compose
-  - ln -sf /usr/local/bin/docker-compose /usr/bin/docker-compose
-
-
-  # Create monitoring directories
-  - mkdir -p /opt/monitoring/data/{prometheus,loki,alloy}
+  # Create monitoring directories with correct permissions
+  - mkdir -p /opt/monitoring/data/prometheus /opt/monitoring/data/loki /opt/monitoring/data/alloy
+  - mkdir -p /opt/monitoring/data/loki/rules /opt/monitoring/data/loki/chunks
   - chown -R 65534:65534 /opt/monitoring/data/prometheus
+  - chmod -R 755 /opt/monitoring/data/prometheus
   - chown -R 10001:10001 /opt/monitoring/data/loki
+  - chmod -R 755 /opt/monitoring/data/loki
+  - chown root:root /opt/monitoring/alloy-config.alloy
+  - chmod 644 /opt/monitoring/alloy-config.alloy
 
-  # Start monitoring stack
-  - cd /opt/monitoring && docker-compose up -d
-
-  # Wait for services to be ready
+  # Start stack
+  - cd /opt/monitoring && docker compose up -d
   - sleep 30
-
-  # Check status
-  - cd /opt/monitoring && docker-compose ps
+  - cd /opt/monitoring && docker compose ps
 
 final_message: |
   Monitoring VM setup complete!
-  Prometheus: http://${monitoring_vm_ip}:9090
-  Loki: http://${monitoring_vm_ip}:3100
-
-  Configure your existing Grafana to use these datasources:
-  - Prometheus: http://${monitoring_vm_ip}:9090
-  - Loki: http://${monitoring_vm_ip}:3100
-
-  The system has rebooted. Docker and monitoring stack are running.
+  Prometheus: http://$${monitoring_vm_ip}:9090
+  Loki: http://$${monitoring_vm_ip}:3100
+  Alloy: http://$${monitoring_vm_ip}:12345
